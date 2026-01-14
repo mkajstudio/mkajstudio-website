@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKAJ Studio Portfolio</title>
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<!-- BOOKING MODAL (POPUP) -->
+<!-- Class 'hidden' bermaksud dia sorok dulu. JS akan buang class ni bila tekan button. -->
+<div id="booking-modal" class="fixed inset-0 z-[60] bg-black/80 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+    
+    <!-- Kotak Putih -->
+    <div class="bg-white rounded-xl w-full max-w-sm p-6 text-center shadow-2xl transform scale-100 transition-transform duration-300">
+        
+        <h3 class="font-serif text-2xl mb-2">Start Your Journey</h3>
+        <p class="text-gray-500 text-sm mb-6">Choose a session to proceed</p>
+        
+        <div class="space-y-3">
+            <!-- Pilihan 1: Event booking -->
+            <a href="booking.html" class="block border border-gray-300 py-4 rounded-lg hover:bg-black hover:text-white hover:border-black transition flex items-center justify-center gap-3">
+                <i class="fas fa-camera"></i>
+                <span class="font-medium">Event(wedding, convo, etc)</span>
+            </a>
+
+            <!-- Pilihan 2: Raya Special -->
+            <a href="raya-2026.html" class="block border border-amber-600 text-amber-700 bg-amber-50 py-4 rounded-lg hover:bg-amber-600 hover:text-white transition font-bold flex items-center justify-center gap-3">
+                <i class="fas fa-moon"></i>
+                <span>Raya 2026 Special</span>
+            </a>
+            <!-- Pilihan 3: Studio Booking -->
+            <a href="booking.html" class="block border border-gray-300 py-4 rounded-lg hover:bg-black hover:text-white hover:border-black transition flex items-center justify-center gap-3">
+                <i class="fas fa-camera"></i>
+                <span>Studio Photoshoot</span>
+            </a>
+        </div>
+
+        <!-- Butang Cancel -->
+        <button onclick="closeBookingModal()" class="mt-6 text-xs text-gray-400 hover:text-red-500 uppercase tracking-widest font-bold">
+            Close
+        </button>
+    </div>
+</div>
+
+<body class="bg-white text-black antialiased">
+
+    <!-- NAVBAR -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 text-white bg-transparent transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-2 group logo-text text-white transition">
+                    <i class="fas fa-camera text-amber-500 text-2xl"></i>
+                    <span class="text-xl font-bold tracking-widest lowercase">mkajstudio<span class="text-amber-500">.co</span></span>
+                </a>
+                
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="index.html" class="hover:text-amber-500 font-medium transition">Home</a>
+                    <a href="#projects" class="hover:text-amber-500 font-medium transition">Featured</a>
+                    <a href="gallery.html" class="hover:text-amber-500 font-medium transition">Full Gallery</a>
+                    <button onclick="showAbout()" class="hover:text-amber-500 font-medium transition focus:outline-none">About Us</button>
+                    <a href="#contact" class="hover:text-amber-500 font-medium transition">Contact</a>
+                    <!-- Update button link ke booking.html -->
+                    <!-- Tukar 'href' jadi 'onclick' dan 'a' jadi 'button' -->
+                    <button id="nav-book-btn" onclick="openBookingModal()" class="border border-white/50 px-6 py-2 rounded-full text-xs font-bold uppercase hover:bg-white hover:text-black transition">
+                        Book Now
+                    </button>
+                </div>
+
+                <div class="flex md:hidden">
+                    <button onclick="toggleMenu()" class="text-2xl focus:outline-none p-2 hover:text-amber-500 transition"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden bg-white text-black border-t border-gray-200 shadow-xl">
+            <div class="px-6 pt-4 pb-8 space-y-3">
+                <a href="index.html" class="block py-2 font-medium border-b border-gray-100">Home</a>
+                <a href="gallery.html" class="block py-2 font-medium border-b border-gray-100">Full Gallery</a>
+                <a href="raya-2026.html" class="block py-2 font-bold !text-amber-600 border-b border-gray-100">Studio Raya 2026</a>
+                <button onclick="showAbout()" class="block w-full text-left py-2 font-medium border-b border-gray-100">About Us</button>
+                <a href="#contact" onclick="toggleMenu()" class="block py-2 font-medium border-b border-gray-100">Contact</a>
+                <!-- Cari dalam div id="mobile-menu" -->
+                <button onclick="openBookingModal()" class="w-full bg-black !text-amber-500 py-3 rounded mt-4 font-bold uppercase shadow-lg border border-gray-800">
+                Book Now
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-bg h-screen flex flex-col justify-center items-center text-center px-4 relative">
+        <div class="relative z-10 text-white max-w-3xl fade-in">
+            <h1 class="font-serif text-5xl md:text-7xl leading-tight mb-6">Art in Every <br> <span class="italic text-amber-500">Frame.</span></h1>
+            <p class="text-gray-200 text-lg font-light mb-10">Crafting timeless visual narratives for modern lovers and creative souls.</p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center w-full max-w-md mx-auto">
+                <a href="#projects" class="border border-white px-8 py-3 rounded-full text-sm font-bold tracking-widest hover:bg-white hover:text-black transition text-center">VIEW PORTFOLIO</a>
+                <a href="raya-2026.html" class="bg-amber-600 border border-amber-600 px-8 py-3 rounded-full text-sm font-bold tracking-widest hover:bg-amber-700 hover:border-amber-700 text-white transition text-center flex items-center justify-center gap-2 shadow-lg"><i class="fas fa-moon"></i> RAYA 2026</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED PROJECTS (Linked to JS Data) -->
+    <section id="projects" class="bg-white py-24 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-16 text-center"> 
+                <h2 class="font-serif text-4xl md:text-5xl text-gray-900 mb-4">Featured Projects</h2>
+                <p class="text-gray-500 leading-relaxed font-light max-w-2xl mx-auto">Select a category to view our exclusive albums.</p>
+            </div>
+
+            <!-- Cards -->
+            
+            <!-- CATEGORY CARDS (Layout Asal + Description Bawah) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+                <!-- 1. WEDDING -->
+                <div class="flex flex-col">
+                    <!-- Kotak Gambar (Link) -->
+                    <a href="gallery.html?cat=wedding" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                        <!-- Gambar Slideshow -->
+                        <img id="cat-img-wedding" src="assets/images/albums/wedding-abu/pic-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+            
+                        <!-- Overlay Gelap & Tajuk Tengah -->
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                            <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Wedding</h3>
+                            <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                        </div>
+                    </a>
+        
+                    <!-- Description di BAWAH Card -->
+                    <div class="text-center mt-4 px-4">
+                        <p id="cat-desc-wedding" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 2. STUDIO -->
+                <div class="flex flex-col">
+                    <a href="gallery.html?cat=studio" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                        <img id="cat-img-studio" src="assets/images/albums/studio-profile/img-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                            <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Studio</h3>
+                            <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                        </div>
+                    </a>
+                    <div class="text-center mt-4 px-4">
+                        <p id="cat-desc-studio" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>
+                <!-- 3. RAYA -->
+                <div class="flex flex-col">
+                    <a href="gallery.html?cat=raya" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                        <img id="cat-img-raya" src="assets/images/albums/raya-razak/raya-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                            <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Raya</h3>
+                            <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                        </div>
+                    </a>
+                    <div class="text-center mt-4 px-4">
+                        <p id="cat-desc-raya" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>  
+                <!-- 4. EVENT -->
+                <div class="flex flex-col">
+                    <a href="gallery.html?cat=event" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                        <img id="cat-img-event" src="assets/images/albums/event-petronas/event-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                            <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Event</h3>
+                            <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                        </div>
+                    </a>
+                    <div class="text-center mt-4 px-4">
+                        <p id="cat-desc-event" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>
+                <!-- 5. CONVO -->
+                <div class="flex flex-col">
+                    <a href="gallery.html?cat=convo" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                        <img id="cat-img-convo" src="assets/images/albums/event-petronas/event-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                            <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Convo</h3>
+                            <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                        </div>
+                    </a>
+                    <div class="text-center mt-4 px-4">
+                        <p id="cat-desc-convo" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION (Hidden by default) -->
+    <section id="about" class="hidden bg-gray-50 py-24 px-6 slide-up border-t border-gray-200">
+        <div class="max-w-6xl mx-auto relative">
+            <button onclick="hideAbout()" class="absolute -top-10 right-0 text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+            <div class="text-center mb-16"><h3 class="font-serif text-4xl mb-4 text-gray-900">About Us</h3><p class="text-gray-600 max-w-2xl mx-auto">We are a collective of storytellers.</p></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 text-center">
+                
+                
+                <!-- Team Member -->
+                <div class="group hover:-translate-y-2 transition duration-300">
+                    <div class="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:border-amber-500 transition">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" class="w-full h-full object-cover">
+                    </div>
+                    <h4 class="font-serif text-xl font-bold mb-1 text-gray-900">MKAJ</h4>
+                    <p class="text-xs text-amber-600 uppercase tracking-widest font-bold mb-3">Lead Photographer</p>
+                    <p class="text-sm text-gray-600 mb-2 italic">"Hi, I see beauty in every detail."</p>
+                    <p class="text-xs text-gray-400 font-serif">~ Capturing souls, not just smiles ~</p></div>
+                <div class="group hover:-translate-y-2 transition duration-300">
+                    <div class="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:border-amber-500 transition">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80" class="w-full h-full object-cover">
+                    </div>
+                    <h4 class="font-serif text-xl font-bold mb-1 text-gray-900">Sarah</h4>
+                    <p class="text-xs text-amber-600 uppercase tracking-widest font-bold mb-3">Senior Photographer</p>
+                    <p class="text-sm text-gray-600 mb-2 italic">"I love natural light."</p>
+                    <p class="text-xs text-gray-400 font-serif">~ Freezing time, one click at a time ~</p>
+                </div>
+                <div class="group hover:-translate-y-2 transition duration-300">
+                    <div class="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:border-amber-500 transition">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&q=80" class="w-full h-full object-cover">
+                    </div><h4 class="font-serif text-xl font-bold mb-1 text-gray-900">Aiman</h4>
+                    <p class="text-xs text-amber-600 uppercase tracking-widest font-bold mb-3">Cinematographer</p>
+                    <p class="text-sm text-gray-600 mb-2 italic">"Motion brings memories to life."</p>
+                    <p class="text-xs text-gray-400 font-serif">~ Visual poetry in motion ~</p>
+                </div>
+                <div class="group hover:-translate-y-2 transition duration-300">
+                    <div class="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:border-amber-500 transition">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80" class="w-full h-full object-cover">
+                    </div><h4 class="font-serif text-xl font-bold mb-1 text-gray-900">Lina</h4>
+                    <p class="text-xs text-amber-600 uppercase tracking-widest font-bold mb-3">Lead Editor</p>
+                    <p class="text-sm text-gray-600 mb-2 italic">"Perfecting every color."</p>
+                    <p class="text-xs text-gray-400 font-serif">~ Where colors meet emotions ~</p>
+                </div>
+                <!-- Tambah lagi team member di sini -->
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="bg-black text-white py-24 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h3 class="font-serif text-4xl md:text-5xl mb-6">Get in Touch</h3>
+            <p class="text-gray-400 text-lg italic max-w-2xl mx-auto mb-12 leading-relaxed">"Every picture tells a story, let us help you write yours."</p>
+            <div class="flex justify-center gap-10 mb-12"><a href="https://www.instagram.com/mkajstudio.co/" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-instagram text-5xl"></i></a><a href="https://www.tiktok.com/@mkajstudio.co" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-tiktok text-5xl"></i></a><a href="https://www.facebook.com/p/mkajstudioco-100064855561964/" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-facebook text-5xl"></i></a></div>
+            <div class="space-y-4 text-gray-300 text-base">
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-envelope text-amber-500"></i>
+                    <a href="mailto:hello@mkajstudio.co">mkajstudio.co@gmail.com</a>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-phone text-amber-500"></i>
+                    <a href="tel:+60147299454">+60147299454</a>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-8 text-center text-gray-600 text-xs border-t border-gray-900">
+        &copy; 2026 MKAJ Studio. All rights reserved.
+    </footer>
+
+    <!-- WHATSAPP FLOATING BUTTON -->
+    <div class="fixed bottom-8 right-8 z-40">
+        <a href="https://wa.me/60147299454" class="bg-black text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition border border-gray-800 hover:border-amber-500 pulse-gold">
+            <i class="fab fa-whatsapp text-3xl"></i>
+        </a>
+    </div>
+
+    <!-- BOOKING MODAL (Pop-up) -->
+    <div id="booking-modal" class="fixed inset-0 z-[60] bg-black/80 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 text-center shadow-2xl">
+            <h3 class="font-serif text-2xl mb-4">Select Service</h3>
+            <div class="space-y-3">
+                <a href="booking.html" class="block border border-gray-300 py-3 rounded hover:bg-black hover:text-white transition">General Booking</a>
+                <a href="raya-2026.html" class="block border border-green-500 text-green-700 py-3 rounded hover:bg-green-600 hover:text-white transition font-bold"><i class="fas fa-moon mr-2"></i> Raya 2026 Special</a>
+            </div>
+            <button onclick="closeBookingModal()" class="mt-6 text-sm underline text-gray-500 hover:text-black">Cancel</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="assets/js/data.js"></script> <!-- Load data dulu -->
+    <script src="assets/js/main.js"></script> <!-- Load logic kemudian -->
+</body>
+</html>

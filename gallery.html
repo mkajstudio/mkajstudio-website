@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Collections | MKAJ Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-white text-black antialiased flex flex-col min-h-screen">
+
+    <!-- NAVBAR FIXED -->
+    <nav class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-2">
+                    <i class="fas fa-camera text-amber-600 text-xl"></i>
+                    <span class="text-lg font-bold tracking-widest lowercase">mkajstudio<span class="text-amber-600">.co</span></span>
+                </a>
+                <button onclick="handleBack()" class="text-sm font-medium hover:text-amber-600 flex items-center gap-2 transition">
+                    <i class="fas fa-arrow-left"></i> <span id="back-btn-text">Back Home</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 flex-grow px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Breadcrumb Navigation -->
+            <div id="breadcrumb" class="mb-8 text-sm text-gray-500 font-medium hidden flex items-center gap-2">
+                <span class="cursor-pointer hover:text-black transition" onclick="showCategories()">Collections</span>
+                <span id="bc-sep-1" class="text-gray-300 hidden">/</span>
+                <span id="bc-category" class="cursor-pointer hover:text-amber-600 transition uppercase hidden font-bold" onclick="handleBackToAlbums()"></span>
+                <span id="bc-sep-2" class="text-gray-300 hidden">/</span>
+                <span id="bc-album" class="text-black hidden"></span>
+            </div>
+
+            <!-- LEVEL 1: CATEGORIES -->
+            <div id="view-categories" class="view-section active-view">
+                <div class="text-center mb-16">
+                    <h1 class="font-serif text-4xl md:text-5xl mb-4">Browse Collections</h1>
+                    <p class="text-gray-500 max-w-lg mx-auto">Explore our portfolio by category.</p>
+                </div>
+                <!-- CATEGORY CARDS (Featured Projects) -->
+
+                <!-- CATEGORY CARDS (Layout Asal + Description Bawah) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+                    <!-- 1. WEDDING -->
+                    <div class="flex flex-col">
+                        <!-- Kotak Gambar (Link) -->
+                        <a href="gallery.html?cat=wedding" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                            <!-- Gambar Slideshow -->
+                            <img id="cat-img-wedding" src="assets/images/albums/wedding-abu/pic-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+            
+                            <!-- Overlay Gelap & Tajuk Tengah -->
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                                <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Wedding</h3>
+                                <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                            </div>
+                        </a>
+        
+                        <!-- Description di BAWAH Card -->
+                        <div class="text-center mt-4 px-4">
+                            <p id="cat-desc-wedding" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                                Loading description...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. STUDIO -->
+                    <div class="flex flex-col">
+                        <a href="gallery.html?cat=studio" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                            <img id="cat-img-studio" src="assets/images/albums/studio-profile/img-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                                <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Studio</h3>
+                                <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                            </div>
+                        </a>
+                        <div class="text-center mt-4 px-4">
+                            <p id="cat-desc-studio" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                                Loading description...
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 3. RAYA -->
+                    <div class="flex flex-col">
+                        <a href="gallery.html?cat=raya" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                            <img id="cat-img-raya" src="assets/images/albums/raya-razak/raya-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                                <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Raya</h3>
+                                <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                            </div>
+                        </a>
+                        <div class="text-center mt-4 px-4">
+                            <p id="cat-desc-raya" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                                Loading description...
+                            </p>
+                        </div>
+                    </div>  
+                    <!-- 4. EVENT -->
+                    <div class="flex flex-col">
+                        <a href="gallery.html?cat=event" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                            <img id="cat-img-event" src="assets/images/albums/event-petronas/event-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                                <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Event</h3>
+                                <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                            </div>
+                        </a>
+                        <div class="text-center mt-4 px-4">
+                            <p id="cat-desc-event" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                                Loading description...
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 5. CONVO -->
+                    <div class="flex flex-col">
+                        <a href="gallery.html?cat=convo" class="group relative h-[400px] overflow-hidden rounded-lg shadow-lg cursor-pointer block">
+                            <img id="cat-img-convo" src="assets/images/albums/event-petronas/event-1.webp" class="autoplay-img w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition flex flex-col items-center justify-center text-white">
+                                <h3 class="font-serif text-5xl italic shadow-black drop-shadow-lg">Convo</h3>
+                                <span class="text-xs uppercase tracking-widest mt-3 border-b border-transparent group-hover:border-white transition">View Albums</span>
+                            </div>
+                        </a>
+                        <div class="text-center mt-4 px-4">
+                            <p id="cat-desc-convo" class="text-gray-500 font-serif italic text-sm md:text-base leading-relaxed">
+                                Loading description...
+                            </p>
+                        </div>
+                    </div>
+                </div>  
+                </div>  
+            </div>
+
+            </div>
+
+            <!-- LEVEL 2: ALBUMS (Populated by JS) -->
+            <div id="view-albums" class="view-section hidden-view">
+                <div class="mb-10 text-center border-b border-gray-100 pb-8">
+                    <span class="text-amber-600 text-xs font-bold tracking-[0.2em] uppercase">Category</span>
+                    <h2 id="category-title" class="font-serif text-4xl mt-2 capitalize"></h2>
+                </div>
+                <div id="albums-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+
+            <!-- LEVEL 3: PHOTOS (Populated by JS) -->
+            <div id="view-photos" class="view-section hidden-view">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-gray-100 pb-6 gap-4">
+                    <div>
+                        <h2 id="album-title" class="font-serif text-3xl md:text-4xl mb-2"></h2>
+                        <p id="album-meta" class="text-sm text-gray-500 flex items-center gap-2"><i class="fas fa-map-marker-alt text-amber-600"></i> <span id="album-location"></span></p>
+                    </div>
+                </div>
+                <div id="photos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="fixed inset-0 hidden flex items-center justify-center p-4 backdrop-blur-sm touch-none">
+        <button id="lightbox-close" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition">&times;</button>
+        <button id="lightbox-prev" class="absolute left-2 md:left-8 text-white text-4xl p-4 hover:text-gray-300 transition hidden md:block">&#10094;</button>
+        <img id="lightbox-img" src="" class="max-h-[85vh] max-w-[95vw] rounded shadow-2xl object-contain select-none">
+        <button id="lightbox-next" class="absolute right-2 md:right-8 text-white text-4xl p-4 hover:text-gray-300 transition hidden md:block">&#10095;</button>
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white text-sm tracking-widest font-light bg-black/50 px-4 py-1 rounded-full"><span id="lb-current">1</span> / <span id="lb-total">10</span></div>
+    </div>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="bg-black text-white py-24 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h3 class="font-serif text-4xl md:text-5xl mb-6">Get in Touch</h3>
+            <p class="text-gray-400 text-lg italic max-w-2xl mx-auto mb-12 leading-relaxed">"Every picture tells a story, let us help you write yours."</p>
+            <div class="flex justify-center gap-10 mb-12"><a href="https://www.instagram.com/mkajstudio.co/" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-instagram text-5xl"></i></a><a href="https://www.tiktok.com/@mkajstudio.co" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-tiktok text-5xl"></i></a><a href="https://www.facebook.com/p/mkajstudioco-100064855561964/" class="text-white hover:text-amber-500 transition duration-300 transform hover:scale-110"><i class="fab fa-facebook text-5xl"></i></a></div>
+            <div class="space-y-4 text-gray-300 text-base">
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-envelope text-amber-500"></i>
+                    <a href="mailto:hello@mkajstudio.co">mkajstudio.co@gmail.com</a>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-phone text-amber-500"></i>
+                    <a href="tel:+60147299454">+60147299454</a>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    <!-- FOOTER -->
+    <footer class="bg-black py-8 text-center text-gray-600 text-xs border-t border-gray-900">
+        &copy; 2026 MKAJ Studio. All rights reserved.
+    </footer>
+
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

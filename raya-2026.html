@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Raya 2026 | MKAJ Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- SWIPER CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-white text-black antialiased font-inter">
+
+    <!-- NAVBAR -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 text-white bg-transparent transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-2 group logo-text text-white transition">
+                    <i class="fas fa-camera text-amber-500 text-2xl"></i>
+                    <span class="text-xl font-bold tracking-widest lowercase">mkajstudio<span class="text-amber-500">.co</span></span>
+                </a>
+            <a href="index.html" class="text-sm font-medium hover:text-amber-500">&larr; Back Home</a>
+        </div>
+    </nav>
+
+    <!-- 1. HERO RAYA -->
+    <section class="relative h-screen flex flex-col justify-center items-center text-center px-4 overflow-hidden">
+    
+        <!-- 1. SLIDESHOW CONTAINER (Background) -->
+        <!-- JS akan masukkan gambar ke sini -->
+        <div id="raya-hero-slides" class="absolute inset-0 w-full h-full z-0">
+            <!-- Overlay Gelap (Supaya text nampak) -->
+            <div class="absolute inset-0 bg-black/40 z-10"></div>
+        </div>
+
+        <!-- 2. CONTENT (Text & Button Book) -->
+        <div class="relative z-20 text-white max-w-4xl fade-in">
+            <p class="text-amber-400 text-sm tracking-[0.3em] uppercase mb-4">Aidilfitri Special</p>
+            <h1 class="font-serif text-5xl md:text-7xl leading-tight mb-6">Studio Raya <br> <span class="italic text-amber-500">2026</span></h1>
+            <p class="text-gray-200 text-lg font-light mb-10 max-w-xl mx-auto">Celebrate the bond of kinship. Create timeless family heirlooms.</p>
+            <a href="#raya-themes" class="bg-amber-600 border border-amber-600 text-white px-10 py-4 rounded-full text-sm font-bold tracking-widest hover:bg-transparent hover:text-white transition">BOOK RAYA SLOT</a>
+        </div>
+
+        <!-- 3. NAVIGATION BUTTONS (Next / Prev) -->
+        <!-- Button Kiri -->
+        <button onclick="prevRayaSlide()" class="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white hover:bg-black/30 p-4 rounded-full transition duration-300">
+            <i class="fas fa-chevron-left text-2xl md:text-4xl"></i>
+        </button>
+    
+        <!-- Button Kanan -->
+        <button onclick="nextRayaSlide()" class="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-30 text-white/50 hover:text-white hover:bg-black/30 p-4 rounded-full transition duration-300">
+            <i class="fas fa-chevron-right text-2xl md:text-4xl"></i>
+        </button>
+    
+        <!-- 4. INDICATORS (Titik-titik bawah) -->
+        <div id="raya-indicators" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-3">
+            <!-- JS akan generate titik di sini -->
+        </div>
+
+    </section>
+
+    <!-- 2. THEMES SWIPER (CARD STACK) -->
+    <section id="raya-themes" class="py-20 bg-amber-50 overflow-hidden relative">
+        <div class="text-center mb-10 px-4">
+            <h2 class="font-serif text-4xl mb-3 text-amber-950">Pilih Suasana Raya</h2>
+            <p class="text-gray-500">Tap kad untuk lihat butiran.</p>
+        </div>
+
+        <!-- SWIPER CONTAINER -->
+        <div class="swiper themeSwiper w-[300px] h-[450px] md:w-[380px] md:h-[550px]">
+            <div class="swiper-wrapper">
+                
+                <!-- Slide Velvet -->
+                <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('velvet')">
+                    <img src="assets/images/themes/royale-velvet.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-green-400 text-xs tracking-widest uppercase font-bold mb-1">Family (Up to 20 pax)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Elegance & Luxury</p><h3 class="font-serif text-3xl italic">Royale Velvet</h3></div>
+                    </div>
+                </div>
+
+                <!-- Slide White -->
+                <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('white')">
+                    <img src="assets/images/themes/whisper-white.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-green-400 text-xs tracking-widest uppercase font-bold mb-1">Family (Up to 20 pax)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Pure & Timeless</p><h3 class="font-serif text-3xl italic">Whisper White</h3></div>
+                    </div>
+                </div>
+
+                <!-- Slide Hening -->
+                <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('hening')">
+                    <img src="assets/images/themes/hening-rindu.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-green-400 text-xs tracking-widest uppercase font-bold mb-1">Family (Up to 20 pax)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Nostagia & Warmth</p><h3 class="font-serif text-3xl italic">Hening Rindu</h3></div>
+                    </div>
+                </div>
+
+                <!-- Slide Qalbu -->
+                <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('hening')">
+                    <img src="assets/images/themes/noor-qalbu.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-green-400 text-xs tracking-widest uppercase font-bold mb-1">Family (Up to 20 pax)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Radiance & Grace</p><h3 class="font-serif text-3xl italic">Noor Qalbu</h3></div>
+                    </div>
+                </div>
+
+                <!-- Slide Couple 1 -->
+                <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('midnight')">
+                    <img src="assets/images/themes/midnight-luxury.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-pink-400 text-xs tracking-widest uppercase font-bold mb-1">Couple (2 dewasa & 2 kanak-kanak)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Romance & Intimacy</p><h3 class="font-serif text-3xl italic">Midnight Luxury</h3></div>
+                    </div>
+                </div>
+
+                 <!-- Slide Couple 2 -->
+                 <div class="swiper-slide rounded-2xl shadow-xl overflow-hidden cursor-pointer group" onclick="openThemeDetails('secret')">
+                    <img src="assets/images/themes/secret-garden.webp" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-8">
+                        <div class="text-white text-left"><p class="text-pink-400 text-xs tracking-widest uppercase font-bold mb-1">Couple (2 dewasa & 2 kanak-kanak)</p><p class="text-amber-400 text-xs tracking-widest uppercase font-bold mb-1">Natural & Love</p><h3 class="font-serif text-3xl italic">Secret Garden</h3></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    
+ 
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-8 text-center text-gray-600 text-xs border-t border-gray-900">
+        &copy; 2026 MKAJ Studio. All rights reserved.
+    </footer>
+
+    <!-- ========== MODAL 1: THEME DETAILS ========== -->
+    <div id="theme-detail-modal" class="fixed inset-0 z-[80] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] md:h-auto md:aspect-video rounded-xl overflow-hidden flex flex-col md:flex-row relative shadow-2xl">
+            <!-- Close Btn -->
+            <button onclick="closeThemeModal()" class="absolute top-3 right-3 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 text-black hover:bg-red-100 transition shadow-lg">
+                <i class="fas fa-times"></i>
+            </button>
+            <!-- Left Img -->
+            <!-- GANTI BAHAGIAN 'LEFT IMG' DENGAN KOD INI -->
+
+            <div class="w-full h-60 md:w-1/2 md:h-auto bg-gray-900 relative shrink-0 group">
+    
+                <!-- Swiper Container untuk Modal -->
+                <div class="swiper modalSwiper w-full h-full">
+                    <div class="swiper-wrapper" id="th-modal-slides-container">
+                        <!-- JS akan masukkan gambar di sini secara automatik -->
+                    </div>
+        
+                    <!-- Navigation Buttons (Arrows) -->
+                    <div class="swiper-button-next text-white scale-75 md:scale-100 opacity-0 group-hover:opacity-100 transition"></div>
+                    <div class="swiper-button-prev text-white scale-75 md:scale-100 opacity-0 group-hover:opacity-100 transition"></div>
+                    <!-- Pagination (Titik) -->
+                    <div class="swiper-pagination"></div>
+                </div>
+
+            </div>
+            <!-- KANAN MODAL (Simple Scroll Layout) -->
+            <div class="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto bg-white text-left relative flex flex-col min-h-full">
+    
+                <!-- Kategori Badge -->
+                <div id="th-cat-badge" class="inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 w-max border">
+                    CATEGORY
+                </div>
+
+                <!-- Title & Desc -->
+                <h2 id="th-modal-title" class="font-serif text-3xl md:text-4xl mb-4 leading-tight text-black">Theme Title</h2>
+                <p id="th-modal-desc" class="text-gray-600 text-sm leading-relaxed mb-6">Description...</p>
+    
+                <!-- Info Senarai (Compact Box) -->
+                <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Apa anda dapat:</h4>
+                    <!-- Grid 1 column mobile, 2 column pc supaya jimat ruang -->
+                    <ul id="th-modal-inclusions" class="grid grid-cols-1 gap-2">
+                        <!-- JS Masukkan List Sini -->
+                    </ul>
+                </div>
+    
+                <!-- Spacer supaya tolak button ke bawah sikit kalau content sikit -->
+                <div class="mt-auto"></div>
+
+                <!-- Harga & Butang (Normal Flow) -->
+                <div class="pt-6 border-t border-gray-100">
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Harga Booking</p>
+                            <p id="th-modal-price-tag" class="text-3xl font-serif font-bold text-gray-900">RM 0</p> 
+                        </div>
+                        <div class="text-right">
+                            <p id="th-modal-pax-info" class="text-xs font-bold text-gray-500">...</p>
+                        </div>
+                    </div>
+
+                    <button onclick="bookCurrentTheme()" class="w-full bg-amber-300 text-amber-700 py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-amber-200 transition flex justify-center gap-2">
+                        <span>PILIH TEMA INI</span> <i class="fas fa-check mt-0.5"></i>
+                    </button>
+
+                    <div class="text-center pt-3">
+                        <button onclick="closeThemeModal()" class="text-xs text-gray-400 hover:text-black border-b border-transparent hover:border-black transition">Kembali ke Pilihan Tema</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL 2: BOOKING WIZARD ========== -->
+    <div id="booking-wizard" class="fixed inset-0 z-[100] bg-black/90 hidden overflow-y-auto backdrop-blur-sm">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative">
+                
+                <button onclick="closeWizard()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 z-50"><i class="fas fa-times text-2xl"></i></button>
+
+                <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-center">
+                    <div class="text-sm font-bold text-amber-700">Studio Raya by mkajstudio</div>
+                    <div class="flex gap-2">
+                        <span id="step-dot-1" class="w-2 h-2 rounded-full bg-amber-600"></span>
+                        <span id="step-dot-2" class="w-2 h-2 rounded-full bg-gray-300"></span>
+                        <span id="step-dot-3" class="w-2 h-2 rounded-full bg-gray-300"></span>
+                        <span id="step-dot-4" class="w-2 h-2 rounded-full bg-gray-300"></span>
+                    </div>
+                </div>
+
+                <form id="mkaj-booking-form" onsubmit="return false;" class="p-6 md:p-8">
+                    <!-- UPDATE STEP 1: TAMBAH BACK BUTTON & CHECK INPUT -->
+                    <div id="step-1" class="step-content fade-in">
+                        <h3 class="font-serif text-2xl mb-4">Butiran Anda</h3>
+                        <div class="space-y-4">
+                            <!-- Input ini yang sebelum ni tak keluar tulisan -->
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pakej Pilihan</label>
+                            <input type="text" id="bk-package" class="w-full bg-amber-50 border border-amber-200 p-3 rounded font-bold text-amber-800 uppercase tracking-wide cursor-not-allowed shadow-inner" readonly>
+        
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1 mt-4">Nama Penuh</label>
+                            <input type="text" id="bk-name" placeholder="Isi nama penuh..." class="w-full border p-3 rounded" required>
+        
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- UPDATE BAHAGIAN INPUT PHONE DI STEP 1 -->
+
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Telefon (WhatsApp)</label>
+    
+                                    <div class="relative">
+                                        <!-- Text Statik +6 -->
+                                        <span class="absolute left-3 top-3.5 text-gray-500 font-bold border-r pr-2 select-none">+6</span>
+        
+                                        <!-- Input User (Kita padding kiri supaya tak bertindih dengan +6) -->
+                                        <input type="tel" id="bk-phone" placeholder="0123456789" class="w-full border p-3 pl-14 rounded" required>
+                                    </div>
+    
+                                    <p class="text-[10px] text-gray-400 mt-1">* Pastikan nombor betul.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Email</label>
+                                    <input type="email" id="bk-email" placeholder="Email (Pilihan)" class="w-full border p-3 rounded">
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- BUTTONS: ADA 'BATAL' & 'NEXT' -->
+                        <div class="mt-8 flex justify-between items-center">
+                            <button onclick="closeWizard()" class="text-gray-400 text-sm hover:text-red-500 flex items-center gap-2 px-2">
+                                <i class="fas fa-times"></i> Batal / Tutup
+                            </button>
+                            <button onclick="nextStep(2)" class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-amber-600 transition shadow-lg">
+                                Seterusnya &rarr;
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Slot -->
+                    <div id="step-2" class="hidden step-content fade-in">
+                        <h3 class="font-serif text-2xl mb-4">Pilih Masa</h3>
+                        <div class="space-y-4">
+                            <!-- DALAM HTML STEP 2 - UPDATE BAHAGIAN TEMA -->
+                            <div>
+                                <label class="text-xs uppercase font-bold text-gray-500">Tema Pilihan</label>
+    
+                                <!-- Theme Readonly Display (Sebab user dah pilih) -->
+                                <!-- Dropdown sorok sikit atau disable -->
+                                <select id="bk-theme" class="w-full border p-3 rounded font-bold bg-white text-black" onchange="checkThemeType()">
+                                <!-- JS Akan isi -->
+                                </select>
+    
+                                <!-- CATEGORY LABEL DI BAWAH (Dynamic) -->
+                                <p id="bk-cat-label" class="text-[10px] font-bold mt-1 tracking-widest uppercase text-gray-400">Loading category...</p>
+                            </div>
+                            <!-- DALAM STEP 2 -->
+                            <div>
+                                <label class="text-xs uppercase font-bold text-gray-500">Tarikh (Musim Raya Sahaja)</label>
+    
+                                <input type="date" id="bk-date" class="w-full border p-3 rounded" onchange="checkAvailability()">
+    
+                                <!-- MESEJ ERROR TARIKH SALAH (YG KITA DAH BUAT) -->
+                                <p id="date-error-msg" class="text-xs text-red-600 font-bold mt-1 hidden"></p>
+
+                                <!-- !!! TAMBAH INI: MESEJ SURCAJ !!! -->
+                                <p id="peak-date-msg" class="text-xs text-amber-600 font-bold mt-2 hidden bg-amber-50 p-2 rounded border border-amber-200">
+                                    🔥 Tarikh ini adalah Hari Raya 1-3 (Surcaj RM<span id="ui-surcharge-amt">0</span>)
+                                </p>
+                            </div>
+                            <div>
+                                <label class="text-xs uppercase font-bold text-gray-500">Masa (15 Min Slot)</label>
+                                <div id="time-loader" class="hidden text-amber-600 text-xs italic">Semak kekosongan...</div>
+                                <div id="time-slots-container" class="grid grid-cols-4 gap-2 text-sm">
+                                    <div class="col-span-4 py-4 text-center bg-gray-50 text-gray-400">Pilih tarikh dahulu.</div>
+                                </div>
+                                <input type="hidden" id="bk-time">
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-between">
+                            <button onclick="nextStep(1)" class="text-gray-400 text-sm">Kembali</button>
+                            <button id="btn-step-2" onclick="nextStep(3)" class="bg-black text-white px-8 py-3 rounded font-bold disabled:bg-gray-300" disabled>Next</button>
+                        </div>
+                    </div>
+
+                    <!-- GANTI STEP 3 INI (FOKUS PAX SAHAJA) -->
+                    <div id="step-3" class="hidden step-content fade-in">
+                        <h3 class="font-serif text-2xl mb-2">Berapa Ramai?</h3>
+                        <p class="text-gray-500 text-sm mb-6">Sila masukkan jumlah kehadiran.</p>
+    
+                        <!-- Info Box Constraint -->
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-6 flex gap-3 items-start">
+                            <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                            <div>
+                                <p id="pax-warning" class="text-xs font-bold text-blue-800">Loading limit info...</p>
+                                <p class="text-[10px] text-blue-600/80">Kanak-kanak < 7 Tahun Percuma.</p>
+                            </div>
+                        </div>
+
+                        <!-- Kaunter -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6">
+                            <!-- Dewasa -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-lg">Dewasa</p>
+                                    <p class="text-xs text-gray-400">Termasuk remaja</p>
+                                </div>
+                                <div class="flex items-center gap-3 bg-gray-100 rounded-full p-1">
+                                    <button type="button" onclick="updatePax('adult', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold hover:scale-90 transition">-</button>
+                                    <span id="bk-pax-adult" class="text-xl font-bold w-8 text-center">0</span>
+                                    <button type="button" onclick="updatePax('adult', 1)" class="w-10 h-10 bg-black text-white shadow rounded-full font-bold hover:scale-110 transition">+</button>
+                                </div>
+                            </div>
+                            <!-- Budak -->
+                            <div class="flex items-center justify-between border-t border-dashed pt-4">
+                                <div>
+                                    <p class="font-bold text-lg">Kanak-kanak</p>
+                                    <p class="text-xs text-green-600 font-bold">PERCUMA</p>
+                                </div>
+                                <div class="flex items-center gap-3 bg-gray-100 rounded-full p-1">
+                                    <button type="button" onclick="updatePax('kid', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold hover:scale-90 transition">-</button>
+                                    <span id="bk-pax-kid" class="text-xl font-bold w-8 text-center">0</span>
+                                    <button type="button" onclick="updatePax('kid', 1)" class="w-10 h-10 bg-black text-white shadow rounded-full font-bold hover:scale-110 transition">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Nav -->
+                        <div class="mt-8 flex justify-between items-center">
+                            <button onclick="nextStep(2)" class="text-gray-400 text-sm hover:text-black">Kembali</button>
+                            <div class="text-right">
+                                <!-- Harga Live Kecil -->
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Base Price</p>
+                                <p class="font-serif text-xl font-bold text-amber-600 mb-2">RM <span id="bk-total-step3">0</span></p>
+                                <button onclick="nextStep(4)" class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition">Checkout &rarr;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GANTI STEP 4 INI (ADDON + PAYMENT + REVIEW) -->
+                    <div id="step-4" class="hidden step-content fade-in pb-10">
+                        <h3 class="font-serif text-2xl mb-4">Langkah Terakhir</h3>
+
+                        <!-- Cari checkbox add-on di Step 4 HTML -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Makeup (Kekal, cuma pastikan text +150) -->
+                            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-400 transition select-none">
+                                <input type="checkbox" value="Makeup (+RM150)" class="bk-addon w-5 h-5 accent-amber-600" onchange="calculateTotal()">
+                                <div class="text-sm">
+                                    <span class="block font-bold">Makeup</span>
+                                    <span class="text-xs text-amber-600 font-bold">+ RM 150</span>
+                                </div>
+                            </label>
+                            <!-- RAW DITUKAR KE FRAME -->
+                            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-400 transition select-none">
+                                <!-- Tukar value RawFiles ke Frame -->
+                                <input type="checkbox" value="Frame (+RM120)" class="bk-addon w-5 h-5 accent-amber-600" onchange="calculateTotal()">
+                                <div class="text-sm">
+                                    <span class="block font-bold">Exclusive Frame</span>
+                                    <span class="text-xs text-amber-600 font-bold">+ RM 120</span>
+                                </div>
+                            </label>
+                        </div>
+                        <!-- 2. SUMMARY CARD -->
+                        <div class="bg-amber-50 rounded-xl p-5 mb-6 border border-amber-100 shadow-inner relative">
+                            <div class="absolute top-4 right-4 text-right">
+                                <p class="text-[10px] uppercase text-amber-700/50 font-bold">Grand Total</p>
+                                <h2 class="text-3xl font-serif font-bold text-amber-700">RM <span id="bk-total-final">0</span></h2>
+                            </div>
+        
+                            <div class="space-y-1 text-sm pr-20">
+                                <p class="font-bold text-lg" id="rev-name">User Name</p>
+                                
+                                <p><i class="far fa-calendar text-amber-600 w-5"></i> <span id="rev-datetime">...</span></p>
+                                <p><i class="fas fa-camera text-amber-600 w-5"></i> <span id="rev-theme">...</span></p>
+                                <p id="row-addons" class="hidden text-amber-700 font-bold bg-amber-50 p-1 rounded text-xs border border-amber-200 mt-1 mb-1">
+                                    <i class="fas fa-plus-circle w-5"></i> <span id="rev-addons">...</span>
+                                </p>
+                                <p><i class="fas fa-box text-amber-600 w-5"></i> <span id="rev-package">...</span></p>
+                                <p><i class="fas fa-users text-amber-600 w-5"></i> <span id="rev-pax">...</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 3. PILIHAN BAYARAN -->
+                        <div class="mb-8">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase mb-3 border-b pb-1">Cara Pembayaran</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Deposit -->
+                                <button onclick="setPaymentType('deposit')" id="pay-opt-deposit" class="relative group p-4 border rounded-xl text-center hover:border-amber-500 transition">
+                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-gray-300" id="chk-deposit"></div>
+                                    <p class="text-xs font-bold text-gray-400 mb-1">DEPOSIT</p>
+                                        <p class="text-2xl font-bold font-serif">RM 50</p>
+                                </button>
+                                <!-- Full -->
+                                <button onclick="setPaymentType('full')" id="pay-opt-full" class="relative group p-4 border rounded-xl text-center hover:border-amber-500 transition">
+                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-gray-300" id="chk-full"></div>
+                                    <p class="text-xs font-bold text-gray-400 mb-1">FULL PAYMENT</p>
+                                    <p class="text-2xl font-bold font-serif">RM <span id="lbl-full-amt">0</span></p>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4. SUBMIT ACTION -->
+                        <div class="flex items-center gap-4 border-t pt-4">
+                            <button onclick="nextStep(3)" class="text-gray-400 text-xs uppercase font-bold tracking-widest hover:text-black">Ubah Detail</button>
+                            <button id="btn-confirm-wa" onclick="submitBooking()" class="flex-grow bg-green-500 text-white py-4 rounded-xl font-bold shadow-xl shadow-green-200 hover:bg-green-600 hover:scale-[1.02] transition flex items-center justify-center gap-2">
+                                <span>Sahkan & WhatsApp</span> <i class="fab fa-whatsapp text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/booking.js"></script>
+    <script src="assets/js/main.js"></script>
+
+</body>
+</html>
