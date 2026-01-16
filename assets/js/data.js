@@ -339,6 +339,10 @@ const tncList = [
         desc: "Bilangan peserta ikut had kategori (Family/Couple). Peserta tambahan dikenakan caj sebanyak RM10 setiap peserta."
     },
     {
+        title: "Peralatan & Kerosakan",
+        desc: "Sebarang kerosakan pada peralatan studio atau harta benda akibat kecuaian peserta akan dikenakan caj ganti rugi."
+    },
+    {
         title: "Caj Tambahan Hari Raya",
         desc: "Bagi tempahan pada hari raya(1,2,3 Syawal), caj tambahan RM10 dikenakan untuk setiap sesi."
     },
@@ -396,6 +400,7 @@ const faqList = [
     {
         category: "Hasil Gambar",
         content: [
+            { q: "Gambar nanti bagi macam mana?", a: "Gambar akan dihantar dalam format digital (JPG) melalui google drive." },
             { q: "Bila siap?", a: "Anggaran 2-3 Hari bekerja" },
             { q: "Gambar siap edit ke?", a: "Ya, semua gambar telah diedit(basic edit)." }
         ]
