@@ -198,15 +198,16 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Elegance & Luxury.",
         desc: "Set mewah dengan latar belakang velvet. Sesuai untuk baju raya berwarna gelap dan mewah.",
-        images: ["assets/images/themes/royale-velvet.webp",
-                "assets/images/themes/royale-velvet.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ], // Tukar nama fail sebenar
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting",
             "Semua Gambar (Softcopy)",
             "Percuma Basic Editing",
-            "Cover 6 Dewasa"
+            "Cover 6 Dewasa",
+            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
         ]
     },
     'white': {
@@ -218,15 +219,16 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Pure & Timeless.",
         desc: "Latar belakang serba putih dengan prop minimalis. Sesuai untuk baju raya moden dan kontemporari.",
-        images: ["assets/images/themes/whisper-white.webp",
-                "assets/images/themes/whisper-white.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting",
             "Semua Gambar (Softcopy)",
             "Percuma Basic Editing",
-            "Cover 6 Dewasa"
+            "Cover 6 Dewasa",
+            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
         ]
     },
     'hening': {
@@ -238,15 +240,16 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Nostalgia & Warmth.",
         desc: "Set kampung tradisional dengan elemen kayu dan anyaman. Sesuai untuk baju raya klasik dan tradisional.",
-        images: ["assets/images/themes/hening-rindu.webp",
-                "assets/images/themes/hening-rindu.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting",
             "Semua Gambar (Softcopy)",
             "Percuma Basic Editing",
-            "Cover 6 Dewasa"
+            "Cover 6 Dewasa",
+            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
         ]
     },
     'qalbu': {
@@ -258,15 +261,16 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Radiance & Grace.",
         desc: "Set ala timur tengah dengan elemen seni Islamik. Sesuai untuk baju raya berinspirasikan Arab dan moden.",
-        images: ["assets/images/themes/noor-qalbu.webp",
-                "assets/images/themes/noor-qalbu.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting",
             "Semua Gambar (Softcopy)",
             "Percuma Basic Editing",
-            "Cover 6 Dewasa"
+            "Cover 6 Dewasa",
+            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
         ]
     },
 
@@ -280,8 +284,8 @@ const rayaThemesDetail = {
         paxCover: 4, // Base cover 2 Dewasa
         tagline: "Romance & Intimacy.",
         desc: "Tema mewah dengan latar belakang gelap dan pencahayaan lembut. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/themes/midnight-luxury.webp",
-                "assets/images/themes/midnight-luxury.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 15 Minit",
@@ -301,8 +305,8 @@ const rayaThemesDetail = {
         paxCover: 4, // Base cover 2 Dewasa
         tagline: "Nature & Love.",
         desc: "Tema floral tertutup. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/themes/secret-garden.webp",
-                "assets/images/themes/secret-garden.webp"
+        images: ["assets/images/coming_soon.webp",
+                "assets/images/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 15 Minit",
@@ -342,13 +346,13 @@ const tncList = [
         title: "Peralatan & Kerosakan",
         desc: "Sebarang kerosakan pada peralatan studio atau harta benda akibat kecuaian peserta akan dikenakan caj ganti rugi."
     },
-    {
+    /*{
         title: "Caj Tambahan Hari Raya",
         desc: "Bagi tempahan pada hari raya(1,2,3 Syawal), caj tambahan RM10 dikenakan untuk setiap sesi."
-    },
+    },*/
     {
         title: "Gambar & Editing",
-        desc: "Gambar siap dalam 2-3 hari bekerja. Termasuk basic editing sahaja. Permintaan edit lanjut dikenakan caj tambahan."
+        desc: "Gambar siap dalam 2-3 hari bekerja. Termasuk basic editing sahaja. Permintaan edit lanjut dikenakan caj tambahan. Frame boleh ditambah semasa sesi photoshoot."
     },
     {
         title: "Hak Cipta",

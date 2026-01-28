@@ -5,7 +5,7 @@
 
 // --- 1. CONFIGURATION ---
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzhOjPc24_NAtPTgWowbMwTiCWKwUu3FnFf3Dk_ssyqFFFkKDGMA8VIWkn3sRHMA8/exec"; 
-const TIME_SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
+const TIME_SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
 
 const SEASON_START = "2026-03-05"; 
 const SEASON_END = "2026-04-05";   
@@ -16,7 +16,7 @@ const BLOCKED_DATES = ["2026-03-19"];
 const PEAK_DATES = ["2026-03-20", "2026-03-21", "2026-03-22"]; 
 
 // Berapa ringgit nak tambah? (Contoh +RM100)
-const PEAK_SURCHARGE = 10;
+const PEAK_SURCHARGE = 0;
 
 let currentStep = 1;
 let bookingData = {
@@ -367,12 +367,12 @@ function calculateTotal() {
     }
     
     // 2. LOGIC SURCAJ RAYA (NEW UPDATE)
-    if (bookingData.date && PEAK_DATES.includes(bookingData.date)) {
+    /*if (bookingData.date && PEAK_DATES.includes(bookingData.date)) {
         price += PEAK_SURCHARGE; // Tambah RM10
         
         // Masukkan dalam list supaya nampak kat summary/whatsapp
         detailsList.push(`Surcharge Raya (+RM${PEAK_SURCHARGE})`);
-    }
+    }*/
 
     // 3. ADD-ONS CHECKBOX
     document.querySelectorAll('.bk-addon:checked').forEach(chk => {
