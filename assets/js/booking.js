@@ -377,7 +377,7 @@ function calculateTotal() {
     // 3. ADD-ONS CHECKBOX
     document.querySelectorAll('.bk-addon:checked').forEach(chk => {
         if(chk.value.includes("150")) price += 150;
-        if(chk.value.includes("120")) price += 120;
+        if(chk.value.includes("20")) price += 20;
         
         // Ambil nama addon shj (buang harga dlm kurungan utk text)
         // cth "Makeup (+RM150)" jadi "Makeup" (kalau nak kemas), atau ambil full value
