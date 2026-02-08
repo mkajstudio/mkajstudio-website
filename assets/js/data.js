@@ -410,3 +410,12 @@ const faqList = [
         ]
     }
 ];
+
+// DATA JENIS ALBUM / FRAME
+const albumTypes = [
+    { name: "Tiada", price: 0 },
+    { name: "A (16x16)", price: 150 },
+    { name: "B (16x21)", price: 200 },
+    { name: "C (Premium Wood)", price: 250 },
+    { name: "D (Crystal Cover)", price: 350 }
+];
