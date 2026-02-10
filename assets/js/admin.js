@@ -3,14 +3,28 @@
    V16.0 - The Ultimate Clean Integration
 */
 
+// --- 1. SECURITY PIN (Tukarkan 0000 mengikut pilihan) ---
+const ADMIN_PIN = "0000"; 
+
+if (sessionStorage.getItem("admin_authenticated") !== "true") {
+    let pass = prompt("Sila masukkan PIN AKSES ADMIN MKAJ:");
+    if (pass === ADMIN_PIN) {
+        sessionStorage.setItem("admin_authenticated", "true");
+    } else {
+        alert("PIN SALAH! AKSES DISEKAT.");
+        document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; flex-direction:column;'><h1>🚫 AKSES DISEKAT</h1><p>Sila hubungi pentadbir sistem.</p></div>";
+        window.stop();
+    }
+}
 // --- 1. CONFIGURATION ---
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxBt596ouHdAgm9gvnoLQMZEDoRyGFsHXgOBufTfdEClqhm1LimyKLsbszJzRFRU-hG/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwmnP6xf3ibnzUkuci5snHYOty3LXZ1YhCinBxT8KRaEW5z_-SnSznqaxLj3lZvrhjB/exec";
 const TIME_SLOTS = [
     "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", 
     "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", 
     "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", 
     "20:00", "20:30", "21:00", "21:30"
 ];
+const N8N_SETTLE_URL = "http://localhost:5678/webhook-test/mkaj-settle-balance"; // Tukar ikut URL webhook n8n anda
 let allData = [];
 let walkInState = { adult: 6, kid: 0, total: 0, themeKey: "" };
 
@@ -135,12 +149,12 @@ function renderData(data) {
         let settleBtnClass = "";
         let settleOnClick = "";
 
-        if (pt === "FULL") {
+        if (pt === "FULL"|| pt === "FULL (SETTLED AT STUDIO)" || pt === "FULL (WALK-IN)") {
             settleBtnText = '<i class="fas fa-check-circle mr-1"></i> PAID IN FULL';
             settleBtnClass = "bg-green-100 text-green-700 border border-green-200 cursor-default";
             settleOnClick = "alert('Pelanggan ini sudah menerima resit bayaran penuh melalui WhatsApp.')";
         } 
-        else if (pt.includes("WALK-IN")) {
+        else if (pt.includes("Payment")) {
             settleBtnText = '<i class="fas fa-paper-plane mr-1"></i> HANTAR RESIT';
             settleBtnClass = "bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-100";
             settleOnClick = `handleSettle('${item.OrderID}', '${item.Phone}', true)`;
@@ -154,6 +168,8 @@ function renderData(data) {
         const statusClass = isArrived ? 'bg-blue-500' : (isConfirmed ? 'bg-green-500' : (isCanceled ? 'bg-red-500' : 'bg-yellow-500'));
         const borderClass = isArrived ? 'border-blue-500' : (isConfirmed ? 'border-green-500' : (isCanceled ? 'border-red-500' : 'border-yellow-400'));
 
+        //const shooterName = item.Photographer && item.Photographer !== "" ? item.Photographer : "Belum Ditetapkan";
+
         const itemString = encodeURIComponent(JSON.stringify(item));
 
         const card = `
@@ -166,6 +182,14 @@ function renderData(data) {
                     <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">${item.OrderID}</p>
                     <h3 class="text-2xl font-black text-slate-800 leading-tight capitalize">${item.Name || 'Tanpa Nama'}</h3>
                     <p class="text-sm text-slate-500 font-bold">${item.Phone}</p>
+                </div>
+
+                <div class="mt-4 p-3 bg-indigo-50 rounded-2xl border border-indigo-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Assign Photographer</p>
+                        <p class="text-xs font-black text-indigo-700 uppercase">${item.Photographer || 'Belum Ditetapkan'}</p>
+                    </div>
+                    <i class="fas fa-camera-retro text-indigo-200 text-xl"></i>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
@@ -208,7 +232,11 @@ function renderData(data) {
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="handleCheckIn('${item.OrderID}')" class="bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-[11px] hover:bg-slate-800 transition shadow-lg">CHECK-IN</button>
+                    <button onclick="handleCheckIn('${item.OrderID}')" 
+                            class="${isArrived ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-slate-800'} py-3.5 rounded-2xl font-black text-[10px] tracking-widest transition shadow-lg" 
+                            ${isArrived ? 'disabled' : ''}>
+                        ${isArrived ? 'LOKASI: STUDIO' : 'CHECK-IN'}
+                    </button>
                     <button onclick="${settleOnClick}" class="${settleBtnClass} py-3.5 rounded-2xl font-bold text-[11px] transition uppercase italic font-black">
                         ${settleBtnText}
                     </button>
@@ -254,38 +282,78 @@ async function handleCancel(id) {
 }
 // --- 3. FILTER & SEARCH LOGIC ---
 
+let selectedStatuses = [];
+let selectedShooters = [];
+
+// Fungsi untuk On/Off butang pilihan (Pills)
+function togglePill(el, type, value) {
+    const list = (type === 'status') ? selectedStatuses : selectedShooters;
+    const index = list.indexOf(value);
+
+    if (index > -1) {
+        // Jika dah ada, buang (Deselect)
+        list.splice(index, 1);
+        el.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
+        if(type === 'shooter') el.classList.add('text-indigo-400', 'border-indigo-100');
+    } else {
+        // Jika belum ada, tambah (Select)
+        list.push(value);
+        el.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
+        if(type === 'shooter') el.classList.remove('text-indigo-400', 'border-indigo-100');
+    }
+    filterData();
+}
+
+// Fungsi sorok/tampil Custom Date
+function toggleCustomDate(val) {
+    const section = document.getElementById('customDateSection');
+    section.classList.toggle('hidden', val !== 'custom');
+    filterData();
+}
+
 function filterData() {
     const query = document.getElementById('searchBox').value.toLowerCase();
-    const status = document.getElementById('filterStatus').value;
     const dateRange = document.getElementById('filterDateRange').value;
+    
+    // Tarikh Malaysia
+    const nowMY = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kuala_Lumpur"}));
+    const todayStr = nowMY.getFullYear() + '-' + String(nowMY.getMonth() + 1).padStart(2, '0') + '-' + String(nowMY.getDate()).padStart(2, '0');
 
-    const now = new Date();
-    now.setHours(0,0,0,0);
-    const todayStr = now.toISOString().split('T')[0];
+    const filtered = allData.filter(item => {
+        // 1. Carian Teks
+        const matchSearch = (item.Name || "").toLowerCase().includes(query) || (item.OrderID || "").toLowerCase().includes(query) || (item.Phone || "").includes(query);
 
-    const startOfWeek = new Date(now);
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    startOfWeek.setDate(diff);
+        // 2. Multi-Status Filter (Logic Array)
+        const matchStatus = selectedStatuses.length === 0 || selectedStatuses.includes(item.Status);
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
+        // 3. Multi-Shooter Filter (Logic Array)
+        const matchShooter = selectedShooters.length === 0 || selectedShooters.includes(item.Photographer);
 
-    const filtered = allData.filter(r => {
-        const matchSearch = (r.Name||"").toLowerCase().includes(query) || (r.Phone||"").includes(query) || (r.OrderID||"").toLowerCase().includes(query);
-        const matchStatus = status === "" || r.Status === status;
-        
+        // 4. Advanced Date Filter
         let matchDate = true;
-        const rowDate = r.Date; 
+        const itemDate = new Date(item.Date);
+        itemDate.setHours(0,0,0,0);
 
-        if (dateRange === "today") matchDate = rowDate === todayStr;
-        else if (dateRange === "week") {
-            const itemDate = new Date(rowDate);
-            itemDate.setHours(0,0,0,0);
-            matchDate = itemDate >= startOfWeek && itemDate <= endOfWeek;
+        if (dateRange === "today") {
+            matchDate = (item.Date === todayStr);
+        } else if (dateRange === "week") {
+            const start = new Date(nowMY);
+            start.setDate(nowMY.getDate() - nowMY.getDay() + 1);
+            start.setHours(0,0,0,0);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            matchDate = (itemDate >= start && itemDate <= end);
+        } else if (dateRange === "custom") {
+            const startVal = document.getElementById('dateStart').value;
+            const endVal = document.getElementById('dateEnd').value;
+            if (startVal && endVal) {
+                const s = new Date(startVal); s.setHours(0,0,0,0);
+                const e = new Date(endVal); e.setHours(23,59,59,999);
+                matchDate = (itemDate >= s && itemDate <= e);
+            }
         }
 
-        return matchSearch && matchStatus && matchDate;
+        return matchSearch && matchStatus && matchShooter && matchDate;
     });
 
     renderData(filtered);
@@ -304,6 +372,13 @@ function initWalkInThemes() {
         opt.innerText = `${val.title} (${val.categoryName})`;
         select.appendChild(opt);
     }
+}
+
+function initPhotographerDropdown() {
+    const select = document.getElementById('e_photographer');
+    if(!select || typeof photographersList === 'undefined') return;
+    
+    select.innerHTML = photographersList.map(name => `<option value="${name}">${name}</option>`).join('');
 }
 
 
@@ -360,9 +435,48 @@ async function handleCheckIn(id) {
     } catch (err) { alert("Check-in gagal."); }
 }
 
-async function handleSettle(id, phone) {
-    // Fungsi ini akan disambungkan ke Webhook n8n nanti
-    alert(`Mengarahkan n8n untuk menghantar Resit PAID FULL bagi ${id} ke WhatsApp ${phone}...`);
+async function handleSettle(id, phone, isPaidFull) {
+    // 1. Tentukan jenis tindakan untuk mesej pengesahan
+    const actionText = isPaidFull ? "MENGHANTAR SEMULA RESIT" : "MENYELESAIKAN BAKI BAYARAN";
+    
+    // 2. Minta pengesahan staf supaya tak tersalah klik
+    const sahkan = confirm(`Adakah anda pasti untuk ${actionText} bagi ID: ${id}?\n\nWhatsApp akan dihantar ke: ${phone}`);
+    if (!sahkan) return;
+
+    showLoader(true);
+
+    try {
+        // 3. Tembak Webhook n8n
+        const response = await fetch(N8N_SETTLE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-mkaj-api-key': 'MKAJ_Secure_Admin_2026_##' // Mesti sama dengan n8n
+            },
+            body: JSON.stringify({ 
+                orderID: id, 
+                phone: phone,
+                updateSheet: !isPaidFull // Kalau belum Paid Full, suruh n8n update baki jadi 0
+            })
+        });
+
+        // 4. Handle maklum balas
+        if (response.ok) {
+            // Kita tunggu 1.5 saat bagi n8n settle kerja hantar WhatsApp
+            setTimeout(() => {
+                alert(`✅ BERJAYA!\nResit rasmi sedang dihantar ke WhatsApp ${phone}.`);
+                fetchData(); // Refresh list untuk nampak status terkini
+            }, 1500);
+        } else {
+            throw new Error("Respons pelayan tidak berjaya.");
+        }
+
+    } catch (err) {
+        console.error("Settle Error:", err);
+        alert("❌ RALAT: Gagal menghubungi bot n8n. Sila pastikan bot aktif.");
+    } finally {
+        showLoader(false);
+    }
 }
 
 async function submitWalkIn(e) {
@@ -407,7 +521,7 @@ async function submitWalkIn(e) {
         addOns: getAddonText(),
         totalPrice: walkInState.total,
         status: "Confirmed",
-        paymentType: "FULL (WALK-IN)",
+        paymentType: "Full payment (WALK-IN)",
         orderID: "MANUAL"
     };
 
@@ -455,6 +569,7 @@ window.onload = () => {
     initWalkInThemes();
     initTimeSlots(); // TAMBAH INI
     initAlbumList(); // TAMBAH INI
+    initPhotographerDropdown(); // TAMBAH INI
     const form = document.getElementById('walkInForm');
     if(form) form.onsubmit = submitWalkIn;
 };
@@ -475,6 +590,7 @@ function openEditModal(itemJson) {
     document.getElementById('e_frame').value = currentFrame;
     document.getElementById('e_photoNum').value = item.PhotoNumber || "";
     document.getElementById('e_totalPrice').value = item.TotalPrice;
+    document.getElementById('e_photographer').value = item.Photographer || "Belum Ditetapkan";
 
     // 2. ISI DROPDOWN TEMA
     const themeSelect = document.getElementById('e_theme');
@@ -572,8 +688,12 @@ document.getElementById('editForm').onsubmit = async (e) => {
     const selectedOpt = themeSelect.options[themeSelect.selectedIndex];
     const themeType = selectedOpt.dataset.type; // Ambil type (family/couple)
 
+    const shooterValue = document.getElementById('e_photographer').value;
+
     // LOGIK TUKAR NAMA PAKEJ
     const legacyPackage = (themeType === 'family') ? "KATEGORI FAMILY" : "KATEGORI COUPLE";
+
+    console.log("Hantar Photographer:", shooterValue);
 
     // Bina semula string Add-ons untuk disimpan ke Sheets
     let addonList = [];
@@ -593,7 +713,8 @@ document.getElementById('editForm').onsubmit = async (e) => {
         totalPrice: document.getElementById('e_totalPrice').value,
         frame: document.getElementById('e_frame').value, // Ambil nama album (cth: "A (16x16)")
         photoNumber: document.getElementById('e_photoNum').value,
-        addOns: finalAddons // Pastikan hantar ni sekali
+        addOns: finalAddons, // Pastikan hantar ni sekali
+        photographer: shooterValue // Mesti 'photographer' (huruf kecil)
     };
 
     showLoader(true);

@@ -18,7 +18,7 @@
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-yellow-500 text-slate-900 w-10 h-10 rounded-xl flex items-center justify-center font-black">M</div>
-                <h1 class="text-lg font-extrabold tracking-tighter">ADMIN <span class="text-yellow-500">2026</span></h1>
+                <h1 class="text-lg font-extrabold tracking-tighter">ADMIN <span class="text-yellow-500">Raya 2026</span></h1>
             </div>
             <div class="flex gap-2">
                 <button onclick="fetchData()" class="p-2 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-sync-alt"></i></button>
@@ -33,23 +33,57 @@
     <div class="container mx-auto p-4 max-w-6xl">
         
         <!-- SEARCH & FILTERS -->
-        <div class="bg-white p-4 rounded-3xl shadow-sm mb-6 flex flex-col md:flex-row gap-4 border border-gray-100">
-            <div class="relative flex-[2]">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari Nama, No Tel atau Order ID..." 
-                       class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-500 transition">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm mb-6 border border-gray-100 space-y-4">
+            <!-- Row 1: Search & Date -->
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="relative flex-[2]">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari Nama, No Tel atau Order ID..." 
+                        class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-500 transition text-sm">
+                </div>
+                <select id="filterDateRange" onchange="toggleCustomDate(this.value)" class="flex-1 p-3 bg-gray-50 rounded-2xl outline-none font-semibold text-sm">
+                    <option value="all">Semua Tarikh</option>
+                    <option value="today">Hari Ini</option>
+                    <option value="week">Minggu Ini</option>
+                    <option value="custom">📅 Custom Range...</option>
+                </select>
             </div>
-            <select id="filterStatus" onchange="filterData()" class="flex-1 p-3 bg-gray-50 rounded-2xl outline-none font-semibold">
-                <option value="">Semua Status</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Arrived">Arrived</option>
-                <option value="Pending">Pending</option>
-            </select>
-            <select id="filterDateRange" onchange="filterData()" class="flex-1 p-3 bg-gray-50 rounded-2xl outline-none font-semibold">
-                <option value="all">Semua Tarikh</option>
-                <option value="today">Hari Ini</option>
-                <option value="week">Minggu Ini</option>
-            </select>
+
+            <!-- Row 2: Custom Date Inputs (Hidden by default) -->
+            <div id="customDateSection" class="hidden flex flex-col md:flex-row gap-2 bg-yellow-50 p-4 rounded-2xl border border-yellow-100">
+                <div class="flex-1">
+                    <label class="text-[9px] font-bold text-yellow-600 uppercase ml-2">Dari Tarikh</label>
+                    <input type="date" id="dateStart" onchange="filterData()" class="w-full bg-white p-2 rounded-xl border-none text-sm">
+                </div>
+                <div class="flex-1">
+                    <label class="text-[9px] font-bold text-yellow-600 uppercase ml-2">Hingga Tarikh</label>
+                    <input type="date" id="dateEnd" onchange="filterData()" class="w-full bg-white p-2 rounded-xl border-none text-sm">
+                </div>
+            </div>
+
+            <!-- Row 3: Status Multi-Select (Pills) -->
+            <div class="space-y-2">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Status (Boleh pilih banyak)</p>
+                <div id="statusPills" class="flex flex-wrap gap-2">
+                    <button onclick="togglePill(this, 'status', 'Confirmed')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Confirmed</button>
+                    <button onclick="togglePill(this, 'status', 'Arrived')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Arrived</button>
+                    <button onclick="togglePill(this, 'status', 'Pending')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Pending</button>
+                    <button onclick="togglePill(this, 'status', 'Canceled')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Canceled</button>
+                </div>
+            </div>
+
+            <!-- Row 4: Photographer Multi-Select (Pills) -->
+            <div class="space-y-2">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Shooter (Boleh pilih banyak)</p>
+                <div id="shooterPills" class="flex flex-wrap gap-2">
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 1')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P1</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 2')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P2</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 3')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P3</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 4')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P4</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 5')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P5 (PT)</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 6')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P6 (PT)</button>
+                </div>
+            </div>
         </div>
 
         <!-- STATS CARDS -->
@@ -226,6 +260,14 @@
                             <!-- Diisi oleh initTimeSlots() -->
                         </select>
                     </div>
+                </div>
+
+                <!-- Masukkan dlm editForm, di bawah grid Tarikh & Masa -->
+                <div class="mt-4">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Assign Photographer</label>
+                    <select id="e_photographer" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1 border-2 border-indigo-100 focus:ring-2 focus:ring-indigo-500">
+                        <!-- Diisi secara automatik oleh admin.js -->
+                    </select>
                 </div>
 
                 <!-- Pax Counter Edit -->

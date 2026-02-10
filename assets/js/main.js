@@ -77,7 +77,7 @@ function closeBookingModal() { document.getElementById('booking-modal').classLis
 /* --- HOMEPAGE SLIDESHOW (HEADER) --- */
 function initHomepageSlideshow() {
     if(typeof slideshowData === 'undefined') return;
-    let slideIndices = { 'img-wedding': 0, 'img-studio': 0, 'img-raya': 0, 'img-event': 0, 'img-convo': 0 };
+    let slideIndices = { 'img-wedding': 0, 'img-studio': 0, 'img-raya': 0, 'img-event': 0, 'img-convo': 0, 'img-engagement': 0 };
     setInterval(() => {
         for (const [id, images] of Object.entries(slideshowData)) {
             const imgEl = document.getElementById(id);
@@ -271,7 +271,7 @@ function initCategoryFeatures() {
     if (window.catSlideshowInterval) clearInterval(window.catSlideshowInterval);
 
     // Tracker untuk tahu gambar nombor berapa sekarang
-    let catIndices = { wedding: 0, studio: 0, raya: 0, event: 0, convo: 0 };
+    let catIndices = { wedding: 0, studio: 0, raya: 0, event: 0, convo: 0, engagement: 0 };
 
     window.catSlideshowInterval = setInterval(() => {
         for (const [key, info] of Object.entries(categoryMeta)) {

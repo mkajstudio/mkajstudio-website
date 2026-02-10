@@ -27,6 +27,14 @@ const galleryData = {
             folder: "assets/images/albums/wedding/azwin-syahirullah-glass-hall-melaka/",
             // folder: "assets/images/wedding/amir-aina/",
             total: 76,
+        },
+        {
+            id: 3,
+            title: "Nurul & Firdaus",
+            location: "Amnah Hall Senawang",
+            folder: "assets/images/albums/wedding/nurul-firdaus-amnah-hall-senawang/",
+            // folder: "assets/images/wedding/amir-aina/",
+            total: 207,
         }
     ],
     'studio': [
@@ -83,6 +91,16 @@ const galleryData = {
             folder: "assets/images/albums/convo/pre-convo-eco-grandeur/",
             // folder: "assets/images/convo/session/",
             total: 44 
+        }
+    ],
+    'engagement': [
+        { 
+            id: 1, 
+            title: "Farah & Hakim", 
+            location: "Kuala Linggi, Melaka", 
+            folder: "assets/images/albums/engagement/farah-hakim-kuala-linggi-melaka/",
+            // folder: "assets/images/engagement/session/",
+            total: 145 
         }
     ]
 };
@@ -151,6 +169,16 @@ const categoryMeta = {
             "assets/images/albums/convo/post-convo-aminah-muar/3.webp",
             "assets/images/albums/convo/pre-convo-eco-grandeur/3.webp"
         ]
+    },
+    'engagement': {
+        title: "Engagement",
+        description: "Mengabadikan detik cinta yang paling istimewa.",
+        images: [
+            "assets/images/albums/engagement/farah-hakim-kuala-linggi-melaka/1.webp",
+            "assets/images/albums/engagement/farah-hakim-kuala-linggi-melaka/2.webp",
+            "assets/images/albums/engagement/farah-hakim-kuala-linggi-melaka/3.webp",
+            "assets/images/albums/engagement/farah-hakim-kuala-linggi-melaka/4.webp"
+        ]
     }
 };
 
@@ -161,6 +189,7 @@ const slideshowData = {
     'img-raya': ['https://picsum.photos/id/300/600/800', 'https://picsum.photos/id/301/600/800'],
     'img-event': ['https://picsum.photos/id/400/600/800', 'https://picsum.photos/id/401/600/800'],
     'img-convo': ['https://picsum.photos/id/500/600/800', 'https://picsum.photos/id/501/600/800'],
+    'img-engagement': ['https://picsum.photos/id/600/600/800', 'https://picsum.photos/id/601/600/800']
 };
 
 /* 
@@ -418,4 +447,15 @@ const albumTypes = [
     { name: "B (16x21)", price: 200 },
     { name: "C (Premium Wood)", price: 250 },
     { name: "D (Crystal Cover)", price: 350 }
+];
+
+// Tambah di bawah sekali dalam data.js
+const photographersList = [
+    "Belum Ditetapkan",
+    "Photographer 1",
+    "Photographer 2",
+    "Photographer 3",
+    "Photographer 4",
+    "Photographer 5",
+    "Photographer 6"
 ];
