@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /index
+Allow: /raya-2026
+Allow: /gallery
+
+# SEKAT AKSES KE DASHBOARD & DATA SULIT
+Disallow: /admin.html
+Disallow: /boss.html
+Disallow: /assets/js/admin.js
+
+Sitemap: https://mkajstudio.com/sitemap.xml

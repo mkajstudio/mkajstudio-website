@@ -8,7 +8,7 @@ html { scroll-behavior: smooth; }
 /* --- HERO BACKGROUNDS (TUKAR GAMBAR DI SINI) --- */
 .hero-bg {
     /* CONTOH: Gambar Online (Sedang digunakan) */
-    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('../images/hero/1.webp');
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('../images/hero/studio-gambar-wedding-tunang.webp');
     
     /* CARA TUKAR KE GAMBAR SENDIRI: */
     /* 1. Letak gambar dalam folder assets/images/ */

@@ -3,11 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery Collections | MKAJ Studio</title>
+    
+    <!-- Tajuk SEO: Fokus pada Portfolio & Hasil Kerja -->
+    <title>Galeri & Portfolio Fotografi | MKAJ Studio</title>
+    <meta name="description" content="Lihat hasil kerja fotografi terbaik dari MKAJ Studio. Koleksi gambar Perkahwinan, Event, dan Studio Raya yang premium dan memukau.">
+    <meta name="keywords" content="Portfolio Photographer, Gambar Wedding Malaysia, MKAJ Studio Gallery, Hasil Kerja MKAJ">
+    <link rel="canonical" href="https://mkajstudio.com/gallery" />
+
+    <!-- Resources -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Social Media Preview -->
+    <meta property="og:title" content="MKAJ Studio Portfolio | Captured Moments">
+    <meta property="og:description" content="Koleksi detik indah yang dirakam secara profesional oleh team MKAJ Studio.">
+    <meta property="og:image" content="https://mkajstudio.com/assets/images/og-gallery.jpg">
+    <meta property="og:url" content="https://mkajstudio.com/gallery">
+    <meta property="og:type" content="website">
+
+    <!-- Schema Markup untuk Gallery -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ImageGallery",
+      "name": "MKAJ Studio Photography Portfolio",
+      "description": "Koleksi gambar fotografi perkahwinan dan studio.",
+      "url": "https://mkajstudio.com/gallery",
+      "creator": {
+        "@type": "Organization",
+        "name": "MKAJ Studio"
+      }
+    }
+    </script>
 </head>
 <body class="bg-white text-black antialiased flex flex-col min-h-screen">
 
@@ -191,7 +220,7 @@
             <div class="space-y-4 text-gray-300 text-base">
                 <div class="flex items-center justify-center gap-3">
                     <i class="fas fa-envelope text-amber-500"></i>
-                    <a href="mailto:hello@mkajstudio.co">mkajstudio.co@gmail.com</a>
+                    <a href="mailto:admin@mkajstudio.com">admin@mkajstudio.com</a>
                 </div>
                 <div class="flex items-center justify-center gap-3">
                     <i class="fas fa-phone text-amber-500"></i>
@@ -206,6 +235,12 @@
     <footer class="bg-black py-8 text-center text-gray-600 text-xs border-t border-gray-900">
         &copy; 2026 MKAJ Studio. All rights reserved.
     </footer>
+
+    <div class="fixed bottom-8 right-8 z-40">
+        <a href="https://wa.me/60147299454" class="bg-black text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition border border-gray-800 hover:border-amber-500 pulse-gold">
+            <i class="fab fa-whatsapp text-3xl"></i>
+        </a>
+    </div>
 
     <script src="assets/js/data.js"></script>
     <script src="assets/js/main.js"></script>

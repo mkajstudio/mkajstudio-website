@@ -3,15 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MKAJ Studio Portfolio</title>
-    <!-- Tailwind CSS (CDN) -->
+    
+    <!-- 1. Tajuk Utama (Hanya Satu Sahaja) -->
+    <title>MKAJ Studio | Pakar Fotografi Perkahwinan, Studio & Acara</title>
+    
+    <!-- 2. SEO Dasar -->
+    <meta name="description" content="MKAJ Studio menyediakan perkhidmatan fotografi profesional untuk perkahwinan, acara korporat, dan potret studio di Kajang dan Masjid Tanah. Hasil premium dengan harga berpatutan.">
+    <meta name="keywords" content="Photographer Kajang, Wedding Photographer Malaysia, Studio Foto Masjid Tanah, Event Photographer Melaka, MKAJ Studio">
+    <link rel="canonical" href="https://mkajstudio.com/" />
+
+    <!-- 3. Social Media Preview (WhatsApp, FB, IG) -->
+    <meta property="og:title" content="MKAJ Studio | Professional Photography">
+    <meta property="og:description" content="Merakam detik indah anda di Kajang & Masjid Tanah. Tempah sesi anda sekarang.">
+    <meta property="og:image" content="https://mkajstudio.com/assets/images/logo.png">
+    <meta property="og:url" content="https://mkajstudio.com/">
+    <meta property="og:type" content="website">
+
+    <!-- 4. Resources (CSS, Fonts, Icons) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- 5. Schema Markup (Google Business Brain) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "MKAJ Studio",
+        "image": "https://mkajstudio.com/assets/images/logo.png",
+        "url": "https://mkajstudio.com",
+        "telephone": "+60147299454",
+        "priceRange": "RM89 - RM2500",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Dewan Datuk Seri Abu Seman",
+            "addressLocality": "Masjid Tanah",
+            "addressRegion": "Melaka",
+            "postalCode": "78300",
+            "addressCountry": "MY"
+        },
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Perkhidmatan Fotografi",
+            "itemListElement": [
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Fotografi Perkahwinan" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Studio Raya 2026" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Fotografi Korporat & Acara" } }
+            ]
+        }
+    }
+    </script>
 </head>
 
 <!-- BOOKING MODAL (POPUP) -->
@@ -279,7 +321,7 @@
             <div class="space-y-4 text-gray-300 text-base">
                 <div class="flex items-center justify-center gap-3">
                     <i class="fas fa-envelope text-amber-500"></i>
-                    <a href="mailto:hello@mkajstudio.co">mkajstudio.co@gmail.com</a>
+                    <a href="mailto:admin@mkajstudio.com">admin@mkajstudio.com</a>
                 </div>
                 <div class="flex items-center justify-center gap-3">
                     <i class="fas fa-phone text-amber-500"></i>

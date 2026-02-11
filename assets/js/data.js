@@ -22,11 +22,11 @@ const galleryData = {
         },
         {
             id: 2,
-            title: "Azwin & Syahirullah",
-            location: "Glass Hall Melaka",
-            folder: "assets/images/albums/wedding/azwin-syahirullah-glass-hall-melaka/",
+            title: "Syahir & Azwin",
+            location: "Glasshall Autocity, Melaka",
+            folder: "assets/images/albums/wedding/syahir-azwin-glasshall-autocity-melaka/",
             // folder: "assets/images/wedding/amir-aina/",
-            total: 76,
+            total: 98,
         },
         {
             id: 3,
@@ -35,6 +35,14 @@ const galleryData = {
             folder: "assets/images/albums/wedding/nurul-firdaus-amnah-hall-senawang/",
             // folder: "assets/images/wedding/amir-aina/",
             total: 207,
+        },
+        {
+            id: 4,
+            title: "Asyiqin & Anaz",
+            location: "Laman Sri Pinang, Port Dickson",
+            folder: "assets/images/albums/wedding/asyiqin-anaz-laman-sri-pinang-port-dickson/",
+            // folder: "assets/images/wedding/amir-aina/",
+            total: 98,
         }
     ],
     'studio': [
@@ -54,7 +62,7 @@ const galleryData = {
             location: "Studio Raya mkaj", 
             folder: "assets/images/albums/raya/raya-moden/",
             // folder: "assets/images/raya/hj-razak/",
-            total: 154 
+            total: 174 
         },
         { 
             id: 2, 
@@ -62,7 +70,7 @@ const galleryData = {
             location: "Studio Raya mkaj", 
             folder: "assets/images/albums/raya/raya-klasik/",
             // folder: "assets/images/raya/hj-razak/",
-            total: 128 
+            total: 103 
         }
     ],
     'event': [
@@ -120,11 +128,13 @@ const categoryMeta = {
         description: "Dua jiwa, satu takdir. Mengabadikan detik cinta yang abadi.",
         images: [
             "assets/images/albums/wedding/farahin-hafifi-seremban/1.webp",
-            "assets/images/albums/wedding/azwin-syahirullah-glass-hall-melaka/1.webp",
-            "assets/images/albums/wedding/farahin-hafifi-seremban/3.webp",
-            "assets/images/albums/wedding/azwin-syahirullah-glass-hall-melaka/3.webp",
+            "assets/images/albums/wedding/syahir-azwin-glasshall-autocity-melaka/1.webp",
+            "assets/images/albums/wedding/nurul-firdaus-amnah-hall-senawang/1.webp",
+            "assets/images/albums/wedding/asyiqin-anaz-laman-sri-pinang-port-dickson/1.webp",
             "assets/images/albums/wedding/farahin-hafifi-seremban/2.webp",
-            "assets/images/albums/wedding/azwin-syahirullah-glass-hall-melaka/2.webp"
+            "assets/images/albums/wedding/syahir-azwin-glasshall-autocity-melaka/2.webp",
+            "assets/images/albums/wedding/nurul-firdaus-amnah-hall-senawang/2.webp",
+            "assets/images/albums/wedding/asyiqin-anaz-laman-sri-pinang-port-dickson/2.webp"
         ]
     },
     'studio': {
@@ -198,12 +208,12 @@ const slideshowData = {
    Pastikan gambar saiz besar (Landscape) berkualiti tinggi.
 */
 const rayaHeroImages = [
-    "assets/images/albums/raya/raya-moden/1.webp",
-    "assets/images/albums/raya/raya-klasik/1.webp",
-    "assets/images/albums/raya/raya-moden/11.webp",
-    "assets/images/albums/raya/raya-klasik/11.webp",
-    "assets/images/albums/raya/raya-moden/21.webp",
-    "assets/images/albums/raya/raya-klasik/21.webp",
+    "assets/images/hero/raya-hero/1.webp",
+    "assets/images/hero/raya-hero/2.webp",
+    "assets/images/hero/raya-hero/3.webp",
+    "assets/images/hero/raya-hero/4.webp",
+    "assets/images/hero/raya-hero/5.webp",
+    "assets/images/hero/raya-hero/6.webp"
     // Boleh tambah lagi: "assets/images/hero/hero-raya-4.webp"
 ];
 
@@ -227,8 +237,8 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Elegance & Luxury.",
         desc: "Set mewah dengan latar belakang velvet. Sesuai untuk baju raya berwarna gelap dan mewah.",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ], // Tukar nama fail sebenar
         inclusions: [
             "Sesi Fotografi 20 Minit",
@@ -248,8 +258,8 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Pure & Timeless.",
         desc: "Latar belakang serba putih dengan prop minimalis. Sesuai untuk baju raya moden dan kontemporari.",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
@@ -269,8 +279,8 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Nostalgia & Warmth.",
         desc: "Set kampung tradisional dengan elemen kayu dan anyaman. Sesuai untuk baju raya klasik dan tradisional.",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
@@ -290,8 +300,8 @@ const rayaThemesDetail = {
         paxCover: 6, // Base cover 6
         tagline: "Radiance & Grace.",
         desc: "Set ala timur tengah dengan elemen seni Islamik. Sesuai untuk baju raya berinspirasikan Arab dan moden.",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 20 Minit",
@@ -313,8 +323,8 @@ const rayaThemesDetail = {
         paxCover: 4, // Base cover 2 Dewasa
         tagline: "Romance & Intimacy.",
         desc: "Tema mewah dengan latar belakang gelap dan pencahayaan lembut. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 15 Minit",
@@ -334,8 +344,8 @@ const rayaThemesDetail = {
         paxCover: 4, // Base cover 2 Dewasa
         tagline: "Nature & Love.",
         desc: "Tema floral tertutup. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/coming_soon.webp",
-                "assets/images/coming_soon.webp"
+        images: ["assets/images/themes/coming_soon.webp",
+                "assets/images/themes/coming_soon.webp"
         ],
         inclusions: [
             "Sesi Fotografi 15 Minit",
