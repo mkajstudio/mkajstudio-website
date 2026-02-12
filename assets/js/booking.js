@@ -486,9 +486,9 @@ Saya nak confirmkan Booking Raya 2026.
 
 ${msgPay} Terima kasih!`;
 
-        window.location.href = `https://wa.me/60147299454?text=${encodeURIComponent(waMsg)}`;
+        window.location.href = `https://wa.me/601166364521?text=${encodeURIComponent(waMsg)}`;
     }).catch(e => {
-        window.location.href = "https://wa.me/60147299454"; 
+        window.location.href = "https://wa.me/601166364521?text=" + encodeURIComponent(`Hi MKAJ Studio, saya cuba buat tempahan tapi ada masalah teknikal. Boleh bantu? Terima kasih!`)); 
     });
 }
 
