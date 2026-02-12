@@ -488,7 +488,7 @@ ${msgPay} Terima kasih!`;
 
         window.location.href = `https://wa.me/601166364521?text=${encodeURIComponent(waMsg)}`;
     }).catch(e => {
-        window.location.href = "https://wa.me/601166364521?text=" + encodeURIComponent(`Hi MKAJ Studio, saya cuba buat tempahan tapi ada masalah teknikal. Boleh bantu? Terima kasih!`)); 
+        window.location.href = "https://wa.me/601166364521"; 
     });
 }
 
