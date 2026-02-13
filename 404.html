@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Halaman Tidak Ditemui | MKAJ Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .glow { box-shadow: 0 0 50px rgba(217, 119, 6, 0.15); }
+    </style>
+</head>
+<body class="bg-[#050505] text-white h-screen flex items-center justify-center overflow-hidden">
+    
+    <!-- Elemen Dekoratif (Subtle Glow) -->
+    <div class="absolute -top-20 -left-20 w-96 h-96 bg-amber-900/20 rounded-full blur-[120px]"></div>
+    <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px]"></div>
+
+    <div class="container mx-auto px-6 relative z-10 text-center">
+        <!-- Angka 404 yang dimalapkan -->
+        <h1 class="serif text-[180px] md:text-[250px] leading-none text-white/[0.03] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none">404</h1>
+        
+        <div class="space-y-6">
+            <p class="text-amber-500 tracking-[0.5em] text-xs font-semibold uppercase">Error Code: Out of Focus</p>
+            
+            <h2 class="serif text-5xl md:text-7xl italic font-black">Halaman Hilang <br> <span class="text-white/80">Dalam Memori</span></h2>
+            
+            <div class="w-12 h-[1px] bg-amber-600 mx-auto my-8"></div>
+            
+            <p class="text-gray-400 font-light max-w-sm mx-auto leading-relaxed text-sm md:text-base">
+                Maaf, sesi yang anda cari tidak ditemui atau pautan telah luput. Sila kembali ke galeri utama kami.
+            </p>
+            
+            <div class="pt-10">
+                <a href="/" class="group relative inline-flex items-center gap-4 px-12 py-5 bg-white text-black rounded-full font-bold transition-all hover:bg-amber-500 hover:text-white glow">
+                    <span>KEMBALI KE STUDIO</span>
+                    <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Kecil -->
+    <div class="absolute bottom-8 w-full text-center text-white/20 text-[10px] tracking-widest uppercase">
+        &copy; 2026 MKAJ Studio Co. Digital Presence
+    </div>
+</body>
+</html>

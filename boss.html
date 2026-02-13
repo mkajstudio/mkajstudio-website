@@ -82,8 +82,9 @@
     </div>
 
     <script src="assets/js/data.js"></script>
+    <script src="assets/js/data.js"></script>
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwmnP6xf3ibnzUkuci5snHYOty3LXZ1YhCinBxT8KRaEW5z_-SnSznqaxLj3lZvrhjB/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwdGTp-FCzsQeZ4Kwgl-AOMA45XS-0bBu9TGiPAyUhb_LCTl-ObaHS-QEkCKKNoYv0g/exec";
         const BOSS_PIN = "9999";
 
         // Security Check
@@ -112,77 +113,65 @@
                 filtered = filtered.filter(r => r.Date === todayStr);
             }
 
-            // 2. Kira Revenue
+            // 2. Kira Revenue Kasar
             const revenue = filtered.reduce((sum, item) => sum + (parseFloat(String(item.TotalPrice).replace(/[^0-9.]/g, '')) || 0), 0);
             
-            // 3. LOGIC PAYROLL
-            const shooters = {
+            // 3. STRUKTUR GAJI BARU (6 Shooter FT + 1 Admin FT)
+            const staff = {
                 "Photographer 1": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
                 "Photographer 2": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
                 "Photographer 3": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
                 "Photographer 4": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
-                "Photographer 5": { type: "PT", basic: 0, commission: 20, jobs: 0 },
-                "Photographer 6": { type: "PT", basic: 0, commission: 20, jobs: 0 }
+                "Photographer 5": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+                "Photographer 6": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+                "Admin": { type: "ADMIN", basic: 1800, commission: 0, jobs: 0 }
             };
 
+            // Agihkan Sesi ke Shooter (Ambil dari Kolum T Google Sheets)
             filtered.forEach(item => {
-                const name = item.Photographer; // Mengambil dari Kolum T
-                if(shooters[name]) shooters[name].jobs++;
+                const pName = (item.Photographer || "").trim();
+                if (staff[pName]) {
+                    staff[pName].jobs++;
+                }
             });
 
             let totalPayroll = 0;
             const payrollContainer = document.getElementById('payrollGrid');
             payrollContainer.innerHTML = '';
 
-            Object.entries(shooters).forEach(([name, info]) => {
-                let salary = info.basic;
-                let commissionEarned = 0;
-                let note = "";
-
-                if (info.type === "FT") {
-                    commissionEarned = info.jobs * info.commission;
-                    salary += commissionEarned;
-                } else {
-                    // Logic PT: Min 5 Jobs Rule
-                    if (info.jobs > 0) {
-                        const effectiveJobs = Math.max(5, info.jobs);
-                        commissionEarned = effectiveJobs * info.commission;
-                        salary = commissionEarned;
-                        if(info.jobs < 5) note = `<span class="text-rose-400 block text-[9px] mt-1 italic">* Top-up ke 5 job (Syarat Min)</span>`;
-                    }
-                }
-
-                totalPayroll += salary;
+            Object.entries(staff).forEach(([name, info]) => {
+                const commissionEarned = info.jobs * info.commission;
+                const finalSalary = info.basic + commissionEarned;
+                totalPayroll += finalSalary;
 
                 payrollContainer.innerHTML += `
                     <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden group">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h4 class="font-black text-white text-lg leading-tight">${name}</h4>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 uppercase tracking-widest">${info.type}</span>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded ${info.type === 'ADMIN' ? 'bg-blue-900 text-blue-300' : 'bg-slate-800 text-slate-400'} uppercase tracking-widest">${info.type}</span>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Gaji Bersih</p>
-                                <p class="text-xl font-black text-yellow-500">RM ${salary.toLocaleString()}</p>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Gaji + Komisen</p>
+                                <p class="text-xl font-black text-yellow-500 leading-none">RM ${finalSalary.toLocaleString()}</p>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-2 mt-6 pt-6 border-t border-slate-800">
                             <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Sesi Foto</p>
-                                <p class="text-sm font-bold text-white">${info.jobs} <span class="text-[10px] text-slate-500 font-normal">Sesi</span></p>
+                                <p class="text-[9px] font-bold text-slate-500 uppercase">Sesi Selesai</p>
+                                <p class="text-sm font-bold text-white">${info.jobs}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Komisyen</p>
-                                <p class="text-sm font-bold text-emerald-400">+ RM ${commissionEarned}</p>
+                                <p class="text-[9px] font-bold text-slate-500 uppercase">Komisyen (RM${info.commission}/job)</p>
+                                <p class="text-sm font-bold text-emerald-400">RM ${commissionEarned.toLocaleString()}</p>
                             </div>
                         </div>
-                        ${note}
                     </div>
                 `;
             });
 
-            // Update Top Stats
+            // Update Top Stats Display
             document.getElementById('totalRevenue').innerText = `RM ${revenue.toLocaleString()}`;
             document.getElementById('totalBookings').innerText = filtered.length;
             document.getElementById('totalPayroll').innerText = `RM ${totalPayroll.toLocaleString()}`;
@@ -201,7 +190,7 @@
             const sortedThemes = Object.entries(themes).sort((a,b) => b[1] - a[1]);
 
             sortedThemes.forEach(([name, count]) => {
-                const percent = ((count / data.length) * 100).toFixed(0);
+                const percent = data.length > 0 ? ((count / data.length) * 100).toFixed(0) : 0;
                 container.innerHTML += `
                     <div>
                         <div class="flex justify-between text-xs mb-2 font-bold uppercase tracking-tighter">

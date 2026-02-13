@@ -4,16 +4,16 @@
 */
 
 // --- 1. CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmnP6xf3ibnzUkuci5snHYOty3LXZ1YhCinBxT8KRaEW5z_-SnSznqaxLj3lZvrhjB/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdGTp-FCzsQeZ4Kwgl-AOMA45XS-0bBu9TGiPAyUhb_LCTl-ObaHS-QEkCKKNoYv0g/exec"; 
 const TIME_SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
 
 const SEASON_START = "2026-03-05"; 
-const SEASON_END = "2026-04-05";   
-const BLOCKED_DATES = ["2026-03-19"];
+const SEASON_END = "2026-04-03";   
+const BLOCKED_DATES = [];
 /* --- TAMBAH INI DI BAHAGIAN ATAS CONFIGURATION --- */
 
 // Senarai tarikh yang harga berbeza (Raya 1, 2, 3)
-const PEAK_DATES = ["2026-03-20", "2026-03-21", "2026-03-22"]; 
+const PEAK_DATES = []; 
 
 // Berapa ringgit nak tambah? (Contoh +RM100)
 const PEAK_SURCHARGE = 0;
