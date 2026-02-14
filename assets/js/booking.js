@@ -486,8 +486,16 @@ Saya nak confirmkan Booking Raya 2026.
 
 ${msgPay} Terima kasih!`;
 
-        window.location.href = `https://wa.me/601166364521?text=${encodeURIComponent(waMsg)}`;
+        // --- UPDATE DI SINI: GANTI REDIRECT WHATSAPP KE PAGE SUCCESS ---
+        
+        // 1. Simpan mesej ke memori browser
+        localStorage.setItem('lastWaMsg', waMsg);
+
+        // 2. Redirect ke page success (untuk tracking Google Ads/Analytics)
+        window.location.href = "/success"; 
+
     }).catch(e => {
+        // Jika ada error sekalipun, kita tetap hantar ke WhatsApp Admin
         window.location.href = "https://wa.me/601166364521"; 
     });
 }

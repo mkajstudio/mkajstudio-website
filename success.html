@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempahan Berjaya | MKAJ Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex items-center justify-center text-center p-6">
+    <div class="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-gray-100">
+        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-check text-4xl"></i>
+        </div>
+        
+        <h1 class="text-3xl font-black text-slate-800 mb-2">TEMPAHAN DITERIMA!</h1>
+        <p class="text-slate-500 mb-8 text-sm">Data anda telah selamat disimpan. Sila tunggu sebentar, kami sedang menghubungkan anda ke WhatsApp Admin...</p>
+        
+        <!-- Loading Bar Animation -->
+        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-8">
+            <div id="progress" class="bg-green-500 h-full transition-all duration-[3000ms] ease-linear" style="width: 0%"></div>
+        </div>
+
+        <a id="waLink" href="#" class="inline-block bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-slate-800 transition shadow-xl">
+            KLIK SINI JIKA TIADA RESPON
+        </a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // 1. Ambil data WhatsApp dari memori (LocalStorage)
+        const waMsg = localStorage.getItem('lastWaMsg');
+        const waUrl = `https://wa.me/601166364521?text=${encodeURIComponent(waMsg)}`;
+        
+        document.getElementById('waLink').href = waUrl;
+
+        // 2. Jalankan Loading Bar
+        setTimeout(() => {
+            document.getElementById('progress').style.width = '100%';
+        }, 100);
+
+        // 3. Auto Redirect ke WhatsApp selepas 3 saat
+        setTimeout(() => {
+            window.location.href = waUrl;
+        }, 3500);
+    </script>
+</body>
+</html>
