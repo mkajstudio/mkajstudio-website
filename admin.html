@@ -34,7 +34,6 @@
         
         <!-- SEARCH & FILTERS -->
         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm mb-6 border border-gray-100 space-y-4">
-            <!-- Row 1: Search & Date -->
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="relative flex-[2]">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -49,7 +48,6 @@
                 </select>
             </div>
 
-            <!-- Row 2: Custom Date Inputs (Hidden by default) -->
             <div id="customDateSection" class="hidden flex flex-col md:flex-row gap-2 bg-yellow-50 p-4 rounded-2xl border border-yellow-100">
                 <div class="flex-1">
                     <label class="text-[9px] font-bold text-yellow-600 uppercase ml-2">Dari Tarikh</label>
@@ -61,9 +59,8 @@
                 </div>
             </div>
 
-            <!-- Row 3: Status Multi-Select (Pills) -->
             <div class="space-y-2">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Status (Boleh pilih banyak)</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Status</p>
                 <div id="statusPills" class="flex flex-wrap gap-2">
                     <button onclick="togglePill(this, 'status', 'Confirmed')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Confirmed</button>
                     <button onclick="togglePill(this, 'status', 'Arrived')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Arrived</button>
@@ -72,268 +69,191 @@
                 </div>
             </div>
 
-            <!-- Row 4: Photographer Multi-Select (Pills) -->
             <div class="space-y-2">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Shooter (Boleh pilih banyak)</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Shooter</p>
                 <div id="shooterPills" class="flex flex-wrap gap-2">
                     <button onclick="togglePill(this, 'shooter', 'Photographer 1')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P1</button>
                     <button onclick="togglePill(this, 'shooter', 'Photographer 2')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P2</button>
                     <button onclick="togglePill(this, 'shooter', 'Photographer 3')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P3</button>
                     <button onclick="togglePill(this, 'shooter', 'Photographer 4')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P4</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 5')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P5 (PT)</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 6')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P6 (PT)</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 5')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P5</button>
+                    <button onclick="togglePill(this, 'shooter', 'Photographer 6')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P6</button>
                 </div>
             </div>
         </div>
 
-        <!-- STATS CARDS -->
-        <!-- REPORT SUMMARY SECTION -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-            <!-- Total Booking -->
+        <!-- REPORT SUMMARY -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
                 <p class="text-gray-400 text-[9px] font-black uppercase tracking-widest">Jumlah Sesi</p>
                 <h2 id="statTotal" class="text-2xl font-black text-slate-800">0</h2>
             </div>
-    
-            <!-- Confirmed (Paid) -->
             <div class="bg-green-50 p-5 rounded-3xl border border-green-100 shadow-sm">
                 <p class="text-green-600 text-[9px] font-black uppercase tracking-widest">Confirmed</p>
                 <h2 id="statPaid" class="text-2xl font-black text-green-700">0</h2>
             </div>
-
-            <!-- Arrived (Check-in) -->
             <div class="bg-blue-50 p-5 rounded-3xl border border-blue-100 shadow-sm">
                 <p class="text-blue-600 text-[9px] font-black uppercase tracking-widest">Check-In</p>
                 <h2 id="statArrived" class="text-2xl font-black text-blue-700">0</h2>
             </div>
-
-            <!-- Pending/Canceled -->
             <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 shadow-sm">
-                <p class="text-orange-500 text-[9px] font-black uppercase tracking-widest">Pending: <span id="statPending" class="font-bold">0</span></p>
-                <p class="text-red-500 text-[9px] font-black uppercase tracking-widest">Canceled: <span id="statCanceled" class="font-bold">0</span></p>
-            </div>
-
-            <!-- TOTAL REVENUE (TOTAL HARGA) -->
-            <div class="bg-slate-900 p-5 rounded-3xl shadow-xl shadow-slate-200 col-span-2 md:col-span-1">
-                <p class="text-slate-400 text-[9px] font-black uppercase tracking-widest">Total Kutipan (RM)</p>
-                <h2 id="statRevenue" class="text-2xl font-black text-yellow-500">RM 0</h2>
+                <p class="text-orange-500 text-[9px] font-black uppercase tracking-widest text-center">Pending: <span id="statPending" class="font-bold">0</span> | Batal: <span id="statCanceled" class="font-bold">0</span></p>
             </div>
         </div>
 
-        <!-- LIST CONTAINER -->
         <div id="loader" class="hidden text-center py-20">
             <i class="fas fa-circle-notch fa-spin text-4xl text-slate-300"></i>
-            <p class="text-gray-400 mt-4 font-medium italic">Menghubungi database MKAJ...</p>
+            <p class="text-gray-400 mt-4 font-medium italic">Memuatkan data...</p>
         </div>
 
-        <div id="container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <!-- Data Cards akan di-generate oleh admin.js -->
-        </div>
+        <div id="container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
     </div>
 
-    <!-- MODAL: WALK-IN REGISTRATION -->
+    <!-- MODAL: WALK-IN -->
     <div id="walkInModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
                 <h2 class="text-xl font-extrabold text-slate-800">Pendaftaran Walk-In</h2>
-                <button onclick="toggleModal('walkInModal', false)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button onclick="toggleModal('walkInModal', false)" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
             </div>
             <form id="walkInForm" class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-                <div class="space-y-3">
-                    <input type="text" id="w_name" placeholder="Nama Penuh Pelanggan" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-500" required>
-                    <input type="tel" id="w_phone" placeholder="60123456789" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-500" required>
-                </div>
-
+                <input type="text" id="w_name" placeholder="Nama Penuh Pelanggan" class="w-full p-4 bg-gray-50 rounded-2xl outline-none" required>
+                <input type="tel" id="w_phone" placeholder="60123456789" class="w-full p-4 bg-gray-50 rounded-2xl outline-none" required>
+                
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilih Tema Raya</label>
-                    <select id="w_theme_select" onchange="calculateWalkIn()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1">
-                        <!-- Diisi oleh admin.js -->
-                    </select>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilih Tema</label>
+                    <select id="w_theme_select" onchange="onWalkInThemeChange()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1"></select>
                 </div>
 
-                <!-- TARIKH & MASA (SINI PUNCA ERROR TADI) -->
+                <!-- TIER SELECTION (BARU) -->
+                <div id="w_tier_container" class="hidden space-y-2">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Kategori Pax (Family)</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="p-3 bg-white rounded-xl border-2 flex flex-col items-center cursor-pointer transition" id="w_tier_small_label">
+                            <input type="radio" name="w_pax_tier" value="small" checked onchange="calculateWalkIn()" class="hidden">
+                            <span class="text-xs font-bold">1-8 Pax</span>
+                            <span class="text-[10px] opacity-60">RM129</span>
+                        </label>
+                        <label class="p-3 bg-white rounded-xl border-2 flex flex-col items-center cursor-pointer transition" id="w_tier_large_label">
+                            <input type="radio" name="w_pax_tier" value="large" onchange="calculateWalkIn()" class="hidden">
+                            <span class="text-xs font-bold">9-15 Pax</span>
+                            <span class="text-[10px] opacity-60">RM199</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tarikh Sesi</label>
-                        <input type="date" id="w_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1" required>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Masa Sesi</label>
-                        <select id="w_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1" required>
-                            <!-- Diisi oleh initTimeSlots() dalam admin.js -->
-                        </select>
+                    <input type="date" id="w_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none text-sm" required>
+                    <select id="w_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none text-sm" required></select>
+                </div>
+
+                <!-- PAX COUNTER -->
+                <div class="bg-gray-50 p-4 rounded-3xl flex justify-between items-center">
+                    <div><p class="font-bold text-sm">Dewasa</p><p class="text-[9px] text-gray-400 uppercase" id="w_pax_note">Cover 8 Pax</p></div>
+                    <div class="flex items-center gap-4 bg-white p-1 rounded-full shadow-sm">
+                        <button type="button" onclick="adjustPax('adult', -1)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold">-</button>
+                        <span id="w_adult_val" class="font-black text-lg w-4 text-center">1</span>
+                        <button type="button" onclick="adjustPax('adult', 1)" class="w-8 h-8 flex items-center justify-center bg-slate-900 text-white rounded-full font-bold">+</button>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-5 rounded-3xl space-y-5">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="font-bold">Dewasa</p>
-                            <p class="text-[10px] text-gray-400 uppercase font-bold" id="w_pax_note">Cover 6 Orang</p>
-                        </div>
-                        <div class="flex items-center gap-4 bg-white p-1.5 rounded-full shadow-sm">
-                            <button type="button" onclick="adjustPax('adult', -1)" class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full font-bold hover:bg-slate-200">-</button>
-                            <span id="w_adult_val" class="font-black text-lg w-6 text-center">6</span>
-                            <button type="button" onclick="adjustPax('adult', 1)" class="w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-full font-bold hover:bg-slate-700">+</button>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="font-bold">Kanak-kanak</p>
-                            <p class="text-[10px] text-green-600 font-bold uppercase">Percuma</p>
-                        </div>
-                        <div class="flex items-center gap-4 bg-white p-1.5 rounded-full shadow-sm">
-                            <button type="button" onclick="adjustPax('kid', -1)" class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full font-bold hover:bg-slate-200">-</button>
-                            <span id="w_kid_val" class="font-black text-lg w-6 text-center">0</span>
-                            <button type="button" onclick="adjustPax('kid', 1)" class="w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-full font-bold hover:bg-slate-700">+</button>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- ADD ONS (MUA & TIME) -->
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tambahan (Add-ons)</label>
-                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition">
+                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer">
                         <input type="checkbox" id="w_addon_makeup" onchange="calculateWalkIn()" class="w-5 h-5 accent-slate-900">
                         <span class="text-sm font-bold text-slate-700">Makeup Artist (+RM150)</span>
                     </label>
-                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition">
+                    <div id="w_mua_selection" class="hidden pl-8">
+                        <select id="w_mua_select" onchange="calculateWalkIn()" class="w-full p-3 bg-white border rounded-xl text-xs font-bold"></select>
+                    </div>
+                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer">
                         <input type="checkbox" id="w_addon_time" onchange="calculateWalkIn()" class="w-5 h-5 accent-slate-900">
-                        <span class="text-sm font-bold text-slate-700">Tambahan Masa 10 Min (+RM20)</span>
+                        <span class="text-sm font-bold text-slate-700">Extra Time 10 Min (+RM20)</span>
                     </label>
                 </div>
 
-                <div class="bg-slate-900 p-6 rounded-[2rem] text-white flex justify-between items-center shadow-2xl shadow-slate-300">
-                    <div>
-                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Total Bayaran</p>
-                        <h2 class="text-4xl font-black text-yellow-500 leading-none mt-1">RM <span id="w_total_display">0</span></h2>
-                    </div>
-                    <button type="submit" class="bg-yellow-500 text-slate-900 px-8 py-4 rounded-2xl font-black text-sm hover:bg-yellow-400 transition transform active:scale-95">
-                        SIMPAN
-                    </button>
+                <!-- FRAME -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilihan Frame (Premium)</label>
+                    <select id="w_frame_select" onchange="calculateWalkIn()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1 text-sm font-bold"></select>
+                </div>
+
+                <div class="bg-slate-900 p-6 rounded-[2rem] text-white flex justify-between items-center shadow-xl">
+                    <div><p class="text-[10px] text-slate-400 uppercase font-black">Total Bayaran</p><h2 class="text-3xl font-black text-yellow-500">RM <span id="w_total_display">0</span></h2></div>
+                    <button type="submit" class="bg-yellow-500 text-slate-900 px-8 py-4 rounded-2xl font-black hover:bg-yellow-400 transition">SIMPAN</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: SUPER EDIT CUSTOMER -->
+    <!-- MODAL: EDIT -->
     <div id="editModal" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden">
             <div class="p-6 border-b bg-slate-50 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-black text-slate-800">Edit Maklumat</h2>
-                    <p id="edit_orderID_label" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest"></p>
-                </div>
-                <button onclick="toggleModal('editModal', false)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <div><h2 class="text-xl font-black text-slate-800">Edit Maklumat</h2><p id="edit_orderID_label" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest"></p></div>
+                <button onclick="toggleModal('editModal', false)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 transition"><i class="fas fa-times text-xl"></i></button>
             </div>
-        
             <form id="editForm" class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
                 <input type="hidden" id="e_orderID">
-            
-                <!-- Phone Edit -->
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">No. Telefon</label>
-                    <input type="tel" id="e_phone" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold mt-1">
+                <input type="tel" id="e_phone" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" placeholder="No Tel">
+                
+                <div class="bg-slate-50 p-4 rounded-3xl">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tema / Kategori</label>
+                    <select id="e_theme" onchange="onEditThemeChange()" class="w-full p-3 bg-white rounded-xl mt-2 font-bold outline-none"></select>
+                    <p id="e_package_label" class="text-[9px] font-black text-blue-600 mt-2 ml-2 uppercase"></p>
                 </div>
 
-                <!-- TUKAR TEMA & PAKEJ -->
-                <div class="bg-slate-50 p-4 rounded-3xl border border-slate-100">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tukar Tema / Pakej</label>
-                    <select id="e_theme" onchange="onEditThemeChange()" class="w-full p-3 bg-white border-none rounded-xl mt-2 font-bold shadow-sm outline-none focus:ring-2 focus:ring-blue-400">
-                        <!-- Diisi oleh admin.js -->
-                    </select>
-                    <p id="e_package_label" class="text-[9px] font-black text-blue-600 mt-2 ml-2 uppercase tracking-tighter"></p>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="date" id="e_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
+                    <select id="e_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm"></select>
                 </div>
 
-                <!-- Tukar Tarikh & Masa Sesi -->
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tarikh Sesi</label>
-                        <input type="date" id="e_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Masa Sesi</label>
-                        <select id="e_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1">
-                            <!-- Diisi oleh initTimeSlots() -->
-                        </select>
-                    </div>
+                <div class="bg-indigo-50 p-4 rounded-3xl">
+                    <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest ml-2">Assign Shooter</label>
+                    <select id="e_photographer" class="w-full p-3 bg-white rounded-xl mt-2 font-bold outline-none border-none shadow-sm"></select>
                 </div>
 
-                <!-- Masukkan dlm editForm, di bawah grid Tarikh & Masa -->
-                <div class="mt-4">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Assign Photographer</label>
-                    <select id="e_photographer" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm mt-1 border-2 border-indigo-100 focus:ring-2 focus:ring-indigo-500">
-                        <!-- Diisi secara automatik oleh admin.js -->
-                    </select>
-                </div>
-
-                <!-- Pax Counter Edit -->
                 <div class="bg-blue-50 p-4 rounded-3xl grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-2 ml-1">Dewasa</p>
-                        <div class="flex items-center justify-between bg-white p-1 rounded-full shadow-sm">
-                            <button type="button" onclick="adjustEditPax('adult', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button>
-                            <span id="e_adult_val" class="font-black">0</span>
-                            <button type="button" onclick="adjustEditPax('adult', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button>
-                        </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase">Dewasa</p>
+                        <div class="flex items-center gap-3 bg-white p-1 rounded-full"><button type="button" onclick="adjustEditPax('adult', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button><span id="e_adult_val" class="font-black">0</span><button type="button" onclick="adjustEditPax('adult', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button></div>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-2 ml-1">Kanak-kanak</p>
-                        <div class="flex items-center justify-between bg-white p-1 rounded-full shadow-sm">
-                            <button type="button" onclick="adjustEditPax('kid', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button>
-                            <span id="e_kid_val" class="font-black">0</span>
-                            <button type="button" onclick="adjustEditPax('kid', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button>
-                        </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase">Kanak-kanak</p>
+                        <div class="flex items-center gap-3 bg-white p-1 rounded-full"><button type="button" onclick="adjustEditPax('kid', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button><span id="e_kid_val" class="font-black">0</span><button type="button" onclick="adjustEditPax('kid', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button></div>
                     </div>
                 </div>
 
-                <!-- Bahagian Add-ons dlm Edit Modal -->
-                <div class="grid grid-cols-2 gap-3 mt-4">
+                <div class="grid grid-cols-2 gap-2">
                     <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" id="e_addon_makeup" onchange="calculateEditPrice()" class="w-4 h-4 accent-blue-600">
-                        <span class="text-[10px] font-bold text-slate-600 uppercase">Makeup (+150)</span>
+                        <input type="checkbox" id="e_addon_makeup" onchange="onEditMakeupToggle()" class="w-4 h-4 accent-blue-600">
+                        <span class="text-[9px] font-bold text-slate-600 uppercase">Makeup</span>
                     </label>
                     <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-2xl cursor-pointer">
                         <input type="checkbox" id="e_addon_time" onchange="calculateEditPrice()" class="w-4 h-4 accent-blue-600">
-                        <span class="text-[10px] font-bold text-slate-600 uppercase">Time (+20)</span>
+                        <span class="text-[9px] font-bold text-slate-600 uppercase">Time (+20)</span>
                     </label>
                 </div>
+                <div id="e_mua_selection" class="hidden bg-blue-50/50 p-3 rounded-2xl">
+                    <select id="e_mua_select" onchange="calculateEditPrice()" class="w-full bg-white border-none p-3 rounded-xl text-xs font-bold outline-none"></select>
+                </div>
 
-                <!-- Frame & Photo Num -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilihan Album / Frame</label>
-                        <select id="e_frame" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1 font-bold text-sm">
-                            <!-- Diisi secara automatik oleh admin.js dari data.js -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">No. Gambar</label>
-                        <input type="text" id="e_photoNum" placeholder="IMG_001" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold mt-1">
-                    </div>
+                    <select id="e_frame" onchange="calculateEditPrice()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm"></select>
+                    <input type="text" id="e_photoNum" placeholder="No. Gambar" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
                 </div>
 
-                <!-- Total Harga Display -->
-                <div class="bg-slate-900 p-5 rounded-[2rem] text-white mt-4 border-2 border-blue-500/30">
-                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1 text-center">Anggaran Harga Baru (Automatik)</p>
-                    <div class="flex items-center justify-center gap-2">
-                        <span class="text-3xl font-black text-yellow-500">RM</span>
-                        <input type="number" id="e_totalPrice" class="bg-transparent text-4xl font-black text-yellow-500 outline-none w-32 text-center" value="0">
-                    </div>
-                    <p class="text-[9px] text-slate-500 mt-2 text-center italic">Harga dikira berdasarkan Tema + Pax + Add-ons.</p>
+                <div class="bg-slate-900 p-5 rounded-[2rem] text-white">
+                    <p class="text-[10px] text-slate-400 uppercase font-black text-center">Total Harga (RM)</p>
+                    <div class="flex items-center justify-center gap-2"><span class="text-3xl font-black text-yellow-500">RM</span><input type="number" id="e_totalPrice" class="bg-transparent text-4xl font-black text-yellow-500 outline-none w-32 text-center"></div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-sm hover:bg-blue-700 transition shadow-xl shadow-blue-100 transform active:scale-95">
-                    SIMPAN PERUBAHAN
-                </button>
+                <button type="submit" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-sm hover:bg-blue-700 transition shadow-xl">SIMPAN PERUBAHAN</button>
             </form>
         </div>
     </div>
 
-    <!-- EXTERNAL SCRIPTS -->
+    <!-- SCRIPTS -->
     <script src="assets/js/data.js"></script>
     <script src="assets/js/admin.js"></script>
 </body>

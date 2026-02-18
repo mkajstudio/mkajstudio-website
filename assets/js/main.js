@@ -511,7 +511,7 @@ function filterThemes(type) {
                     </p>
                     <div class="flex items-center gap-2 mt-2">
                         <span class="text-white font-bold text-sm bg-white/20 px-3 py-1 rounded backdrop-blur-sm border border-white/10">
-                            RM ${val.price}
+                            ${val.displayPrice}
                         </span>
                         <span class="text-xs text-white/70">
                             / Sesi
@@ -538,123 +538,79 @@ function filterThemes(type) {
 
 /* --- 2. THEME DETAIL POPUP LOGIC --- */
 
-/* assets/js/main.js - GANTI FUNCTION INI */
-
 let modalSwiperInstance = null;
 let currentlyViewingTheme = ""; 
+// Gunakan variable sedia ada bos:
+let currentThemeKey = ""; 
 
 function openThemeDetails(key) {
     if (typeof rayaThemesDetail === 'undefined' || !rayaThemesDetail[key]) return;
     const data = rayaThemesDetail[key];
 
-    currentThemeKey = key; 
+    currentThemeKey = key; // Lock kunci tema
     currentlyViewingTheme = data.title;
 
-    // 1. UPDATE TEKS & BADGE KATEGORI
-    const tagEl = document.getElementById('th-modal-tag');
+    // 1. Update Teks & UI Dasar
     const titleEl = document.getElementById('th-modal-title');
     const descEl = document.getElementById('th-modal-desc');
-    const inclusionList = document.getElementById('th-modal-inclusions');
-    const priceTag = document.getElementById('th-modal-price-tag');
-    const paxInfo = document.getElementById('th-modal-pax-info');
     const catBadge = document.getElementById('th-cat-badge');
 
-    if(tagEl) tagEl.innerText = data.tagline;
     if(titleEl) titleEl.innerText = data.title;
     if(descEl) descEl.innerText = data.desc;
-    if(priceTag) priceTag.innerText = `RM ${data.price}`;
 
+    // 2. TUKAR BUTANG BERDASARKAN JENIS TEMA (Tier Logic)
+    const familyTierUI = document.getElementById('modal-tier-family');
+    const coupleTierUI = document.getElementById('modal-tier-couple');
+
+    if (data.type === 'family') {
+        if(familyTierUI) familyTierUI.classList.remove('hidden');
+        if(coupleTierUI) coupleTierUI.classList.add('hidden');
+    } else {
+        if(familyTierUI) familyTierUI.classList.add('hidden');
+        if(coupleTierUI) coupleTierUI.classList.remove('hidden');
+    }
+
+    // 3. Render Inclusions (Kekalkan logic bos)
+    const inclusionList = document.getElementById('th-modal-inclusions');
     if (inclusionList && data.inclusions) {
         inclusionList.innerHTML = ""; 
         const checkColor = data.type === 'couple' ? 'text-pink-500' : 'text-green-500';
-
         data.inclusions.forEach(item => {
             const li = document.createElement('li');
-            // Guna text-xs (lebih kecil) dan gap-2 supaya jimat ruang skrin
-            li.className = "flex items-start gap-2 text-xs text-gray-700 font-medium leading-tight";
-            
-            // Icon check kecil sikit
+            li.className = "flex items-start gap-2 text-xs text-gray-700 font-medium";
             li.innerHTML = `<i class="fas fa-check-circle ${checkColor} mt-0.5"></i> <span>${item}</span>`;
-            
             inclusionList.appendChild(li);
         });
     }
     
-    // Pax & Kategori UI
     if(catBadge) {
-        catBadge.innerText = data.categoryName || "FAMILY (6 PAX)";
-        catBadge.className = `inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 w-max border ${data.colorClass || 'text-green-600 bg-green-50 border-green-200'}`;
-    }
-    if (paxInfo) {
-        paxInfo.innerText = data.type === 'couple' ? "Max 4 Pax" : `Cover ${data.paxCover} Dewasa`;
+        catBadge.innerText = data.categoryName;
+        catBadge.className = `inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 border ${data.colorClass}`;
     }
 
-    // 2. SETUP SLIDESHOW GAMBAR (SWIPER) - BAHAGIAN KRITIKAL FIX
+    // 4. Setup Swiper (Kekalkan logic bos)
     const slidesContainer = document.getElementById('th-modal-slides-container');
-    const navNext = document.querySelector('.swiper-button-next');
-    const navPrev = document.querySelector('.swiper-button-prev');
-    const pagination = document.querySelector('.swiper-pagination');
-
-    // Mula-mula, BUKA DULU MODAL (Remove Hidden) supaya Swiper boleh kira saiz gambar
-    // Ini trick penting! Kita buka tapi mungkin user tak perasan sekelip mata.
     document.getElementById('theme-detail-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
     if (slidesContainer && data.images.length > 0) {
-        
-        // Hancurkan Swiper lama kalau ada (untuk clearkan memori)
-        if (modalSwiperInstance) {
-            modalSwiperInstance.destroy(true, true);
-            modalSwiperInstance = null;
-        }
-
-        // KOSONGKAN dan ISI BARU html slider
+        if (modalSwiperInstance) { modalSwiperInstance.destroy(true, true); modalSwiperInstance = null; }
         slidesContainer.innerHTML = "";
         data.images.forEach(imgUrl => {
             const slide = document.createElement('div');
-            slide.className = "swiper-slide w-full h-full flex items-center justify-center bg-gray-200"; // tambah bg-gray sikit
-            // Guna object-cover supaya penuh
+            slide.className = "swiper-slide w-full h-full";
             slide.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover block">`; 
             slidesContainer.appendChild(slide);
         });
 
-        // TENTUKAN NAVIGASI
-        const banyakGambar = data.images.length > 1;
-        if (navNext) navNext.style.display = banyakGambar ? 'flex' : 'none';
-        if (navPrev) navPrev.style.display = banyakGambar ? 'flex' : 'none';
-        if (pagination) pagination.style.display = banyakGambar ? 'block' : 'none';
-
-        // INIT SWIPER BARU (Dengan Observer fix)
         modalSwiperInstance = new Swiper(".modalSwiper", {
-            // FIX PENTING: Dua baris ini "kejutkan" swiper bila modal muncul
-            observer: true, 
-            observeParents: true,
-            
-            loop: banyakGambar,
-            effect: "fade", // Boleh tukar 'slide' kalau tak suka fade
-            speed: 500,
-            fadeEffect: { crossFade: true },
-            
-            navigation: {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                dynamicBullets: true,
-            },
-            autoplay: banyakGambar ? {
-                delay: 3500,
-                disableOnInteraction: true,
-            } : false,
-            allowTouchMove: banyakGambar
+            observer: true, observeParents: true,
+            loop: data.images.length > 1,
+            effect: "fade", speed: 500,
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+            pagination: { el: ".swiper-pagination", clickable: true },
+            autoplay: { delay: 3500 }
         });
-        
-        // Extra Safe: Force Update
-        setTimeout(() => {
-            if(modalSwiperInstance) modalSwiperInstance.update();
-        }, 100);
     }
 }
 
@@ -692,18 +648,17 @@ function closeTncModal() {
 
 // Function bila user tekan "SETUJU" dekat TNC
 function agreeAndProceed() {
-    closeTncModal(); // Tutup TNC
+    // 1. Tutup Modal T&C
+    const tncModal = document.getElementById('tnc-modal');
+    if(tncModal) tncModal.classList.add('hidden');
 
-    if(pendingBookingData && typeof openBookingWizard === 'function') {
-        // Teruskan buka borang dengan data yg disimpan tadi
-        openBookingWizard(
-            pendingBookingData.categoryLabel, 
-            pendingBookingData.price, 
-            pendingBookingData.paxCover, 
-            pendingBookingData.type, 
-            pendingBookingData.title
-        );
-    }
+    const theme = rayaThemesDetail[currentThemeKey];
+    
+    // 2. Masukkan tier yang disimpan tadi ke dalam data booking
+    bookingData.familyTier = selectedTierTemp; 
+    
+    // 3. Baru buka Booking Wizard
+    openBookingWizard(theme.categoryName, theme.price, theme.paxCover, theme.type, theme.title);
 }
 
 function closeThemeModal() {

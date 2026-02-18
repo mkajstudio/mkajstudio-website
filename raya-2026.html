@@ -19,7 +19,7 @@
 
     <!-- Social Media Preview (WhatsApp/FB) -->
     <meta property="og:title" content="Tempahan Studio Raya 2026 - MKAJ Studio">
-    <meta property="og:description" content="Slot terhad! Pilih tema kegemaran anda dan dapatkan resit premium secara automatik.">
+    <meta property="og:description" content="Slot terhad! Pilih tema kegemaran anda sebelum penuh. Lokasi: Dewan Datuk Seri Abu Seman, Masjid Tanah, Melaka. Booking online sekarang!">
     <meta property="og:image" content="https://mkajstudio.com/assets/images/hero/raya-hero/5.webp">
     <meta property="og:url" content="https://mkajstudio.com/raya-2026">
     <meta property="og:type" content="website">
@@ -235,24 +235,41 @@
                 <!-- Spacer supaya tolak button ke bawah sikit kalau content sikit -->
                 <div class="mt-auto"></div>
 
-                <!-- Harga & Butang (Normal Flow) -->
-                <div class="pt-6 border-t border-gray-100">
-                    <div class="flex justify-between items-end mb-4">
-                        <div>
-                            <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Harga Booking</p>
-                            <p id="th-modal-price-tag" class="text-3xl font-serif font-bold text-gray-900">RM 0</p> 
-                        </div>
-                        <div class="text-right">
-                            <p id="th-modal-pax-info" class="text-xs font-bold text-gray-500">...</p>
+                <!-- Harga & Butang (DITUKAR KEPADA TIER SELECTION) -->
+                <div class="pt-6 border-t border-gray-100 mt-auto">
+                    <!-- Container untuk Tema FAMILY -->
+                    <div id="modal-tier-family" class="hidden space-y-3">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Pilih Kategori Kehadiran:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="selectTierAndBook('small')" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-amber-100 bg-amber-50 hover:border-amber-500 transition group">
+                                <span class="text-sm font-black text-slate-800 uppercase">1-8 PAX</span>
+                                <span class="text-lg font-serif font-bold text-amber-700 leading-none mt-1">RM 129</span>
+                            </button>
+                            <button onclick="selectTierAndBook('large')" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-gray-100 bg-gray-50 hover:border-amber-500 transition group">
+                                <span class="text-sm font-black text-slate-800 uppercase">9-15 PAX</span>
+                                <span class="text-lg font-serif font-bold text-slate-800 leading-none mt-1">RM 199</span>
+                            </button>
                         </div>
                     </div>
 
-                    <button onclick="bookCurrentTheme()" class="w-full bg-amber-300 text-amber-700 py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-amber-200 transition flex justify-center gap-2">
-                        <span>PILIH TEMA INI</span> <i class="fas fa-check mt-0.5"></i>
-                    </button>
+                    <!-- Container untuk Tema COUPLE -->
+                    <div id="modal-tier-couple" class="hidden">
+                        <div class="flex justify-between items-end mb-4">
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Harga Booking</p>
+                                <p class="text-3xl font-serif font-bold text-gray-900">RM 89</p> 
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-pink-500 uppercase tracking-widest">Max 4 Pax</p>
+                            </div>
+                        </div>
+                        <button onclick="selectTierAndBook('couple')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-slate-800 transition">
+                            PILIH TEMA INI
+                        </button>
+                    </div>
 
-                    <div class="text-center pt-3">
-                        <button onclick="closeThemeModal()" class="text-xs text-gray-400 hover:text-black border-b border-transparent hover:border-black transition">Kembali ke Pilihan Tema</button>
+                    <div class="text-center pt-4">
+                        <button onclick="closeThemeModal()" class="text-[10px] font-bold text-gray-400 hover:text-black uppercase tracking-widest">Kembali</button>
                     </div>
                 </div>
 
@@ -293,15 +310,15 @@
             </div>
         </div>
     </div>
-    <!-- ========== MODAL 2: BOOKING WIZARD ========== -->
+    <!-- ========== MODAL 2: BOOKING WIZARD (V15.0 UPDATED) ========== -->
     <div id="booking-wizard" class="fixed inset-0 z-[100] bg-black/90 hidden overflow-y-auto backdrop-blur-sm">
         <div class="min-h-screen flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative">
-                
+            
                 <button onclick="closeWizard()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 z-50"><i class="fas fa-times text-2xl"></i></button>
 
                 <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-center">
-                    <div class="text-sm font-bold text-amber-700">Studio Raya by mkajstudio</div>
+                    <div class="text-sm font-bold text-amber-700 uppercase tracking-widest">MKAJ STUDIO RAYA 2026</div>
                     <div class="flex gap-2">
                         <span id="step-dot-1" class="w-2 h-2 rounded-full bg-amber-600"></span>
                         <span id="step-dot-2" class="w-2 h-2 rounded-full bg-gray-300"></span>
@@ -311,32 +328,24 @@
                 </div>
 
                 <form id="mkaj-booking-form" onsubmit="return false;" class="p-6 md:p-8">
-                    <!-- UPDATE STEP 1: TAMBAH BACK BUTTON & CHECK INPUT -->
+                
+                    <!-- STEP 1: Info Diri (Kekalkan struktur bos) -->
                     <div id="step-1" class="step-content fade-in">
                         <h3 class="font-serif text-2xl mb-4">Butiran Anda</h3>
                         <div class="space-y-4">
-                            <!-- Input ini yang sebelum ni tak keluar tulisan -->
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Pakej Pilihan</label>
-                            <input type="text" id="bk-package" class="w-full bg-amber-50 border border-amber-200 p-3 rounded font-bold text-amber-800 uppercase tracking-wide cursor-not-allowed shadow-inner" readonly>
-        
+                            <input type="text" id="bk-package" class="w-full bg-amber-50 border border-amber-200 p-3 rounded font-bold text-amber-800 uppercase cursor-not-allowed" readonly>
+
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1 mt-4">Nama Penuh</label>
                             <input type="text" id="bk-name" placeholder="Isi nama penuh..." class="w-full border p-3 rounded" required>
-        
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- UPDATE BAHAGIAN INPUT PHONE DI STEP 1 -->
 
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Telefon (WhatsApp)</label>
-    
                                     <div class="relative">
-                                        <!-- Text Statik +6 -->
-                                        <span class="absolute left-3 top-3.5 text-gray-500 font-bold border-r pr-2 select-none">+6</span>
-        
-                                        <!-- Input User (Kita padding kiri supaya tak bertindih dengan +6) -->
+                                        <span class="absolute left-3 top-3.5 text-gray-500 font-bold border-r pr-2">+6</span>
                                         <input type="tel" id="bk-phone" placeholder="0123456789" class="w-full border p-3 pl-14 rounded" required>
                                     </div>
-    
-                                    <p class="text-[10px] text-gray-400 mt-1">* Pastikan nombor betul.</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Email</label>
@@ -344,55 +353,30 @@
                                 </div>
                             </div>
                         </div>
-    
-                        <!-- BUTTONS: ADA 'BATAL' & 'NEXT' -->
                         <div class="mt-8 flex justify-between items-center">
-                            <button onclick="closeWizard()" class="text-gray-400 text-sm hover:text-red-500 flex items-center gap-2 px-2">
-                                <i class="fas fa-times"></i> Batal / Tutup
-                            </button>
-                            <button onclick="nextStep(2)" class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-amber-600 transition shadow-lg">
-                                Seterusnya &rarr;
-                            </button>
+                            <button onclick="closeWizard()" class="text-gray-400 text-sm hover:text-red-500"><i class="fas fa-times"></i> Batal</button>
+                            <button onclick="nextStep(2)" class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-amber-600 transition">Seterusnya &rarr;</button>
                         </div>
                     </div>
 
-                    <!-- Step 2: Slot -->
+                    <!-- STEP 2: Slot Masa (Kekalkan struktur bos) -->
                     <div id="step-2" class="hidden step-content fade-in">
                         <h3 class="font-serif text-2xl mb-4">Pilih Masa</h3>
                         <div class="space-y-4">
-                            <!-- DALAM HTML STEP 2 - UPDATE BAHAGIAN TEMA -->
                             <div>
                                 <label class="text-xs uppercase font-bold text-gray-500">Tema Pilihan</label>
-    
-                                <!-- Theme Readonly Display (Sebab user dah pilih) -->
-                                <!-- Dropdown sorok sikit atau disable -->
-                                <select id="bk-theme" class="w-full border p-3 rounded font-bold bg-white text-black" onchange="checkThemeType()">
-                                <!-- JS Akan isi -->
-                                </select>
-    
-                                <!-- CATEGORY LABEL DI BAWAH (Dynamic) -->
+                                <select id="bk-theme" class="w-full border p-3 rounded font-bold bg-white" onchange="checkThemeType()"></select>
                                 <p id="bk-cat-label" class="text-[10px] font-bold mt-1 tracking-widest uppercase text-gray-400">Loading category...</p>
                             </div>
-                            <!-- DALAM STEP 2 -->
                             <div>
-                                <label class="text-xs uppercase font-bold text-gray-500">Tarikh (Musim Raya Sahaja)</label>
-    
+                                <label class="text-xs uppercase font-bold text-gray-500">Tarikh</label>
                                 <input type="date" id="bk-date" class="w-full border p-3 rounded" onchange="checkAvailability()">
-    
-                                <!-- MESEJ ERROR TARIKH SALAH (YG KITA DAH BUAT) -->
                                 <p id="date-error-msg" class="text-xs text-red-600 font-bold mt-1 hidden"></p>
-
-                                <!-- !!! TAMBAH INI: MESEJ SURCAJ !!! -->
-                                <!-- <p id="peak-date-msg" class="text-xs text-amber-600 font-bold mt-2 hidden bg-amber-50 p-2 rounded border border-amber-200">
-                                    🔥 Tarikh ini adalah Hari Raya 1-3 (Surcaj RM<span id="ui-surcharge-amt">0</span>)
-                                </p> -->
                             </div>
                             <div>
-                                <label class="text-xs uppercase font-bold text-gray-500">Masa (15 Min Slot)</label>
+                                <label class="text-xs uppercase font-bold text-gray-500">Masa</label>
                                 <div id="time-loader" class="hidden text-amber-600 text-xs italic">Semak kekosongan...</div>
-                                <div id="time-slots-container" class="grid grid-cols-4 gap-2 text-sm">
-                                    <div class="col-span-4 py-4 text-center bg-gray-50 text-gray-400">Pilih tarikh dahulu.</div>
-                                </div>
+                                <div id="time-slots-container" class="grid grid-cols-4 gap-2 text-sm"></div>
                                 <input type="hidden" id="bk-time">
                             </div>
                         </div>
@@ -402,128 +386,179 @@
                         </div>
                     </div>
 
-                    <!-- GANTI STEP 3 INI (FOKUS PAX SAHAJA) -->
+                    <!-- STEP 3: Kategori Pax & Counter (NEW LOGIC) -->
                     <div id="step-3" class="hidden step-content fade-in">
-                        <h3 class="font-serif text-2xl mb-2">Berapa Ramai?</h3>
-                        <p class="text-gray-500 text-sm mb-6">Sila masukkan jumlah kehadiran.</p>
-    
-                        <!-- Info Box Constraint -->
-                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-6 flex gap-3 items-start">
-                            <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
-                            <div>
-                                <p id="pax-warning" class="text-xs font-bold text-blue-800">Loading limit info...</p>
-                                <p class="text-[10px] text-blue-600/80">Kanak-kanak < 7 Tahun Percuma.</p>
+                        <h3 class="font-serif text-2xl mb-2">Bilangan Peserta</h3>
+                    
+                        <!-- Pilihan Kategori Family (Hanya muncul jika tema=family) -->
+                        <div id="family-tier-selector" class="mb-6 space-y-3 hidden">
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Pilih Kategori Kehadiran:</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label id="tier-small-label" class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition border-amber-500 bg-amber-50">
+                                    <input type="radio" name="pax-tier" value="small" checked class="absolute top-4 right-4 accent-amber-600" onchange="updateFamilyTier()">
+                                    <span class="font-black text-lg">1-8 Pax</span>
+                                    <span class="text-xs font-bold text-amber-700">RM 129.00</span>
+                                </label>
+                                <label id="tier-large-label" class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition border-gray-100 bg-gray-50">
+                                    <input type="radio" name="pax-tier" value="large" class="absolute top-4 right-4 accent-amber-600" onchange="updateFamilyTier()">
+                                    <span class="font-black text-lg">9-15 Pax</span>
+                                    <span class="text-xs font-bold text-gray-500">RM 199.00</span>
+                                </label>
                             </div>
                         </div>
 
-                        <!-- Kaunter -->
-                        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6">
-                            <!-- Dewasa -->
+                        <!-- Pax Counter -->
+                        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="font-bold text-lg">Dewasa</p>
-                                    <p class="text-xs text-gray-400">Termasuk remaja</p>
+                                    <p class="font-bold text-lg text-slate-800">Dewasa</p>
+                                    <p id="pax-price-hint" class="text-[10px] font-bold text-amber-600 uppercase">Covered by package</p>
                                 </div>
                                 <div class="flex items-center gap-3 bg-gray-100 rounded-full p-1">
-                                    <button type="button" onclick="updatePax('adult', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold hover:scale-90 transition">-</button>
-                                    <span id="bk-pax-adult" class="text-xl font-bold w-8 text-center">0</span>
-                                    <button type="button" onclick="updatePax('adult', 1)" class="w-10 h-10 bg-black text-white shadow rounded-full font-bold hover:scale-110 transition">+</button>
+                                    <button type="button" onclick="updatePax('adult', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold">-</button>
+                                    <span id="bk-pax-adult" class="text-xl font-black w-8 text-center text-slate-800">0</span>
+                                    <button type="button" onclick="updatePax('adult', 1)" class="w-10 h-10 bg-slate-900 text-white shadow rounded-full font-bold">+</button>
                                 </div>
                             </div>
-                            <!-- Kanak-kanak -->
                             <div class="flex items-center justify-between border-t border-dashed pt-4">
                                 <div>
-                                    <p class="font-bold text-lg">Kanak-kanak</p>
-                                    <p class="text-xs text-green-600 font-bold">PERCUMA</p>
+                                    <p class="font-bold text-lg text-slate-800">Kanak-kanak</p>
+                                    <p class="text-[10px] text-green-600 font-bold uppercase">Percuma ( < 7 Thn )</p>
                                 </div>
                                 <div class="flex items-center gap-3 bg-gray-100 rounded-full p-1">
-                                    <button type="button" onclick="updatePax('kid', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold hover:scale-90 transition">-</button>
-                                    <span id="bk-pax-kid" class="text-xl font-bold w-8 text-center">0</span>
-                                    <button type="button" onclick="updatePax('kid', 1)" class="w-10 h-10 bg-black text-white shadow rounded-full font-bold hover:scale-110 transition">+</button>
+                                    <button type="button" onclick="updatePax('kid', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold">-</button>
+                                    <span id="bk-pax-kid" class="text-xl font-black w-8 text-center text-slate-800">0</span>
+                                    <button type="button" onclick="updatePax('kid', 1)" class="w-10 h-10 bg-slate-900 text-white shadow rounded-full font-bold">+</button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Bottom Nav -->
                         <div class="mt-8 flex justify-between items-center">
-                            <button onclick="nextStep(2)" class="text-gray-400 text-sm hover:text-black">Kembali</button>
+                            <button onclick="nextStep(2)" class="text-gray-400 text-sm">Kembali</button>
                             <div class="text-right">
-                                <!-- Harga Live Kecil -->
-                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Base Price</p>
-                                <p class="font-serif text-xl font-bold text-amber-600 mb-2">RM <span id="bk-total-step3">0</span></p>
-                                <button onclick="nextStep(4)" class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition">Checkout &rarr;</button>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Base Price</p>
+                                <p class="font-serif text-2xl font-black text-amber-600 mb-2">RM <span id="bk-total-step3">0</span></p>
+                                <button onclick="nextStep(4)" class="bg-black text-white px-10 py-3 rounded-xl font-black shadow-lg">Next &rarr;</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- GANTI STEP 4 INI (ADDON + PAYMENT + REVIEW) -->
+                    <!-- STEP 4: Add-ons & Checkout -->
                     <div id="step-4" class="hidden step-content fade-in pb-10">
-                        <h3 class="font-serif text-2xl mb-4">Langkah Terakhir</h3>
+                        <h3 class="font-serif text-2xl mb-4 text-slate-800">Pilihan Tambahan</h3>
 
-                        <!-- Cari checkbox add-on di Step 4 HTML -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <!-- Makeup (Kekal, cuma pastikan text +150) -->
-                            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-400 transition select-none">
-                                <input type="checkbox" value="Makeup (+RM150)" class="bk-addon w-5 h-5 accent-amber-600" onchange="calculateTotal()">
-                                <div class="text-sm">
-                                    <span class="block font-bold">Makeup</span>
-                                    <span class="text-xs text-amber-600 font-bold">+ RM 150</span>
-                                </div>
-                            </label>
-                            <!-- RAW DITUKAR KE MASA -->
-                            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 hover:border-amber-400 transition select-none">
-                                <!-- Tukar value RawFiles ke Masa -->
-                                <input type="checkbox" value="Tambahan Masa (+RM20)" class="bk-addon w-5 h-5 accent-amber-600" onchange="calculateTotal()">
-                                <div class="text-sm">
-                                    <span class="block font-bold">Tambahan Masa (10 min)</span>
-                                    <span class="text-xs text-amber-600 font-bold">+ RM 20</span>
-                                </div>
-                            </label>
-                        </div>
-                        <!-- 2. SUMMARY CARD -->
-                        <div class="bg-amber-50 rounded-xl p-5 mb-6 border border-amber-100 shadow-inner relative">
-                            <div class="absolute top-4 right-4 text-right">
-                                <p class="text-[10px] uppercase text-amber-700/50 font-bold">Grand Total</p>
-                                <h2 class="text-3xl font-serif font-bold text-amber-700">RM <span id="bk-total-final">0</span></h2>
-                            </div>
+                        <div class="space-y-4 mb-8">
         
-                            <div class="space-y-1 text-sm pr-20">
-                                <p class="font-bold text-lg" id="rev-name">User Name</p>
-                                
-                                <p><i class="far fa-calendar text-amber-600 w-5"></i> <span id="rev-datetime">...</span></p>
-                                <p><i class="fas fa-camera text-amber-600 w-5"></i> <span id="rev-theme">...</span></p>
-                                <p id="row-addons" class="hidden text-amber-700 font-bold bg-amber-50 p-1 rounded text-xs border border-amber-200 mt-1 mb-1">
-                                    <i class="fas fa-plus-circle w-5"></i> <span id="rev-addons">...</span>
+                            <!-- 1. EXTRA TIME (Masa) -->
+                            <label class="flex items-center justify-between p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" id="bk-extra-time" value="Extra Time 10m (+RM20)" class="w-5 h-5 accent-amber-600" onchange="calculateTotal()">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-700">Tambahan Masa (10 Minit)</span>
+                                        <span class="text-[10px] text-gray-400 uppercase font-bold">Lebih masa untuk bergambar</span>
+                                    </div>
+                                </div>
+                                <span class="font-black text-amber-600 text-sm">+ RM 20</span>
+                            </label>
+
+                            <!-- 2. MAKEUP ARTIST (Tick dulu baru pilih) -->
+                            <div class="space-y-3">
+                                <label class="flex items-center justify-between p-4 border-2 border-gray-100 rounded-2xl cursor-pointer hover:bg-gray-50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" id="bk-mua-check" class="w-5 h-5 accent-amber-600" onchange="toggleMuaSelection()">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-slate-700">Add-on Makeup Artist</span>
+                                            <span class="text-[10px] text-gray-400 uppercase font-bold">Sentuhan MUA Profesional</span>
+                                        </div>
+                                    </div>
+                                    <span class="font-black text-amber-600 text-sm">+ RM 150</span>
+                                </label>
+
+                                <!-- Dropdown MUA (Tersembunyi asalnya) -->
+                                <div id="mua-selection-container" class="hidden animate-in slide-in-from-top-2 duration-300">
+                                    <label class="text-[9px] font-black text-amber-600 uppercase tracking-widest ml-2">Pilih MUA Kegemaran Anda:</label>
+                                        <select id="bk-mua-select" class="w-full border-2 border-amber-200 p-4 rounded-2xl font-bold bg-amber-50 outline-none focus:border-amber-400 text-sm" onchange="calculateTotal()">
+                                            <option value="" disabled selected>-- Sila pilih MUA anda --</option>
+                                            <option value="MUA Adam Shah (@adamshahh3386)">Adam Shah (@adamshahh3386)</option>
+                                            <option value="MUA Shaazeerakarim (@makeupbyshaazeerakarim)">Shaazeerakarim (@makeupbyshaazeerakarim)</option>
+                                        </select>
+                                    <p id="mua-error" class="text-[10px] text-red-500 font-bold mt-1 ml-2 hidden">⚠️ Sila pilih salah satu MUA.</p>
+                                </div>
+                            </div>
+
+                            <!-- 3. FRAME (Dropdown) -->
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilihan Frame (Mewah)</label>
+                                <select id="bk-frame-select" class="w-full border-2 border-gray-100 p-4 rounded-2xl font-bold bg-gray-50 outline-none focus:border-amber-400" onchange="calculateTotal()">
+                                    <option value="None">Tiada Frame</option>
+                                    <option value="Classic Heirloom 12x18 (+RM120)">Classic Heirloom (12"x18") +RM120</option>
+                                    <option value="Royale Portrait 20x24 (+RM180)">Royale Portrait (20"x24") +RM180</option>
+                                    <option value="Majestic Gallery 24x30 (+RM220)">Majestic Gallery (24"x30") +RM220</option>
+                                    <option value="Legacy Grandeur 24x36 (+RM300)">Legacy Grandeur (24"x36") +RM300</option>
+                                </select>
+                            </div>
+                        </div>
+    
+                        <!-- (Selebihnya Summary Card & Button Confirmation kekal sama) -->
+
+                        <!-- 2. SUMMARY CARD (Di dalam Step 4) -->
+                        <div class="bg-slate-900 rounded-[2rem] p-6 mb-8 text-white relative shadow-2xl overflow-hidden border border-white/5">
+                            <!-- Harga di Penjuru Atas -->
+                            <div class="absolute top-0 right-0 p-6 text-right">
+                                <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Jumlah Besar</p>
+                                <h2 class="text-4xl font-serif font-black text-yellow-500">RM <span id="bk-total-final">0</span></h2>
+                            </div>
+
+                            <!-- Rincian Data -->
+                            <div class="space-y-2 text-xs pr-24">
+                                <p class="font-black text-xl text-yellow-500 mb-2 uppercase" id="rev-name">User Name</p>
+        
+                                <!-- Pakej (Label Baru) -->
+                                <p class="flex items-center gap-2">
+                                    <i class="fas fa-box text-yellow-500 w-4"></i> 
+                                    <span class="text-slate-400 font-bold uppercase tracking-tighter">Pakej:</span>
+                                    <span id="rev-package" class="font-bold text-white">...</span>
                                 </p>
-                                <p><i class="fas fa-box text-amber-600 w-5"></i> <span id="rev-package">...</span></p>
-                                <p><i class="fas fa-users text-amber-600 w-5"></i> <span id="rev-pax">...</span></p>
+
+                                <p class="flex items-center gap-2">
+                                    <i class="far fa-calendar text-yellow-500 w-4"></i> 
+                                    <span id="rev-datetime">...</span>
+                                </p>
+        
+                                <p class="flex items-center gap-2">
+                                    <i class="fas fa-camera text-yellow-500 w-4"></i> 
+                                    <span id="rev-theme">...</span>
+                                </p>
+        
+                                <p class="flex items-center gap-2">
+                                    <i class="fas fa-users text-yellow-500 w-4"></i> 
+                                    <span id="rev-pax">...</span>
+                                </p>
+        
+                                <!-- Add-ons (Baris yang hilang tadi) -->
+                                <div id="row-addons" class="mt-4 text-yellow-200 font-bold bg-white/10 p-3 rounded-xl border border-white/10 hidden">
+                                    <p class="text-[9px] uppercase tracking-widest text-yellow-500 mb-1">Tambahan:</p>
+                                    <i class="fas fa-plus-circle mr-1"></i> <span id="rev-addons">...</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 3. PILIHAN BAYARAN -->
-                        <div class="mb-8">
-                            <h4 class="text-xs font-bold text-gray-400 uppercase mb-3 border-b pb-1">Cara Pembayaran</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- Deposit -->
-                                <button onclick="setPaymentType('deposit')" id="pay-opt-deposit" class="relative group p-4 border rounded-xl text-center hover:border-amber-500 transition">
-                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-gray-300" id="chk-deposit"></div>
-                                    <p class="text-xs font-bold text-gray-400 mb-1">DEPOSIT</p>
-                                        <p class="text-2xl font-bold font-serif">RM 50</p>
-                                </button>
-                                <!-- Full -->
-                                <button onclick="setPaymentType('full')" id="pay-opt-full" class="relative group p-4 border rounded-xl text-center hover:border-amber-500 transition">
-                                    <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-gray-300" id="chk-full"></div>
-                                    <p class="text-xs font-bold text-gray-400 mb-1">FULL PAYMENT</p>
-                                    <p class="text-2xl font-bold font-serif">RM <span id="lbl-full-amt">0</span></p>
-                                </button>
-                            </div>
+                        <!-- Cara Bayaran -->
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <button onclick="setPaymentType('deposit')" id="pay-opt-deposit" class="p-4 border-2 rounded-2xl text-center transition">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Bayar Deposit</p>
+                                <p class="text-2xl font-black">RM 50</p>
+                            </button>
+                            <button onclick="setPaymentType('full')" id="pay-opt-full" class="p-4 border-2 rounded-2xl text-center transition">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Bayar Penuh</p>
+                                <p class="text-2xl font-black">RM <span id="lbl-full-amt">0</span></p>
+                            </button>
                         </div>
 
-                        <!-- 4. SUBMIT ACTION -->
-                        <div class="flex items-center gap-4 border-t pt-4">
-                            <button onclick="nextStep(3)" class="text-gray-400 text-xs uppercase font-bold tracking-widest hover:text-black">Ubah Detail</button>
-                            <button id="btn-confirm-wa" onclick="submitBooking()" class="flex-grow bg-green-500 text-white py-4 rounded-xl font-bold shadow-xl shadow-green-200 hover:bg-green-600 hover:scale-[1.02] transition flex items-center justify-center gap-2">
-                                <span>Sahkan & WhatsApp</span> <i class="fab fa-whatsapp text-xl"></i>
+                        <div class="flex items-center gap-4">
+                            <button onclick="nextStep(3)" class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Ubah</button>
+                            <button id="btn-confirm-wa" onclick="submitBooking()" class="flex-grow bg-green-500 text-white py-5 rounded-2xl font-black shadow-xl shadow-green-200 hover:bg-green-600 transition flex items-center justify-center gap-3">
+                                <span>Sahkan & WhatsApp</span> <i class="fab fa-whatsapp text-2xl"></i>
                             </button>
                         </div>
                     </div>

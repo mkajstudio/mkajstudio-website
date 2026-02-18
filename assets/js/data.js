@@ -217,150 +217,169 @@ const rayaHeroImages = [
     // Boleh tambah lagi: "assets/images/hero/hero-raya-4.webp"
 ];
 
+
+
 /* 
-   assets/js/data.js
-   Database Statik
+   DATABASE MKAJ STUDIO 2026
+   --------------------------------------------------
+   Pusat Rujukan Data untuk Website, Booking & Admin
 */
 
-// INFO RAYA HERO (Kalau guna solution background JS tadi)
-
-
-// INFO TEMA RAYA
+// 1. INFO TEMA RAYA (Main Database)
 const rayaThemesDetail = {
-    // --- TEMA FAMILY (Max 20 Pax) ---
+    // --- TEMA FAMILY (Tier 1: RM129 | Tier 2: RM199) ---
     'velvet': {
-        title: "Royale Velvet(maroon)",
+        title: "Royale Velvet (Maroon)",
         type: "family",
-        categoryName: "FAMILY (6 PAX)",
+        categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
-        price: 129,
-        paxCover: 6, // Base cover 6
+        displayPrice: "Bermula RM 129", // Harga dipaparkan di grid luar
+        price: 129, // Base price untuk tier 1
+        paxCover: 8, // Base limit untuk tier 1
         tagline: "Elegance & Luxury.",
-        desc: "Set mewah dengan latar belakang velvet. Sesuai untuk baju raya berwarna gelap dan mewah.",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ], // Tukar nama fail sebenar
+        desc: "Set mewah dengan latar belakang velvet. Sesuai untuk tema eksklusif keluarga besar.",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover 6 Dewasa",
-            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Kategori 1-8 Pax (RM129)",
+            "Kategori 9-15 Pax (RM199)",
+            "Extra Pax > 15 orang (+RM10/head)"
         ]
     },
     'white': {
-        title: "Whisper White(putih)",
+        title: "Whisper White (Putih)",
         type: "family",
-        categoryName: "FAMILY (6 PAX)",
+        categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
+        displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 6, // Base cover 6
+        paxCover: 8,
         tagline: "Pure & Timeless.",
-        desc: "Latar belakang serba putih dengan prop minimalis. Sesuai untuk baju raya moden dan kontemporari.",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ],
+        desc: "Latar belakang serba putih minimalis. Sesuai untuk baju raya moden dan pastel.",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover 6 Dewasa",
-            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Kategori 1-8 Pax (RM129)",
+            "Kategori 9-15 Pax (RM199)",
+            "Extra Pax > 15 orang (+RM10/head)"
         ]
     },
     'hening': {
-        title: "Hening Rindu(klasik)",
+        title: "Hening Rindu (Klasik)",
         type: "family",
-        categoryName: "FAMILY (6 PAX)",
+        categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
+        displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 6, // Base cover 6
+        paxCover: 8,
         tagline: "Nostalgia & Warmth.",
-        desc: "Set kampung tradisional dengan elemen kayu dan anyaman. Sesuai untuk baju raya klasik dan tradisional.",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ],
+        desc: "Set kampung tradisional dengan elemen kayu. Membangkitkan nostalgia raya desa.",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover 6 Dewasa",
-            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Kategori 1-8 Pax (RM129)",
+            "Kategori 9-15 Pax (RM199)",
+            "Extra Pax > 15 orang (+RM10/head)"
         ]
     },
     'qalbu': {
-        title: "Noor Qalbu(Arabic)",
+        title: "Noor Qalbu (Arabic)",
         type: "family",
-        categoryName: "FAMILY (6 PAX)",
+        categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
+        displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 6, // Base cover 6
+        paxCover: 8,
         tagline: "Radiance & Grace.",
-        desc: "Set ala timur tengah dengan elemen seni Islamik. Sesuai untuk baju raya berinspirasikan Arab dan moden.",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ],
+        desc: "Set ala Timur Tengah (Arabic) yang elegan dan artistik.",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover 6 Dewasa",
-            "Caj tambahan RM10 untuk setiap peserta tambahan di atas 6 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Kategori 1-8 Pax (RM129)",
+            "Kategori 9-15 Pax (RM199)",
+            "Extra Pax > 15 orang (+RM10/head)"
         ]
     },
 
-    // --- TEMA COUPLE (Limit: 2 Dewasa + 2 Kanak2) ---
+    // --- TEMA COUPLE (Fixed RM89) ---
     'midnight': {
         title: "Midnight Luxury",
         type: "couple",
-        categoryName: "COUPLE / MINI (MAX 4 PAX)", // Label Kategori
+        categoryName: "KATEGORI COUPLE",
         colorClass: "text-pink-500 bg-pink-50 border-pink-200", // UI Class Pink
+        displayPrice: "RM 89",
         price: 89,
-        paxCover: 4, // Base cover 2 Dewasa
+        paxCover: 4,
         tagline: "Romance & Intimacy.",
-        desc: "Tema mewah dengan latar belakang gelap dan pencahayaan lembut. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ],
+        desc: "Tema premium untuk pasangan atau kumpulan kecil (Max 4 pax).",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 15 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover Max 4 Pax (Dewasa + Kanak-kanak)",
-            "Tiada caj tambahan selagi ≤ 4 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Maksima 4 Orang Sahaja",
+            "Sesuai untuk OOTD Raya Couple"
         ]
     },
     'secret': {
         title: "Secret Garden",
         type: "couple",
-        categoryName: "COUPLE / MINI (MAX 4 PAX)", // Label Kategori
+        categoryName: "KATEGORI COUPLE",
         colorClass: "text-pink-500 bg-pink-50 border-pink-200", // UI Class Pink
+        displayPrice: "RM 89",
         price: 89,
-        paxCover: 4, // Base cover 2 Dewasa
+        paxCover: 4,
         tagline: "Nature & Love.",
-        desc: "Tema floral tertutup. Sesuai untuk OOTD couple raya. (max 4 pax).",
-        images: ["assets/images/themes/coming_soon.webp",
-                "assets/images/themes/coming_soon.webp"
-        ],
+        desc: "Tema floral tertutup. Romantik dan eksklusif untuk 4 orang.",
+        images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 15 Minit",
-            "Unlimited Shooting",
-            "Semua Gambar (Softcopy)",
-            "Percuma Basic Editing",
-            "Cover Max 4 Pax (Dewasa + Kanak-kanak)",
-            "Tiada caj tambahan selagi ≤ 4 Pax"
+            "Unlimited Shooting & Softcopy",
+            "Maksima 4 Orang Sahaja",
+            "Sesuai untuk OOTD Raya Couple"
         ]
     }
 };
 
-// ... Data Gallery lain kekalkan jika ada ...
-/* --- assets/js/data.js --- */
+// 2. DATA ADD-ONS (MUA & FRAME)
+const muaOptions = [
+    { name: "Tiada", price: 0 },
+    { name: "MUA Adam Shah (@adamshahh3386)", price: 150 },
+    { name: "MUA Shaazeerakarim (@makeupbyshaazeerakarim)", price: 150 }
+];
 
+const frameAddons = [
+    { name: "Tiada", price: 0 },
+    { name: 'Classic Heirloom (12"x18")', price: 120 },
+    { name: 'Royale Portrait (20"x24")', price: 180 },
+    { name: 'Majestic Gallery (24"x30")', price: 220 },
+    { name: 'Legacy Grandeur (24"x36")', price: 300 }
+];
+
+// 3. ALBUM TYPES (Untuk Admin Portal)
+const albumTypes = [
+    { name: "Tiada", price: 0 },
+    { name: "A (16x16)", price: 150 },
+    { name: "B (16x21)", price: 200 },
+    { name: "C (Premium Wood)", price: 250 },
+    { name: "D (Crystal Cover)", price: 350 }
+];
+
+// 4. JURUGAMBAR (Full-Time)
+const photographersList = [
+    "Belum Ditetapkan",
+    "Photographer 1",
+    "Photographer 2",
+    "Photographer 3",
+    "Photographer 4",
+    "Photographer 5",
+    "Photographer 6"
+];
+
+// ... (Kekalkan Data Galeri, TNC dan FAQ di bawah) ...
 // ... (Kod tema raya & hero yang sedia ada biarkan di atas) ...
 
 // 1. DATA TERMA & SYARAT (Untuk Popup T&C)
@@ -448,24 +467,4 @@ const faqList = [
             { q: "Gambar siap edit ke?", a: "Ya, semua gambar telah diedit(basic edit)." }
         ]
     }
-];
-
-// DATA JENIS ALBUM / FRAME
-const albumTypes = [
-    { name: "Tiada", price: 0 },
-    { name: "A (16x16)", price: 150 },
-    { name: "B (16x21)", price: 200 },
-    { name: "C (Premium Wood)", price: 250 },
-    { name: "D (Crystal Cover)", price: 350 }
-];
-
-// Tambah di bawah sekali dalam data.js
-const photographersList = [
-    "Belum Ditetapkan",
-    "Photographer 1",
-    "Photographer 2",
-    "Photographer 3",
-    "Photographer 4",
-    "Photographer 5",
-    "Photographer 6"
 ];
