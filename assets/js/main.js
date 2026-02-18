@@ -295,9 +295,10 @@ function filterThemes(type) {
         if (type !== 'all' && val.type !== type) continue;
         const badgeColorClass = val.type === 'couple' ? 'bg-white/90 text-pink-600 border-pink-200' : 'bg-white/90 text-green-700 border-green-200';
         const labelText = val.type === 'couple' ? 'Couple' : 'Family';
+        const posterImage = val.thumbnail ? val.thumbnail : val.images[0];
         const cardHTML = `
             <div onclick="openThemeDetails('${key}')" class="group relative rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-2xl transition duration-500 bg-gray-100 aspect-[3/4]">
-                <img src="${val.images[0]}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                <img src="${posterImage}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80"></div>
                 <div class="absolute top-3 left-3">
                     <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${badgeColorClass} shadow-sm">${labelText}</span>
@@ -370,10 +371,21 @@ function openThemeDetails(key) {
     if (slidesContainer && data.images.length > 0) {
         if (modalSwiperInstance) { modalSwiperInstance.destroy(true, true); modalSwiperInstance = null; }
         slidesContainer.innerHTML = "";
-        data.images.forEach(imgUrl => {
+        /* Dalam openThemeDetails, cari bahagian loop images */
+
+        data.images.forEach((imgUrl, index) => { // Tambah parameter 'index'
             const slide = document.createElement('div');
-            slide.className = "swiper-slide w-full h-full";
-            slide.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover block">`; 
+            slide.className = "swiper-slide w-full h-full flex items-center justify-center bg-black"; 
+    
+            // UPDATE ONCLICK:
+            // Bila klik, panggil openLightbox(index)
+            // Index penting supaya kalau klik gambar no.3, lightbox buka terus gambar no.3
+            slide.innerHTML = `
+                <img src="${imgUrl}" 
+                    class="w-full h-full object-contain cursor-pointer hover:opacity-90 transition" 
+                    onclick="openLightbox(${index})">
+            `; 
+    
             slidesContainer.appendChild(slide);
         });
         modalSwiperInstance = new Swiper(".modalSwiper", {
@@ -477,4 +489,63 @@ function renderTncAndFaq() {
             faqContainer.appendChild(details);
         });
     }
+}
+
+/* --- FULLSCREEN LIGHTBOX LOGIC --- */
+let lightboxSwiper = null;
+
+function openLightbox(index) {
+    // 1. Dapatkan data tema semasa (global variable dari openThemeDetails)
+    const data = rayaThemesDetail[currentThemeKey]; 
+    if (!data) return;
+
+    const modal = document.getElementById('gallery-lightbox');
+    const container = document.getElementById('lightbox-slides-container');
+
+    // 2. Masukkan gambar ke dalam Lightbox
+    container.innerHTML = "";
+    data.images.forEach(imgUrl => {
+        const slide = document.createElement('div');
+        slide.className = "swiper-slide flex items-center justify-center bg-black";
+        // 'object-contain' memastikan gambar FIT skrin (tak zoom/pecah/crop)
+        slide.innerHTML = `<img src="${imgUrl}" class="max-w-full max-h-full object-contain select-none">`;
+        container.appendChild(slide);
+    });
+
+    // 3. Buka Modal (Visual effect)
+    modal.classList.remove('hidden');
+    // Timeout sikit utk effect fade in
+    setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
+
+    // 4. Init Swiper (Gallery Mode)
+    if (lightboxSwiper) {
+        lightboxSwiper.destroy(true, true);
+        lightboxSwiper = null;
+    }
+
+    lightboxSwiper = new Swiper(".fullSwiper", {
+        initialSlide: index, // Terus lompat ke gambar yang user klik
+        spaceBetween: 30,
+        effect: "slide",     // Slide biasa lebih smooth untuk gallery
+        zoom: true,          // BONUS: User boleh pinch-to-zoom (double tap)
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            type: "fraction", // Tunjuk "1 / 5"
+        },
+        keyboard: {
+            enabled: true,   // Boleh guna arrow key keyboard
+        }
+    });
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('gallery-lightbox');
+    modal.classList.add('opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300); // Tunggu animation habis
 }

@@ -208,12 +208,10 @@ const slideshowData = {
    Pastikan gambar saiz besar (Landscape) berkualiti tinggi.
 */
 const rayaHeroImages = [
-    "assets/images/hero/raya-hero/1.webp",
-    "assets/images/hero/raya-hero/2.webp",
-    "assets/images/hero/raya-hero/3.webp",
-    "assets/images/hero/raya-hero/4.webp",
-    "assets/images/hero/raya-hero/5.webp",
-    "assets/images/hero/raya-hero/6.webp"
+    "assets/images/hero/raya-hero/studio-raya-masjid-tanah.webp",
+    "assets/images/hero/raya-hero/studio-raya-kuala-sungai-baru.webp",
+    "assets/images/hero/raya-hero/studio-raya-sungai-udang.webp",
+    "assets/images/hero/raya-hero/studio-raya-alor-gajah.webp"
     // Boleh tambah lagi: "assets/images/hero/hero-raya-4.webp"
 ];
 
@@ -238,7 +236,8 @@ const rayaThemesDetail = {
         paxCover: 8, // Base limit untuk tier 1
         tagline: "Elegance & Luxury.",
         desc: "Set mewah dengan latar belakang velvet. Sesuai untuk tema eksklusif keluarga besar.",
-        images: ["assets/images/themes/coming_soon.webp"],
+        //thumbnail: "assets/images/themes/poster-moden.webp",
+        images: ["assets/images/themes/velvet.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
@@ -257,7 +256,8 @@ const rayaThemesDetail = {
         paxCover: 8,
         tagline: "Pure & Timeless.",
         desc: "Latar belakang serba putih minimalis. Sesuai untuk baju raya moden dan pastel.",
-        images: ["assets/images/themes/coming_soon.webp"],
+        //thumbnail: "assets/images/themes/poster-moden.webp",
+        images: ["assets/images/themes/white.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
@@ -276,7 +276,8 @@ const rayaThemesDetail = {
         paxCover: 8,
         tagline: "Nostalgia & Warmth.",
         desc: "Set kampung tradisional dengan elemen kayu. Membangkitkan nostalgia raya desa.",
-        images: ["assets/images/themes/coming_soon.webp"],
+        //thumbnail: "assets/images/themes/poster-moden.webp",
+        images: ["assets/images/themes/hening.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
@@ -295,7 +296,8 @@ const rayaThemesDetail = {
         paxCover: 8,
         tagline: "Radiance & Grace.",
         desc: "Set ala Timur Tengah (Arabic) yang elegan dan artistik.",
-        images: ["assets/images/themes/coming_soon.webp"],
+       //thumbnail: "assets/images/themes/poster-qalbu.webp",
+        images: ["assets/images/themes/qalbu.webp"],
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
@@ -306,7 +308,7 @@ const rayaThemesDetail = {
     },
 
     // --- TEMA COUPLE (Fixed RM89) ---
-    'midnight': {
+    'space': {
         title: "Space Grey",
         type: "couple",
         categoryName: "KATEGORI COUPLE",
@@ -316,6 +318,7 @@ const rayaThemesDetail = {
         paxCover: 4,
         tagline: "Romance & Intimacy.",
         desc: "Tema premium untuk pasangan atau kumpulan kecil (Max 4 pax).",
+        //thumbnail: "assets/images/themes/poster-space.webp",
         images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 15 Minit",
@@ -334,6 +337,7 @@ const rayaThemesDetail = {
         paxCover: 4,
         tagline: "Nature & Love.",
         desc: "Tema floral tertutup. Romantik dan eksklusif untuk 4 orang.",
+        //thumbnail: "assets/images/themes/poster-secret.webp",
         images: ["assets/images/themes/coming_soon.webp"],
         inclusions: [
             "Sesi Fotografi 15 Minit",

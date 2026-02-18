@@ -20,7 +20,7 @@
     <!-- Social Media Preview (WhatsApp/FB) -->
     <meta property="og:title" content="Tempahan Studio Raya 2026 - MKAJ Studio">
     <meta property="og:description" content="Slot terhad! Pilih tema kegemaran anda sebelum penuh. Lokasi: Dewan Datuk Seri Abu Seman, Masjid Tanah, Melaka. Booking online sekarang!">
-    <meta property="og:image" content="https://mkajstudio.com/assets/images/hero/raya-hero/5.webp">
+    <meta property="og:image" content="https://mkajstudio.com/assets/images/hero/raya-hero/studio-raya-masjid-tanah.webp">
     <meta property="og:url" content="https://mkajstudio.com/raya-2026">
     <meta property="og:type" content="website">
 
@@ -34,7 +34,7 @@
       "@id": "https://mkajstudio.com/raya-2026",
       "url": "https://mkajstudio.com/raya-2026",
       "telephone": "+60147299454",
-      "priceRange": "RM89 - RM139",
+      "priceRange": "RM89 - RM199",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Dewan Datuk Seri Abu Seman",
@@ -593,6 +593,31 @@
 
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN GALLERY LIGHTBOX -->
+    <div id="gallery-lightbox" class="fixed inset-0 z-[200] bg-black hidden transition-opacity duration-300 opacity-0">
+    
+        <!-- Butang Tutup (Atas Kanan) -->
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white z-50 p-2 bg-black/50 rounded-full hover:bg-red-600 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <!-- Container Swiper Fullscreen -->
+        <div class="swiper fullSwiper w-full h-full">
+            <div class="swiper-wrapper" id="lightbox-slides-container">
+                <!-- JS akan masukkan gambar di sini -->
+            </div>
+        
+            <!-- Panah Navigasi (Putih Besar) -->
+            <div class="swiper-button-next text-white md:scale-150 drop-shadow-lg"></div>
+            <div class="swiper-button-prev text-white md:scale-150 drop-shadow-lg"></div>
+        
+            <!-- Nombor Page (Bawah) -->
+            <div class="swiper-pagination text-white font-bold tracking-widest pb-4"></div>
         </div>
     </div>
 
