@@ -134,13 +134,20 @@ function checkThemeType() {
 
 function resetDateUI() {
     const dateInput = document.getElementById('bk-date');
+    const errMsg = document.getElementById('date-error-msg');
+    
     if(dateInput) {
         dateInput.value = "";
+        // Paksa mobile browser sekat tarikh luar musim secara visual
         dateInput.setAttribute('min', SEASON_START);
         dateInput.setAttribute('max', SEASON_END);
     }
+    
+    if(errMsg) errMsg.classList.add('hidden');
+    
     const container = document.getElementById('time-slots-container');
     if(container) container.innerHTML = `<div class="col-span-4 text-center py-4 bg-gray-50 text-gray-400 text-sm italic">Sila pilih tarikh.</div>`;
+    
     const btnNext = document.getElementById('btn-step-2');
     if(btnNext) btnNext.disabled = true;
 }
@@ -240,29 +247,53 @@ function calculateTotal() {
 
 function checkAvailability() {
     const dateInput = document.getElementById('bk-date');
-    if (!dateInput.value) return;
+    const dateVal = dateInput.value;
+    const errMsg = document.getElementById('date-error-msg');
+    const container = document.getElementById('time-slots-container');
+    const btnNext = document.getElementById('btn-step-2');
 
-    const userDate = new Date(dateInput.value);
+    if (!dateVal) return;
+
+    // --- VALIDATION TANPA ALERT (MESRA HP) ---
+    const userDate = new Date(dateVal);
     const startLimit = new Date(SEASON_START);
     const endLimit = new Date(SEASON_END);
     userDate.setHours(0,0,0,0); startLimit.setHours(0,0,0,0); endLimit.setHours(0,0,0,0);
 
     if (userDate < startLimit || userDate > endLimit) {
-        alert("Sesi hanya dibuka 5 Mac - 3 April 2026.");
-        dateInput.value = ""; return;
+        // Tunjuk mesej merah, jangan guna alert!
+        errMsg.innerText = "❌ Studio hanya dibuka 5 Mac - 3 April 2026.";
+        errMsg.classList.remove('hidden');
+        container.innerHTML = `<div class="col-span-4 text-center py-8 bg-red-50 text-red-400 rounded-2xl text-xs font-bold uppercase tracking-widest">Tarikh Luar Musim</div>`;
+        if(btnNext) btnNext.disabled = true;
+        return;
     }
 
-    bookingData.date = dateInput.value;
-    const loader = document.getElementById('time-loader'), container = document.getElementById('time-slots-container');
-    loader.classList.remove('hidden'); container.innerHTML = "";
+    if (BLOCKED_DATES.includes(dateVal)) {
+        errMsg.innerText = "❌ Maaf, Studio TUTUP pada tarikh ini.";
+        errMsg.classList.remove('hidden');
+        container.innerHTML = `<div class="col-span-4 text-center py-8 bg-red-50 text-red-400 rounded-2xl text-xs font-bold uppercase tracking-widest">Studio Cuti</div>`;
+        if(btnNext) btnNext.disabled = true;
+        return;
+    }
 
-    fetch(`${GOOGLE_SCRIPT_URL}?action=check_slots&date=${dateInput.value}&theme=${encodeURIComponent(bookingData.theme)}`)
+    // JIKA TARIKH SAH (HIJAU)
+    errMsg.classList.add('hidden'); // Sorok mesej error
+    bookingData.date = dateVal;
+    
+    const loader = document.getElementById('time-loader');
+    loader.classList.remove('hidden'); 
+    container.innerHTML = "";
+    
+    fetch(`${GOOGLE_SCRIPT_URL}?action=check_slots&date=${dateVal}&theme=${encodeURIComponent(bookingData.theme)}`)
     .then(r => r.json()).then(d => {
         loader.classList.add('hidden');
         renderTimeSlots(d.bookedSlotIds || []);
+    }).catch(e => {
+        loader.classList.add('hidden');
+        container.innerHTML = `<div class="col-span-4 text-center py-4 text-red-500 text-xs">Ralat rangkaian. Sila cuba lagi.</div>`;
     });
 }
-
 function renderTimeSlots(fullSlots) {
     const container = document.getElementById('time-slots-container');
     container.innerHTML = '';

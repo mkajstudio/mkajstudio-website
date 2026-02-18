@@ -369,9 +369,11 @@
                                 <p id="bk-cat-label" class="text-[10px] font-bold mt-1 tracking-widest uppercase text-gray-400">Loading category...</p>
                             </div>
                             <div>
-                                <label class="text-xs uppercase font-bold text-gray-500">Tarikh</label>
-                                <input type="date" id="bk-date" class="w-full border p-3 rounded" onchange="checkAvailability()">
-                                <p id="date-error-msg" class="text-xs text-red-600 font-bold mt-1 hidden"></p>
+                                <label class="text-xs uppercase font-bold text-gray-500 tracking-widest">Pilih Tarikh</label>
+                                <input type="date" id="bk-date" class="w-full border-2 border-gray-100 p-4 rounded-2xl font-bold bg-gray-50 outline-none focus:border-amber-400" onchange="checkAvailability()">
+    
+                                <!-- TEMPAT MESEJ ERROR (SANGAT PENTING UNTUK USER HP) -->
+                                <p id="date-error-msg" class="text-[10px] text-red-500 font-bold mt-2 ml-2 hidden"></p>
                             </div>
                             <div>
                                 <label class="text-xs uppercase font-bold text-gray-500">Masa</label>
