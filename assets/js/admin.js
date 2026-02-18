@@ -1,6 +1,6 @@
 /* 
-   MKAJ ADMIN LOGIC - admin.js V32.0
-   Safety Checked & Filter Fixed
+   MKAJ ADMIN LOGIC - admin.js V33.0 (STABLE)
+   Updates: Fixed Date Parsing for Malaysian Format (DD/MM/YYYY)
 */
 
 // --- 1. SECURITY PIN ---
@@ -17,7 +17,7 @@ if (sessionStorage.getItem("admin_authenticated") !== "true") {
 }
 
 // --- 2. CONFIGURATION ---
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwdGTp-FCzsQeZ4Kwgl-AOMA45XS-0bBu9TGiPAyUhb_LCTl-ObaHS-QEkCKKNoYv0g/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw9AfunhFacp2Aa19jhnRTe8vwnvGXMV5y7u1lG4w4Yx8cr2SenLRAlQr_8agN8D-gS/exec";
 const N8N_SETTLE_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance";
 const TIME_SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
 
@@ -30,6 +30,20 @@ let editState = { adult: 0, kid: 0, currentBasePrice: 0, currentBasePax: 8, curr
 function updateText(id, value) {
     const el = document.getElementById(id);
     if (el) el.innerText = value;
+}
+
+// --- HELPER BARU: PARSE DATE MALAYSIA (DD/MM/YYYY) ---
+function parseDateMY(dateStr) {
+    if (!dateStr) return new Date(0);
+    // Jika format YYYY-MM-DD (ISO)
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return new Date(dateStr);
+    
+    // Jika format DD/MM/YYYY
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); // Tukar jadi YYYY-MM-DD untuk JS
+    }
+    return new Date(dateStr); // Fallback
 }
 
 // --- 4. FETCH & RENDER ---
@@ -53,26 +67,36 @@ function renderData(data) {
     if(!container) return;
     container.innerHTML = '';
 
-    // Update Stats Safely (Tanpa Revenue dlm Admin)
+    // Update Stats
     updateText('statTotal', data.length);
     updateText('statPaid', data.filter(r => r.Status === 'Confirmed').length);
     updateText('statArrived', data.filter(r => r.Status === 'Arrived').length);
     updateText('statPending', data.filter(r => r.Status === 'Pending').length);
     updateText('statCanceled', data.filter(r => (String(r.Status).toLowerCase().includes('cancel') || r.Status === 'Rejected')).length);
 
-    // Sorting (Ascending)
+    // Sorting (Ascending) - FIX DATE SORTING
     const sortedData = [...data].sort((a, b) => {
-        const dateA = a.Date && a.Time ? new Date(a.Date + " " + a.Time) : new Date(0);
-        const dateB = b.Date && b.Time ? new Date(b.Date + " " + b.Time) : new Date(0);
-        return dateA - dateB;
+        const dateA = parseDateMY(a.Date);
+        const dateB = parseDateMY(b.Date);
+        
+        // Gabung tarikh + masa untuk sorting tepat
+        const timeA = a.Time ? a.Time.replace(':', '') : '0000';
+        const timeB = b.Time ? b.Time.replace(':', '') : '0000';
+        
+        if (dateA - dateB !== 0) return dateA - dateB;
+        return timeA - timeB;
     });
 
     let lastDate = "";
     sortedData.forEach(item => {
-        if (item.Date && item.Date !== lastDate) {
-            const displayDate = new Date(item.Date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
+        // Standardkan tarikh untuk grouping header
+        const dateObj = parseDateMY(item.Date);
+        const dateStrISO = dateObj.toISOString().split('T')[0];
+
+        if (dateStrISO !== lastDate) {
+            const displayDate = dateObj.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
             container.innerHTML += `<div class="col-span-full mt-8 mb-2 flex items-center gap-4"><span class="bg-slate-200 text-slate-700 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">${displayDate}</span><div class="h-[1px] bg-slate-200 flex-1"></div></div>`;
-            lastDate = item.Date;
+            lastDate = dateStrISO;
         }
 
         const isCanceled = (String(item.Status).toLowerCase().includes('cancel') || String(item.Status).toLowerCase().includes('reject'));
@@ -121,7 +145,7 @@ function renderData(data) {
     });
 }
 
-// --- 5. FILTER LOGIC (PILLS) ---
+// --- 5. FILTER LOGIC (FIX DATE COMPARISON) ---
 
 window.togglePill = function(el, type, value) {
     const list = (type === 'status') ? selectedStatuses : selectedShooters;
@@ -146,7 +170,7 @@ function filterData() {
     const query = (document.getElementById('searchBox')?.value || "").toLowerCase();
     const dateRange = document.getElementById('filterDateRange')?.value || "all";
     const nowMY = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kuala_Lumpur"}));
-    const todayStr = nowMY.getFullYear() + '-' + String(nowMY.getMonth() + 1).padStart(2, '0') + '-' + String(nowMY.getDate()).padStart(2, '0');
+    const todayISO = nowMY.toISOString().split('T')[0];
 
     const filtered = allData.filter(item => {
         const matchSearch = (item.Name || "").toLowerCase().includes(query) || (item.OrderID || "").toLowerCase().includes(query) || (item.Phone || "").includes(query);
@@ -154,19 +178,23 @@ function filterData() {
         const matchShooter = selectedShooters.length === 0 || selectedShooters.includes(item.Photographer);
 
         let matchDate = true;
-        if (dateRange === "today") matchDate = (item.Date === todayStr);
-        else if (dateRange === "week") {
-            const itemDate = new Date(item.Date);
+        
+        // Guna parseDateMY supaya perbandingan adil
+        const itemDateObj = parseDateMY(item.Date);
+        const itemDateISO = itemDateObj.toISOString().split('T')[0];
+
+        if (dateRange === "today") {
+            matchDate = (itemDateISO === todayISO);
+        } else if (dateRange === "week") {
             const start = new Date(nowMY); start.setDate(nowMY.getDate() - nowMY.getDay() + 1); start.setHours(0,0,0,0);
             const end = new Date(start); end.setDate(start.getDate() + 6);
-            matchDate = (itemDate >= start && itemDate <= end);
+            matchDate = (itemDateObj >= start && itemDateObj <= end);
         } else if (dateRange === "custom") {
             const sVal = document.getElementById('dateStart')?.value;
             const eVal = document.getElementById('dateEnd')?.value;
             if (sVal && eVal) {
                 const s = new Date(sVal); s.setHours(0,0,0,0);
                 const e = new Date(eVal); e.setHours(23,59,59,999);
-                const itemDateObj = new Date(item.Date);
                 matchDate = (itemDateObj >= s && itemDateObj <= e);
             }
         }
@@ -176,7 +204,6 @@ function filterData() {
 }
 
 // --- 6. INITIALIZERS ---
-
 window.initTimeSlots = function() {
     const options = TIME_SLOTS.map(t => `<option value="${t}">${t}</option>`).join('');
     if(document.getElementById('w_time')) document.getElementById('w_time').innerHTML = options;
@@ -204,7 +231,7 @@ window.initWalkInThemes = function() {
     }
 }
 
-// Panggil fungsi global supaya HTML nampak
+// Expose functions globally
 window.fetchData = fetchData;
 window.filterData = filterData;
 
@@ -215,4 +242,6 @@ window.onload = () => {
     window.initAlbumList();
 };
 
-// ... (Kekalkan handleCheckIn, handleCancel, handleDelete, submitWalkIn, openEditModal bos kat bawah)
+// ... (Kekalkan fungsi logic lain spt handleCheckIn, handleSettle, dll)
+// Pastikan anda menyalin fungsi handleCheckIn, handleCancel, handleDelete, submitWalkIn, openEditModal dari fail asal jika ia tiada di sini.
+// Kod di atas menumpukan pada pembaikan struktur utama & date parsing.
