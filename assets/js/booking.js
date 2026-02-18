@@ -1,7 +1,7 @@
 /* 
    assets/js/booking.js 
-   MKAJ STUDIO V20.0 - LAUNCH READY
-   Updates: Fixed Date Input Validation & Backend Handshake
+   MKAJ STUDIO V21.0 - REFRESH WIZARD FIX
+   Updates: Added auto-reset logic when opening wizard to clear old data.
 */
 
 // --- 1. CONFIGURATION ---
@@ -13,6 +13,7 @@ const SEASON_START = "2026-03-05", SEASON_END = "2026-04-03";
 let currentStep = 1;
 let selectedTierTemp = ""; 
 
+// Default Structure
 let bookingData = {
     packageId: "",
     packagePrice: 0,
@@ -56,6 +57,37 @@ function agreeAndProceed() {
 function openBookingWizard(categoryName, price, basePaxLimit, type, preSelectedTheme) {
     const wizard = document.getElementById('booking-wizard');
     if(wizard) wizard.classList.remove('hidden');
+
+    // ===============================================
+    // [FIX] RESET SEMUA DATA & UI SETIAP KALI BUKA
+    // ===============================================
+    
+    // 1. Reset Data Object
+    bookingData = {
+        packageId: "", packagePrice: 0, basePaxLimit: 8,
+        paxAdult: 1, paxKids: 0, familyTier: "small",
+        theme: "", themeType: "family", date: "", time: "",
+        addOns: "", frame: "Tiada", total: 0, paymentType: "Full Payment",
+        // Kekalkan nama/phone/email supaya user tak perlu taip balik kalau cuma tukar tema
+        name: document.getElementById('bk-name').value, 
+        phone: bookingData.phone, // Simpan no phone yang dah format
+        email: document.getElementById('bk-email').value
+    };
+
+    // 2. Reset Checkboxes & Dropdowns (UI)
+    if(document.getElementById('bk-extra-time')) document.getElementById('bk-extra-time').checked = false;
+    
+    if(document.getElementById('bk-mua-check')) {
+        document.getElementById('bk-mua-check').checked = false;
+        document.getElementById('mua-selection-container').classList.add('hidden');
+    }
+    
+    if(document.getElementById('bk-mua-select')) document.getElementById('bk-mua-select').value = ""; // Reset MUA
+    if(document.getElementById('bk-frame-select')) document.getElementById('bk-frame-select').value = "None"; // Reset Frame
+
+    // ===============================================
+    // [END FIX] - DATA DAH BERSIH
+    // ===============================================
 
     bookingData.themeType = type || 'family';
     bookingData.theme = preSelectedTheme || "";
@@ -146,7 +178,8 @@ function resetDateUI() {
     if(btnNext) btnNext.disabled = true;
 }
 
-// --- 5. PAX & PRICING ENGINE (Kekalkan logik asal) ---
+// --- 5. PAX & PRICING ENGINE ---
+
 function updatePax(type, change) {
     let currA = bookingData.paxAdult;
     let currK = bookingData.paxKids;
@@ -227,7 +260,7 @@ function calculateTotal() {
     }
 }
 
-// --- 6. DATABASE & WHATSAPP ACTIONS (FIXED) ---
+// --- 6. DATABASE & WHATSAPP ACTIONS ---
 
 function checkAvailability() {
     const dateInput = document.getElementById('bk-date');
@@ -377,24 +410,76 @@ function toggleMuaSelection() {
     calculateTotal();
 }
 function nextStep(step) {
-    if (step === 2) {
-        const n = getValue('bk-name'), p = getValue('bk-phone');
-        if (!n || !p) { alert("Isi Nama & No Telefon."); return; }
-        bookingData.name = n; bookingData.phone = "60" + p.replace(/\D/g, '').replace(/^60|^0/, '');
+    // --- 1. VALIDATION (CHECK DATA SEBELUM GERAK) ---
+    // Hanya check kalau kita bergerak ke DEPAN (step > currentStep)
+    if (step > currentStep) {
+        // Step 1 -> 2: Check Nama & Phone
+        if (step === 2) {
+            const n = getValue('bk-name'), p = getValue('bk-phone');
+            if (!n || !p) { alert("Sila isi Nama & No Telefon."); return; }
+            bookingData.name = n; 
+            bookingData.phone = "60" + p.replace(/\D/g, '').replace(/^60|^0/, '');
+        }
+        // Step 2 -> 3: Check Tarikh & Masa
+        if (step === 3 && (!bookingData.date || !bookingData.time)) { 
+            alert("Sila pilih Tarikh & Masa dahulu."); return; 
+        }
     }
-    if (step === 3 && (!bookingData.date || !bookingData.time)) { alert("Pilih masa."); return; }
+
+    // --- 2. LOGIC RESET (BILA MASUK STEP 3) ---
+    // Ini berlaku tak kira dari depan (Step 2->3) atau dari belakang (Step 4->3)
+    if (step === 3) {
+        
+        // A. RESET PAX KE INITIAL VALUE (DEFAULT)
+        if (bookingData.themeType === 'couple') {
+            bookingData.paxAdult = 2; // Couple default 2
+        } else if (bookingData.familyTier === 'large') {
+            bookingData.paxAdult = 9; // Large Family default 9
+        } else {
+            bookingData.paxAdult = 1; // Small Family default 1
+        }
+        bookingData.paxKids = 0; // Reset kanak-kanak jadi 0
+
+        // B. RESET ADD-ONS (CUCI BERSIH STEP 4)
+        // Kita uncheck semua supaya harga tak melekat
+        if(document.getElementById('bk-extra-time')) document.getElementById('bk-extra-time').checked = false;
+        
+        if(document.getElementById('bk-mua-check')) {
+            document.getElementById('bk-mua-check').checked = false;
+            document.getElementById('mua-selection-container').classList.add('hidden');
+        }
+        
+        if(document.getElementById('bk-mua-select')) document.getElementById('bk-mua-select').value = "";
+        
+        if(document.getElementById('bk-frame-select')) document.getElementById('bk-frame-select').value = "None";
+
+        // C. KIRA BALIK & UPDATE UI
+        // Ini akan reset harga total jadi Base Price pakej sahaja
+        refreshPaxUI(); 
+    }
+
+    // --- 3. LOGIC SUMMARY (BILA MASUK STEP 4) ---
     if (step === 4) {
+        // Kira total berdasarkan apa yang user pilih di Step 3 & 4 (fresh calculation)
         calculateTotal();
+        
+        // Update text summary untuk user review
         setText('rev-name', bookingData.name);
         setText('rev-datetime', `${formatDateUI(bookingData.date)} @ ${bookingData.time}`);
         setText('rev-theme', bookingData.theme);
         setText('rev-pax', `${bookingData.paxAdult} Dewasa, ${bookingData.paxKids} Kanak-kanak`);
         setText('rev-frame', bookingData.frame);
+        
         let dp = (bookingData.themeType === 'couple') ? "Couple / Mini" : ((bookingData.familyTier === 'large') ? "Family (9-15 Pax)" : "Family (1-8 Pax)");
         setText('rev-package', dp);
-        setPaymentType(bookingData.paymentType === "Full Payment" ? 'full' : 'deposit');
+        
+        // Defaultkan bayaran ke Full Payment setiap kali masuk page ni
+        setPaymentType('full');
     }
-    currentStep = step; showStep(step);
+
+    // --- 4. TUKAR PAPARAN ---
+    currentStep = step; 
+    showStep(step);
 }
 function showStep(step) {
     document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
