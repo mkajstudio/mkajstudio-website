@@ -229,7 +229,7 @@ const rayaHeroImages = [
 const rayaThemesDetail = {
     // --- TEMA FAMILY (Tier 1: RM129 | Tier 2: RM199) ---
     'velvet': {
-        title: "Royale Velvet (Maroon)",
+        title: "Royale Velvet",
         type: "family",
         categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
@@ -248,7 +248,7 @@ const rayaThemesDetail = {
         ]
     },
     'white': {
-        title: "Whisper White (Putih)",
+        title: "Whisper White",
         type: "family",
         categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
@@ -267,7 +267,7 @@ const rayaThemesDetail = {
         ]
     },
     'hening': {
-        title: "Hening Rindu (Klasik)",
+        title: "Hening Rindu",
         type: "family",
         categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
@@ -286,7 +286,7 @@ const rayaThemesDetail = {
         ]
     },
     'qalbu': {
-        title: "Noor Qalbu (Arabic)",
+        title: "Noor Qalbu",
         type: "family",
         categoryName: "KATEGORI FAMILY",
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
@@ -307,7 +307,7 @@ const rayaThemesDetail = {
 
     // --- TEMA COUPLE (Fixed RM89) ---
     'midnight': {
-        title: "Midnight Luxury",
+        title: "Space Grey",
         type: "couple",
         categoryName: "KATEGORI COUPLE",
         colorClass: "text-pink-500 bg-pink-50 border-pink-200", // UI Class Pink
