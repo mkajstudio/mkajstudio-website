@@ -431,7 +431,7 @@ const faqList = [
     {
         category: "Lokasi & Kemudahan",
         content: [
-            { q: "Dimana studio raya by mkajstudio beroperasi?", a: "Tahun ini kami beroperasi di Dewan Datuk Seri Abu Seman, Masjid Tanah." },
+            { q: "Dimana studio raya by mkajstudio beroperasi?", a: "Tahun ini kami beroperasi di Dewan Datuk Sri Abu Seman, Masjid Tanah." },
             { q: "Apa kemudahan yang disediakan?", a: "Studio menyediakan ruang fotografi yang nyaman dan lengkap dengan bilik persalinan." }
         ]
     },
