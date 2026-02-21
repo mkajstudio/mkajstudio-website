@@ -363,15 +363,6 @@ const frameAddons = [
     { name: 'Legacy Grandeur (24"x36")', price: 300 }
 ];
 
-// 3. ALBUM TYPES (Untuk Admin Portal)
-const albumTypes = [
-    { name: "Tiada", price: 0 },
-    { name: "A (16x16)", price: 150 },
-    { name: "B (16x21)", price: 200 },
-    { name: "C (Premium Wood)", price: 250 },
-    { name: "D (Crystal Cover)", price: 350 }
-];
-
 // 4. JURUGAMBAR (Full-Time)
 const photographersList = [
     "Belum Ditetapkan",
@@ -382,6 +373,16 @@ const photographersList = [
     "Photographer 5",
     "Photographer 6"
 ];
+
+const staff = {
+    "Photographer 1": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Photographer 2": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Photographer 3": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Photographer 4": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Photographer 5": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Photographer 6": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
+    "Admin": { type: "ADMIN", basic: 1800, commission: 0, jobs: 0 }
+};
 
 // ... (Kekalkan Data Galeri, TNC dan FAQ di bawah) ...
 // ... (Kod tema raya & hero yang sedia ada biarkan di atas) ...

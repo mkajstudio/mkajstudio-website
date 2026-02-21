@@ -6,17 +6,14 @@
     <title>MKAJ BOSS HQ | Analytics & Payroll</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Chart.js untuk Graf -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen">
-
-    <!-- NAVBAR -->
+    <!-- NAVBAR (Sama macam V2.0) -->
     <nav class="p-6 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
@@ -26,152 +23,82 @@
                     <p class="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Financial & Operation Center</p>
                 </div>
             </div>
-            
             <div class="flex flex-wrap gap-3 items-center">
-                <!-- Filter Tarikh -->
                 <select id="filterTime" onchange="fetchData()" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-yellow-500 hover:bg-slate-700 transition cursor-pointer">
                     <option value="all">📅 Semua Rekod</option>
                     <option value="today">☀️ Hari Ini</option>
                     <option value="month">📆 Bulan Ini</option>
                 </select>
-
-                <!-- Butang Jadual Photographer -->
                 <button onclick="toggleModal('scheduleModal', true)" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-900/50 transition flex items-center gap-2">
                     <i class="fas fa-calendar-alt"></i> Jadual Shooter
                 </button>
-                
-                <!-- Refresh -->
                 <button onclick="fetchData()" class="bg-slate-800 p-3 rounded-xl hover:bg-slate-700 transition text-slate-400 hover:text-white border border-slate-700"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto p-6 max-w-7xl">
-        
-        <!-- SECTION 1: FINANCIAL OVERVIEW -->
+        <!-- FINANCIAL OVERVIEW -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <!-- GROSS REVENUE -->
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-yellow-500/30 transition">
                 <div class="absolute -right-6 -top-6 text-slate-800 text-9xl rotate-12 group-hover:text-yellow-500/5 transition duration-500"><i class="fas fa-wallet"></i></div>
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Kutipan Kasar (Gross)</p>
                 <h2 id="totalRevenue" class="text-4xl font-black text-white">RM 0</h2>
-                <div class="mt-4 flex items-center gap-2">
-                    <span class="bg-green-500/10 text-green-500 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Confirmed Only</span>
-                </div>
+                <div class="mt-4 flex items-center gap-2"><span class="bg-green-500/10 text-green-500 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Confirmed Only</span></div>
             </div>
-
-            <!-- NET PROFIT (NEW) -->
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl relative overflow-hidden group hover:border-emerald-500/30 transition">
                 <div class="absolute -right-6 -top-6 text-slate-800 text-9xl rotate-12 group-hover:text-emerald-500/5 transition duration-500"><i class="fas fa-chart-line"></i></div>
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Untung Bersih (Est.)</p>
                 <h2 id="netProfit" class="text-4xl font-black text-emerald-400">RM 0</h2>
                 <p class="text-[10px] text-slate-500 mt-2">*Selepas tolak gaji asas & komisen</p>
             </div>
-
-            <!-- TOTAL BOOKINGS -->
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl relative overflow-hidden hover:border-blue-500/30 transition">
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Jumlah Sesi</p>
-                <div class="flex items-end gap-2">
-                    <h2 id="totalBookings" class="text-4xl font-black text-blue-400">0</h2>
-                    <span class="text-sm font-bold text-slate-500 mb-1">Job</span>
-                </div>
-                <div class="w-full bg-slate-800 h-1.5 mt-4 rounded-full overflow-hidden">
-                    <div id="progressBar" class="bg-blue-500 h-full w-0 transition-all duration-1000"></div>
-                </div>
+                <div class="flex items-end gap-2"><h2 id="totalBookings" class="text-4xl font-black text-blue-400">0</h2><span class="text-sm font-bold text-slate-500 mb-1">Job</span></div>
+                <div class="w-full bg-slate-800 h-1.5 mt-4 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-500 h-full w-0 transition-all duration-1000"></div></div>
                 <p class="text-[10px] text-slate-500 mt-2 text-right"><span id="paxCount">0</span> Pax Terlibat</p>
             </div>
-
-            <!-- PAYROLL COST -->
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl relative overflow-hidden hover:border-rose-500/30 transition">
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Kos Gaji (Payroll)</p>
                 <h2 id="totalPayroll" class="text-4xl font-black text-rose-400">RM 0</h2>
                 <div class="grid grid-cols-2 gap-2 mt-4 text-[10px]">
-                    <div class="bg-slate-800 p-2 rounded-lg text-center">
-                        <span class="block text-slate-500 font-bold">Basic</span>
-                        <span id="basicCost" class="text-white font-bold">RM0</span>
-                    </div>
-                    <div class="bg-slate-800 p-2 rounded-lg text-center">
-                        <span class="block text-slate-500 font-bold">Comm</span>
-                        <span id="commCost" class="text-white font-bold">RM0</span>
-                    </div>
+                    <div class="bg-slate-800 p-2 rounded-lg text-center"><span class="block text-slate-500 font-bold">Basic</span><span id="basicCost" class="text-white font-bold">RM0</span></div>
+                    <div class="bg-slate-800 p-2 rounded-lg text-center"><span class="block text-slate-500 font-bold">Comm</span><span id="commCost" class="text-white font-bold">RM0</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION 2: CHARTS & TRENDS -->
+        <!-- CHARTS -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-            <!-- GRAF JUALAN HARIAN -->
             <div class="lg:col-span-2 bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl">
                 <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-6"><i class="fas fa-chart-bar mr-2 text-yellow-500"></i> Trend Jualan Harian</h3>
-                <div class="h-64">
-                    <canvas id="salesChart"></canvas>
-                </div>
+                <div class="h-64"><canvas id="salesChart"></canvas></div>
             </div>
-
-            <!-- CARTA PAI TEMA -->
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl flex flex-col">
                 <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-4"><i class="fas fa-chart-pie mr-2 text-pink-500"></i> Populariti Tema</h3>
-                <div class="flex-grow flex items-center justify-center relative">
-                    <canvas id="themeChart"></canvas>
-                </div>
+                <div class="flex-grow flex items-center justify-center relative"><canvas id="themeChart"></canvas></div>
             </div>
         </div>
 
-        <!-- SECTION 3: STAFF PERFORMANCE (PAYROLL) -->
+        <!-- PAYROLL -->
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-black uppercase tracking-widest text-white"><i class="fas fa-users mr-3 text-yellow-500"></i> Prestasi & Gaji Shooter</h3>
             <span class="text-[10px] text-slate-500 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">FT: RM2k + RM10/job</span>
         </div>
-
-        <div id="payrollGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-            <!-- Cards Generated by JS -->
-        </div>
-
+        <div id="payrollGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"></div>
     </div>
 
-    <!-- MODAL: JADUAL PHOTOGRAPHER -->
+    <!-- MODAL SCHEDULE -->
     <div id="scheduleModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-4xl h-[85vh] rounded-[2.5rem] shadow-2xl border border-slate-800 flex flex-col overflow-hidden">
-            
-            <!-- Modal Header -->
             <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900">
-                <div>
-                    <h2 class="text-2xl font-black text-white uppercase">Jadual Tugasan</h2>
-                    <p class="text-xs text-slate-500 font-bold tracking-widest mt-1">Lihat slot mengikut jurugambar</p>
-                </div>
-                <button onclick="toggleModal('scheduleModal', false)" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-500 transition flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div><h2 class="text-2xl font-black text-white uppercase">Jadual Tugasan</h2><p class="text-xs text-slate-500 font-bold tracking-widest mt-1">Lihat slot mengikut jurugambar</p></div>
+                <button onclick="toggleModal('scheduleModal', false)" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-500 transition flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-
-            <!-- Modal Content -->
             <div class="p-6 flex flex-col h-full overflow-hidden">
-                <!-- Dropdown Pilih Shooter -->
-                <div class="mb-6">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Pilih Jurugambar</label>
-                    <select id="modalShooterSelect" onchange="renderSchedule()" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl font-bold outline-none focus:border-yellow-500 transition">
-                        <option value="Photographer 1">Photographer 1</option>
-                        <option value="Photographer 2">Photographer 2</option>
-                        <option value="Photographer 3">Photographer 3</option>
-                        <option value="Photographer 4">Photographer 4</option>
-                        <option value="Photographer 5">Photographer 5</option>
-                        <option value="Photographer 6">Photographer 6</option>
-                    </select>
-                </div>
-
-                <!-- Table Header -->
-                <div class="grid grid-cols-12 gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">
-                    <div class="col-span-3">Tarikh/Masa</div>
-                    <div class="col-span-4">Pelanggan</div>
-                    <div class="col-span-3">Tema</div>
-                    <div class="col-span-2 text-right">Status</div>
-                </div>
-
-                <!-- Scrollable List -->
-                <div id="scheduleList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                    <!-- List items generated by JS -->
-                    <div class="text-center py-10 text-slate-600 italic">Pilih photographer untuk lihat jadual.</div>
-                </div>
+                <div class="mb-6"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Pilih Jurugambar</label><select id="modalShooterSelect" onchange="renderSchedule()" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl font-bold outline-none focus:border-yellow-500 transition"><option value="Photographer 1">Photographer 1</option><option value="Photographer 2">Photographer 2</option><option value="Photographer 3">Photographer 3</option><option value="Photographer 4">Photographer 4</option><option value="Photographer 5">Photographer 5</option><option value="Photographer 6">Photographer 6</option></select></div>
+                <div class="grid grid-cols-12 gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2"><div class="col-span-3">Tarikh/Masa</div><div class="col-span-4">Pelanggan</div><div class="col-span-3">Tema</div><div class="col-span-2 text-right">Status</div></div>
+                <div id="scheduleList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar"><div class="text-center py-10 text-slate-600 italic">Pilih photographer untuk lihat jadual.</div></div>
             </div>
         </div>
     </div>
@@ -180,35 +107,23 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbw9AfunhFacp2Aa19jhnRTe8vwnvGXMV5y7u1lG4w4Yx8cr2SenLRAlQr_8agN8D-gS/exec";
         const BOSS_PIN = "9999";
-        
-        let globalData = [];
-        let salesChartInstance = null;
-        let themeChartInstance = null;
+        let globalData = [], salesChartInstance = null, themeChartInstance = null;
 
-        // --- 1. AUTH & INIT ---
         if (sessionStorage.getItem("boss_auth") !== "true") {
             let p = prompt("KOD RAHSIA BOSS:");
-            if(p === BOSS_PIN) sessionStorage.setItem("boss_auth", "true");
-            else window.location.href = "admin.html";
+            if(p === BOSS_PIN) sessionStorage.setItem("boss_auth", "true"); else window.location.href = "admin.html";
         }
 
         async function fetchData() {
             try {
-                const btn = document.querySelector('.fa-sync-alt');
-                if(btn) btn.classList.add('fa-spin');
-                
+                const btn = document.querySelector('.fa-sync-alt'); if(btn) btn.classList.add('fa-spin');
                 const response = await fetch(`${GAS_URL}?action=get_data&t=${Date.now()}`);
                 globalData = await response.json();
-                
                 if(btn) btn.classList.remove('fa-spin');
                 processBossData();
-            } catch (err) { 
-                console.error("Database Error"); 
-                alert("Gagal sambung ke database.");
-            }
+            } catch (err) { console.error(err); alert("Gagal sambung ke database."); }
         }
 
-        // --- 2. DATE PARSING HELPER ---
         function parseDateMY(dateStr) {
             if (!dateStr) return new Date(0);
             if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return new Date(dateStr);
@@ -217,273 +132,74 @@
             return new Date(dateStr);
         }
 
-        // --- 3. MAIN LOGIC ---
         function processBossData() {
             const filter = document.getElementById('filterTime').value;
-            const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-            const currentMonth = now.getMonth();
+            const now = new Date(), todayStr = now.toISOString().split('T')[0], currentMonth = now.getMonth();
+            let salesData = globalData.filter(r => r.Status === 'Confirmed' || r.Status === 'Arrived' || r.Status === 'Completed');
 
-            // Filter Data (Hanya yang sah: Confirmed/Arrived untuk sales, tapi Schedule nak semua)
-            let salesData = globalData.filter(r => 
-                r.Status === 'Confirmed' || r.Status === 'Arrived' || r.Status === 'Completed'
-            );
+            if(filter === 'today') salesData = salesData.filter(r => parseDateMY(r.Date).toISOString().split('T')[0] === todayStr);
+            else if (filter === 'month') salesData = salesData.filter(r => parseDateMY(r.Date).getMonth() === currentMonth);
 
-            // Apply Time Filter
-            if(filter === 'today') {
-                salesData = salesData.filter(r => {
-                    const d = parseDateMY(r.Date).toISOString().split('T')[0];
-                    return d === todayStr;
-                });
-            } else if (filter === 'month') {
-                salesData = salesData.filter(r => parseDateMY(r.Date).getMonth() === currentMonth);
-            }
-
-            // A. FINANCIALS
-            let totalRevenue = 0;
-            let totalPax = 0;
-
+            let totalRevenue = 0, totalPax = 0;
             salesData.forEach(item => {
-                // Bersihkan string harga (buang RM, koma)
-                let priceStr = String(item.TotalPrice).replace(/[^0-9.]/g, '');
-                totalRevenue += parseFloat(priceStr) || 0;
-
-                // Kira Pax kasar
-                let paxStr = item.Pax || "";
-                let adults = parseInt(paxStr.match(/(\d+)\s*Dewasa/)?.[1] || 0);
-                let kids = parseInt(paxStr.match(/(\d+)\s*Kanak/)?.[1] || 0);
+                totalRevenue += parseFloat(String(item.TotalPrice).replace(/[^0-9.]/g, '')) || 0;
+                let paxStr = item.Pax || "", adults = parseInt(paxStr.match(/(\d+)\s*Dewasa/)?.[1] || 0), kids = parseInt(paxStr.match(/(\d+)\s*Kanak/)?.[1] || 0);
                 totalPax += (adults + kids);
             });
 
-            // B. PAYROLL CALCULATION
-            const staff = {
-                "Photographer 1": { basic: 2000, jobs: 0 },
-                "Photographer 2": { basic: 2000, jobs: 0 },
-                "Photographer 3": { basic: 2000, jobs: 0 },
-                "Photographer 4": { basic: 2000, jobs: 0 },
-                "Photographer 5": { basic: 2000, jobs: 0 },
-                "Photographer 6": { basic: 2000, jobs: 0 },
-                "Admin": { basic: 1800, jobs: 0 } // Admin fixed
-            };
+            const staff = { "Photographer 1": { basic: 2000, jobs: 0 }, "Photographer 2": { basic: 2000, jobs: 0 }, "Photographer 3": { basic: 2000, jobs: 0 }, "Photographer 4": { basic: 2000, jobs: 0 }, "Photographer 5": { basic: 2000, jobs: 0 }, "Photographer 6": { basic: 2000, jobs: 0 }, "Admin": { basic: 1800, jobs: 0 } };
+            salesData.forEach(item => { let p = (item.Photographer || "").trim(); if(staff[p]) staff[p].jobs++; });
 
-            // Kira job setiap staff (Guna salesData sebab job cancel tak bayar komisen)
-            salesData.forEach(item => {
-                let p = (item.Photographer || "").trim();
-                if(staff[p]) staff[p].jobs++;
-            });
-
-            let totalBasic = 0;
-            let totalComm = 0;
-            let payrollHTML = "";
-
+            let totalBasic = 0, totalComm = 0, payrollHTML = "";
             Object.entries(staff).forEach(([name, info]) => {
-                let commRate = name === "Admin" ? 0 : 10; // RM10 per job untuk shooter
-                let comm = info.jobs * commRate;
-                let total = info.basic + comm;
-
-                // Jika filter bukan 'all', kita prorate basic salary untuk paparan anggaran (Optional logic)
-                // Tapi untuk dashboard boss, biasanya nak tengok projected full month. 
-                // Kita kekalkan Fixed Basic untuk paparan.
-                
-                totalBasic += info.basic;
-                totalComm += comm;
-
-                payrollHTML += `
-                    <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden group hover:border-slate-700 transition">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="font-black text-white text-sm uppercase tracking-wider">${name}</h4>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 mt-1 inline-block">FULL TIME</span>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Total Gaji</p>
-                                <p class="text-xl font-black text-yellow-500">RM ${total.toLocaleString()}</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-800">
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Jobs Done</p>
-                                <p class="text-lg font-bold text-white">${info.jobs}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Komisyen</p>
-                                <p class="text-lg font-bold text-emerald-400">+RM ${comm}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                let commRate = name === "Admin" ? 0 : 10, comm = info.jobs * commRate, total = info.basic + comm;
+                totalBasic += info.basic; totalComm += comm;
+                payrollHTML += `<div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl relative overflow-hidden group hover:border-slate-700 transition"><div class="flex justify-between items-start mb-4"><div><h4 class="font-black text-white text-sm uppercase tracking-wider">${name}</h4><span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 mt-1 inline-block">FULL TIME</span></div><div class="text-right"><p class="text-[9px] font-bold text-slate-500 uppercase">Total Gaji</p><p class="text-xl font-black text-yellow-500">RM ${total.toLocaleString()}</p></div></div><div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-800"><div><p class="text-[9px] font-bold text-slate-500 uppercase">Jobs Done</p><p class="text-lg font-bold text-white">${info.jobs}</p></div><div class="text-right"><p class="text-[9px] font-bold text-slate-500 uppercase">Komisyen</p><p class="text-lg font-bold text-emerald-400">+RM ${comm}</p></div></div></div>`;
             });
 
-            let grandTotalPayroll = totalBasic + totalComm;
-            let netProfit = totalRevenue - grandTotalPayroll;
-
-            // Update DOM Financials
             document.getElementById('totalRevenue').innerText = `RM ${totalRevenue.toLocaleString()}`;
-            document.getElementById('netProfit').innerText = `RM ${netProfit.toLocaleString()}`;
+            document.getElementById('netProfit').innerText = `RM ${(totalRevenue - (totalBasic+totalComm)).toLocaleString()}`;
             document.getElementById('totalBookings').innerText = salesData.length;
             document.getElementById('paxCount').innerText = totalPax;
-            
-            // Progress bar animation (Visual only - 70% capacity example)
             setTimeout(() => document.getElementById('progressBar').style.width = '70%', 500);
-
-            document.getElementById('totalPayroll').innerText = `RM ${grandTotalPayroll.toLocaleString()}`;
+            document.getElementById('totalPayroll').innerText = `RM ${(totalBasic+totalComm).toLocaleString()}`;
             document.getElementById('basicCost').innerText = `RM ${totalBasic.toLocaleString()}`;
             document.getElementById('commCost').innerText = `RM ${totalComm.toLocaleString()}`;
-
             document.getElementById('payrollGrid').innerHTML = payrollHTML;
 
-            // C. RENDER CHARTS
             renderCharts(salesData);
-
-            // D. INIT SCHEDULE (Jika modal tengah buka)
-            if(!document.getElementById('scheduleModal').classList.contains('hidden')) {
-                renderSchedule();
-            }
+            if(!document.getElementById('scheduleModal').classList.contains('hidden')) renderSchedule();
         }
 
-        // --- 4. CHART JS LOGIC ---
         function renderCharts(data) {
-            // 1. Prepare Data for Sales Trend (Group by Date)
-            const salesByDate = {};
-            data.forEach(item => {
-                const d = parseDateMY(item.Date).toISOString().split('T')[0];
-                salesByDate[d] = (salesByDate[d] || 0) + 1;
-            });
-
-            // Sort dates
-            const sortedDates = Object.keys(salesByDate).sort();
-            const counts = sortedDates.map(d => salesByDate[d]);
-
-            // Render Line Chart
+            const salesByDate = {}; data.forEach(item => { const d = parseDateMY(item.Date).toISOString().split('T')[0]; salesByDate[d] = (salesByDate[d] || 0) + 1; });
+            const sortedDates = Object.keys(salesByDate).sort(), counts = sortedDates.map(d => salesByDate[d]);
             const ctxSales = document.getElementById('salesChart').getContext('2d');
             if(salesChartInstance) salesChartInstance.destroy();
+            salesChartInstance = new Chart(ctxSales, { type: 'line', data: { labels: sortedDates.map(d => d.slice(5)), datasets: [{ label: 'Sesi', data: counts, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } } });
 
-            salesChartInstance = new Chart(ctxSales, {
-                type: 'line',
-                data: {
-                    labels: sortedDates.map(d => d.slice(5)), // Show MM-DD
-                    datasets: [{
-                        label: 'Sesi Terjual',
-                        data: counts,
-                        borderColor: '#eab308',
-                        backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-
-            // 2. Prepare Data for Theme Pie Chart
-            const themeCounts = {};
-            data.forEach(item => {
-                let t = item.Theme.split('(')[0].trim(); // Ambil nama pendek tema
-                themeCounts[t] = (themeCounts[t] || 0) + 1;
-            });
-
+            const themeCounts = {}; data.forEach(item => { let t = item.Theme.split('(')[0].trim(); themeCounts[t] = (themeCounts[t] || 0) + 1; });
             const ctxTheme = document.getElementById('themeChart').getContext('2d');
             if(themeChartInstance) themeChartInstance.destroy();
-
-            themeChartInstance = new Chart(ctxTheme, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(themeCounts),
-                    datasets: [{
-                        data: Object.values(themeCounts),
-                        backgroundColor: ['#ec4899', '#22c55e', '#eab308', '#3b82f6', '#a855f7'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 10 } } }
-                    },
-                    cutout: '70%'
-                }
-            });
+            themeChartInstance = new Chart(ctxTheme, { type: 'doughnut', data: { labels: Object.keys(themeCounts), datasets: [{ data: Object.values(themeCounts), backgroundColor: ['#ec4899', '#22c55e', '#eab308', '#3b82f6', '#a855f7'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 10 } } } }, cutout: '70%' } });
         }
 
-        // --- 5. SCHEDULE MODAL LOGIC ---
-        function toggleModal(id, show) {
-            const el = document.getElementById(id);
-            if(show) {
-                el.classList.remove('hidden');
-                renderSchedule(); // Render bila buka
-            } else {
-                el.classList.add('hidden');
-            }
-        }
-
+        function toggleModal(id, show) { const el = document.getElementById(id); if(show) { el.classList.remove('hidden'); renderSchedule(); } else { el.classList.add('hidden'); } }
         function renderSchedule() {
-            const shooter = document.getElementById('modalShooterSelect').value;
-            const container = document.getElementById('scheduleList');
+            const shooter = document.getElementById('modalShooterSelect').value, container = document.getElementById('scheduleList');
             container.innerHTML = '';
-
-            // Filter data global untuk shooter ni SAHAJA
-            // Kita nak tunjuk semua status (termasuk pending) supaya shooter tahu schedule
             let scheduleData = globalData.filter(r => r.Photographer === shooter);
-
-            // Sort by Date & Time
-            scheduleData.sort((a, b) => {
-                const dateA = parseDateMY(a.Date);
-                const dateB = parseDateMY(b.Date);
-                if (dateA - dateB !== 0) return dateA - dateB;
-                return a.Time.localeCompare(b.Time);
-            });
-
-            if (scheduleData.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500">Tiada tugasan untuk ${shooter}.</div>`;
-                return;
-            }
-
+            scheduleData.sort((a, b) => { const da = parseDateMY(a.Date), db = parseDateMY(b.Date); return da - db || a.Time.localeCompare(b.Time); });
+            if (scheduleData.length === 0) { container.innerHTML = `<div class="text-center py-10 text-slate-500">Tiada tugasan untuk ${shooter}.</div>`; return; }
             let lastDate = "";
-
             scheduleData.forEach(item => {
-                const dateObj = parseDateMY(item.Date);
-                const dateStr = dateObj.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' });
-                const fullDateStr = dateObj.toISOString().split('T')[0];
-
-                // Group header
-                if(fullDateStr !== lastDate) {
-                    container.innerHTML += `<div class="bg-slate-800/50 px-4 py-2 rounded-lg text-[10px] font-black uppercase text-yellow-500 mt-4 mb-2 sticky top-0 backdrop-blur-md">${dateStr}</div>`;
-                    lastDate = fullDateStr;
-                }
-
-                // Row Color based on status
-                let statusColor = "text-slate-500";
-                if(item.Status === "Confirmed") statusColor = "text-green-400";
-                if(item.Status === "Arrived") statusColor = "text-blue-400";
-                if(item.Status.includes("Cancel")) statusColor = "text-red-400 decoration-line-through";
-
-                container.innerHTML += `
-                    <div class="grid grid-cols-12 gap-2 px-4 py-3 bg-slate-800 rounded-xl items-center hover:bg-slate-700 transition">
-                        <div class="col-span-3 text-xs font-bold text-white">${item.Time}</div>
-                        <div class="col-span-4">
-                            <p class="text-xs font-bold text-white truncate">${item.Name}</p>
-                            <p class="text-[9px] text-slate-500">${item.Phone}</p>
-                        </div>
-                        <div class="col-span-3 text-[9px] font-bold text-slate-400 uppercase truncate">${item.Theme}</div>
-                        <div class="col-span-2 text-right text-[9px] font-black uppercase ${statusColor}">${item.Status}</div>
-                    </div>
-                `;
+                const dateObj = parseDateMY(item.Date), dateStr = dateObj.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }), fullDateStr = dateObj.toISOString().split('T')[0];
+                if(fullDateStr !== lastDate) { container.innerHTML += `<div class="bg-slate-800/50 px-4 py-2 rounded-lg text-[10px] font-black uppercase text-yellow-500 mt-4 mb-2 sticky top-0 backdrop-blur-md">${dateStr}</div>`; lastDate = fullDateStr; }
+                let statusColor = item.Status === "Confirmed" ? "text-green-400" : item.Status === "Arrived" ? "text-blue-400" : item.Status.includes("Cancel") ? "text-red-400 decoration-line-through" : "text-slate-500";
+                container.innerHTML += `<div class="grid grid-cols-12 gap-2 px-4 py-3 bg-slate-800 rounded-xl items-center hover:bg-slate-700 transition"><div class="col-span-3 text-xs font-bold text-white">${item.Time}</div><div class="col-span-4"><p class="text-xs font-bold text-white truncate">${item.Name}</p><p class="text-[9px] text-slate-500">${item.Phone}</p></div><div class="col-span-3 text-[9px] font-bold text-slate-400 uppercase truncate">${item.Theme}</div><div class="col-span-2 text-right text-[9px] font-black uppercase ${statusColor}">${item.Status}</div></div>`;
             });
         }
-
-        // Init
         window.onload = fetchData;
-
     </script>
 </body>
 </html>

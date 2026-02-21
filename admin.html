@@ -3,257 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MKAJ Admin Dashboard 2026</title>
+    <title>Admin Portal | MKAJ Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .status-badge { padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; text-transform: uppercase; border: 1px solid transparent; }
+        
+        /* Pewarnaan Row & Card */
+        .row-pending, .card-pending { background-color: #fffbeb !important; border-left: 4px solid #f59e0b; }
+        .row-confirmed, .card-confirmed { background-color: #f0fdf4 !important; border-left: 4px solid #10b981; }
+        .row-arrived, .card-arrived { background-color: #eff6ff !important; border-left: 4px solid #3b82f6; }
+        .row-canceled, .card-canceled { background-color: #fef2f2 !important; border-left: 4px solid #ef4444; }
+
+        .status-pending { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .status-confirmed { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .status-arrived { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+        .status-canceled { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        th.sortable { cursor: pointer; position: relative; transition: background 0.2s; }
+        th.sortable:hover { background-color: #f1f5f9; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+
+        /* Style untuk Pemisah Tarikh dalam Table */
+        .date-separator-row {
+            background-color: #e2e8f0 !important; /* Slate 200 */
+        }
+        .date-separator-text {
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #475569; /* Slate 600 */
+            font-size: 11px;
+        }
+
+        /* Style untuk Tajuk Tarikh dalam Card View */
+        .card-date-header {
+            grid-column: 1 / -1;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-900">
+<body class="static-nav overflow-x-hidden">
 
-    <!-- TOP NAVBAR -->
-    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-xl">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-yellow-500 text-slate-900 w-10 h-10 rounded-xl flex items-center justify-center font-black">M</div>
-                <h1 class="text-lg font-extrabold tracking-tighter">ADMIN <span class="text-yellow-500">Raya 2026</span></h1>
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-[60] shadow-xl">
+        <div class="max-w-[1600px] mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="flex flex-col">
+                    <span class="font-black tracking-tighter text-xl uppercase italic text-amber-500 leading-none">MKAJ ADMIN</span>
+                    <span class="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Database Management</span>
+                </div>
+                <button onclick="openWalkInModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-black transition shadow-lg">
+                    <i class="fas fa-plus mr-1"></i> WALK-IN
+                </button>
             </div>
-            <div class="flex gap-2">
-                <button onclick="fetchData()" class="p-2 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-sync-alt"></i></button>
-                <button onclick="toggleModal('walkInModal', true)" class="bg-yellow-500 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-yellow-400 transition">
-                    + WALK-IN
+            
+            <div class="flex items-center gap-4">
+                <!-- VIEW SWITCHER BUTTON -->
+                <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button id="view-table-btn" onclick="switchView('table')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white">
+                        <i class="fas fa-table mr-1"></i> Table
+                    </button>
+                    <button id="view-card-btn" onclick="switchView('card')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                        <i class="fas fa-th-large mr-1"></i> Cards
+                    </button>
+                </div>
+                
+                <p id="stats-total" class="text-[10px] font-black text-slate-400 uppercase hidden md:block">Total: 0 Rekod</p>
+                <button onclick="fetchData()" class="w-10 h-10 bg-slate-800 rounded-xl hover:bg-slate-700 transition flex items-center justify-center text-slate-300">
+                    <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="container mx-auto p-4 max-w-6xl">
-        
+    <main class="p-6 max-w-[1600px] mx-auto">
         <!-- SEARCH & FILTERS -->
-        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm mb-6 border border-gray-100 space-y-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="relative flex-[2]">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari Nama, No Tel atau Order ID..." 
-                        class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-500 transition text-sm">
-                </div>
-                <select id="filterDateRange" onchange="toggleCustomDate(this.value)" class="flex-1 p-3 bg-gray-50 rounded-2xl outline-none font-semibold text-sm">
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-4 items-center border border-slate-200">
+            <div class="relative flex-grow min-w-[300px]">
+                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                <input type="text" id="adminSearch" onkeyup="applyFilters()" placeholder="Cari nama, ID, atau no telefon..." class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none transition">
+            </div>
+            <div class="flex gap-2 flex-wrap items-center">
+                <select id="filterDate" onchange="handleDateFilterChange()" class="bg-slate-100 border-none py-3 px-4 rounded-xl text-xs font-bold outline-none cursor-pointer">
                     <option value="all">Semua Tarikh</option>
                     <option value="today">Hari Ini</option>
+                    <option value="tomorrow">Esok</option>
                     <option value="week">Minggu Ini</option>
-                    <option value="custom">📅 Custom Range...</option>
+                    <option value="custom">Pilih Tarikh...</option>
+                </select>
+                <div id="customDateRange" class="hidden flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <input type="date" id="startDate" onchange="applyFilters()" class="bg-transparent border-none text-[10px] font-bold outline-none p-1">
+                    <span class="text-slate-400 text-[10px]">ke</span>
+                    <input type="date" id="endDate" onchange="applyFilters()" class="bg-transparent border-none text-[10px] font-bold outline-none p-1">
+                </div>
+                <select id="filterTheme" onchange="applyFilters()" class="bg-slate-100 border-none py-3 px-4 rounded-xl text-xs font-bold outline-none cursor-pointer">
+                    <option value="all">Semua Tema</option>
+                </select>
+                <select id="filterStatus" onchange="applyFilters()" class="bg-slate-100 border-none py-3 px-4 rounded-xl text-xs font-bold outline-none cursor-pointer">
+                    <option value="all">Semua Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Arrived">Arrived</option>
+                    <option value="Canceled">Canceled</option>
                 </select>
             </div>
+        </div>
 
-            <div id="customDateSection" class="hidden flex flex-col md:flex-row gap-2 bg-yellow-50 p-4 rounded-2xl border border-yellow-100">
-                <div class="flex-1">
-                    <label class="text-[9px] font-bold text-yellow-600 uppercase ml-2">Dari Tarikh</label>
-                    <input type="date" id="dateStart" onchange="filterData()" class="w-full bg-white p-2 rounded-xl border-none text-sm">
-                </div>
-                <div class="flex-1">
-                    <label class="text-[9px] font-bold text-yellow-600 uppercase ml-2">Hingga Tarikh</label>
-                    <input type="date" id="dateEnd" onchange="filterData()" class="w-full bg-white p-2 rounded-xl border-none text-sm">
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Status</p>
-                <div id="statusPills" class="flex flex-wrap gap-2">
-                    <button onclick="togglePill(this, 'status', 'Confirmed')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Confirmed</button>
-                    <button onclick="togglePill(this, 'status', 'Arrived')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Arrived</button>
-                    <button onclick="togglePill(this, 'status', 'Pending')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Pending</button>
-                    <button onclick="togglePill(this, 'status', 'Canceled')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition">Canceled</button>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Tapis Shooter</p>
-                <div id="shooterPills" class="flex flex-wrap gap-2">
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 1')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P1</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 2')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P2</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 3')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P3</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 4')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P4</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 5')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P5</button>
-                    <button onclick="togglePill(this, 'shooter', 'Photographer 6')" class="pill-btn px-4 py-2 rounded-full border text-xs font-bold transition border-indigo-100 text-indigo-400">P6</button>
-                </div>
+        <!-- TABLE VIEW -->
+        <div id="tableView" class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse min-w-[1150px]">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest border-b">
+                            <th class="p-5 sortable" onclick="toggleSort('Date')">Slot & Masa <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                            <th class="p-5 sortable" onclick="toggleSort('Name')">Pelanggan <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                            <th class="p-5">Tema & Pakej</th>
+                            <th class="p-5">Pax</th>
+                            <th class="p-5">Add-Ons & MUA</th>
+                            <th class="p-5">Frame & Media</th>
+                            <th class="p-5 sortable" onclick="toggleSort('TotalPrice')">Bayaran (RM) <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                            <th class="p-5 text-center border-l border-slate-100 sortable" onclick="toggleSort('Status')">Status <i class="fas fa-sort ml-1 opacity-30"></i></th>
+                            <th class="p-5 text-center border-l border-slate-100">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody" class="text-sm divide-y divide-slate-100 font-medium"></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- REPORT SUMMARY -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-gray-400 text-[9px] font-black uppercase tracking-widest">Jumlah Sesi</p>
-                <h2 id="statTotal" class="text-2xl font-black text-slate-800">0</h2>
-            </div>
-            <div class="bg-green-50 p-5 rounded-3xl border border-green-100 shadow-sm">
-                <p class="text-green-600 text-[9px] font-black uppercase tracking-widest">Confirmed</p>
-                <h2 id="statPaid" class="text-2xl font-black text-green-700">0</h2>
-            </div>
-            <div class="bg-blue-50 p-5 rounded-3xl border border-blue-100 shadow-sm">
-                <p class="text-blue-600 text-[9px] font-black uppercase tracking-widest">Check-In</p>
-                <h2 id="statArrived" class="text-2xl font-black text-blue-700">0</h2>
-            </div>
-            <div class="bg-gray-50 p-5 rounded-3xl border border-gray-200 shadow-sm">
-                <p class="text-orange-500 text-[9px] font-black uppercase tracking-widest text-center">Pending: <span id="statPending" class="font-bold">0</span> | Batal: <span id="statCanceled" class="font-bold">0</span></p>
-            </div>
+        <!-- CARD VIEW (Hidden by default) -->
+        <div id="cardView" class="hidden">
+            <div id="adminCardContainer" class="card-grid"></div>
         </div>
 
-        <div id="loader" class="hidden text-center py-20">
-            <i class="fas fa-circle-notch fa-spin text-4xl text-slate-300"></i>
-            <p class="text-gray-400 mt-4 font-medium italic">Memuatkan data...</p>
+        <div id="loader" class="py-32 text-center hidden">
+            <div class="loader mb-4"></div>
+            <p class="text-slate-400 text-xs font-black uppercase tracking-widest">Memuatkan Data...</p>
         </div>
+    </main>
 
-        <div id="container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-    </div>
-
-    <!-- MODAL: WALK-IN -->
-    <div id="walkInModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
+    <!-- MODAL EDIT & WALK-IN -->
+    <div id="customerModal" class="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 animate-slideUp">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-extrabold text-slate-800">Pendaftaran Walk-In</h2>
-                <button onclick="toggleModal('walkInModal', false)" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-xl"></i></button>
+                <h3 id="modalTitle" class="font-black text-slate-800 uppercase tracking-tighter text-lg">Butiran Tempahan</h3>
+                <button onclick="closeModal('customerModal')" class="w-10 h-10 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="walkInForm" class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-                <input type="text" id="w_name" placeholder="Nama Penuh Pelanggan" class="w-full p-4 bg-gray-50 rounded-2xl outline-none" required>
-                <input type="tel" id="w_phone" placeholder="60123456789" class="w-full p-4 bg-gray-50 rounded-2xl outline-none" required>
-                
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilih Tema</label>
-                    <select id="w_theme_select" onchange="onWalkInThemeChange()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1"></select>
+            
+            <form id="customerForm" onsubmit="saveCustomer(event)" class="p-8 grid grid-cols-2 gap-5 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <input type="hidden" id="form-orderID">
+    
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Pelanggan</label>
+                    <input type="text" id="form-name" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 focus:border-amber-500 outline-none transition font-bold" required>
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">No Telefon</label>
+                    <input type="text" id="form-phone" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 focus:border-amber-500 outline-none transition font-bold" required>
                 </div>
 
-                <!-- TIER SELECTION (BARU) -->
-                <div id="w_tier_container" class="hidden space-y-2">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Kategori Pax (Family)</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="p-3 bg-white rounded-xl border-2 flex flex-col items-center cursor-pointer transition" id="w_tier_small_label">
-                            <input type="radio" name="w_pax_tier" value="small" checked onchange="calculateWalkIn()" class="hidden">
-                            <span class="text-xs font-bold">1-8 Pax</span>
-                            <span class="text-[10px] opacity-60">RM129</span>
-                        </label>
-                        <label class="p-3 bg-white rounded-xl border-2 flex flex-col items-center cursor-pointer transition" id="w_tier_large_label">
-                            <input type="radio" name="w_pax_tier" value="large" onchange="calculateWalkIn()" class="hidden">
-                            <span class="text-xs font-bold">9-15 Pax</span>
-                            <span class="text-[10px] opacity-60">RM199</span>
-                        </label>
+                <div class="col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bil. Dewasa</label>
+                        <input type="number" id="form-pax-adult" min="1" value="1" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500" onchange="recalculatePrice()" onkeyup="recalculatePrice()">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bil. Kanak-kanak</label>
+                        <input type="number" id="form-pax-kid" min="0" value="0" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500" onchange="recalculatePrice()" onkeyup="recalculatePrice()">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="date" id="w_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none text-sm" required>
-                    <select id="w_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none text-sm" required></select>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tema Raya</label>
+                    <select id="form-theme" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 outline-none focus:border-amber-500 font-bold" onchange="recalculatePrice()"></select>
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pakej Kategori</label>
+                    <select id="form-package" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 outline-none focus:border-amber-500 font-bold" onchange="recalculatePrice()">
+                        <option value="KATEGORI FAMILY (1-8 PAX)">FAMILY (1-8 PAX)</option>
+                        <option value="KATEGORI FAMILY (9-15 PAX)">FAMILY (9-15 PAX)</option>
+                        <option value="KATEGORI COUPLE">COUPLE / MINI (MAX 4)</option>
+                    </select>
                 </div>
 
-                <!-- PAX COUNTER -->
-                <div class="bg-gray-50 p-4 rounded-3xl flex justify-between items-center">
-                    <div><p class="font-bold text-sm">Dewasa</p><p class="text-[9px] text-gray-400 uppercase" id="w_pax_note">Cover 8 Pax</p></div>
-                    <div class="flex items-center gap-4 bg-white p-1 rounded-full shadow-sm">
-                        <button type="button" onclick="adjustPax('adult', -1)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold">-</button>
-                        <span id="w_adult_val" class="font-black text-lg w-4 text-center">1</span>
-                        <button type="button" onclick="adjustPax('adult', 1)" class="w-8 h-8 flex items-center justify-center bg-slate-900 text-white rounded-full font-bold">+</button>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tarikh</label>
+                    <input type="date" id="form-date" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slot Masa</label>
+                    <select id="form-time" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500"></select>
+                </div>
+
+                <div class="col-span-2 grid grid-cols-2 gap-4 bg-slate-50 p-5 rounded-3xl border border-slate-100">
+                    <div>
+                        <label class="text-[10px] font-black text-amber-600 uppercase mb-2 block tracking-widest">Add-Ons & MUA</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 text-xs font-bold cursor-pointer">
+                                <input type="checkbox" id="form-extraTime" class="w-5 h-5 accent-amber-500" onchange="recalculatePrice()"> Extra Time (+RM20)
+                            </label>
+                            <select id="form-mua" class="w-full border border-slate-200 rounded-xl p-3 text-xs font-bold bg-white" onchange="recalculatePrice()">
+                                <option value="Tiada">Tiada MUA</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-blue-600 uppercase mb-2 block tracking-widest">Frame & Photo No</label>
+                        <select id="form-frame" class="w-full border border-slate-200 rounded-xl p-3 text-xs font-bold bg-white mb-2" onchange="recalculatePrice()">
+                            <option value="Tiada">Tiada Frame</option>
+                        </select>
+                        <input type="text" id="form-photoNumber" placeholder="No Gambar" class="w-full border border-slate-200 rounded-xl p-3 text-xs font-bold bg-white outline-none focus:border-amber-500">
                     </div>
                 </div>
 
-                <!-- ADD ONS (MUA & TIME) -->
-                <div class="space-y-2">
-                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" id="w_addon_makeup" onchange="calculateWalkIn()" class="w-5 h-5 accent-slate-900">
-                        <span class="text-sm font-bold text-slate-700">Makeup Artist (+RM150)</span>
-                    </label>
-                    <div id="w_mua_selection" class="hidden pl-8">
-                        <select id="w_mua_select" onchange="calculateWalkIn()" class="w-full p-3 bg-white border rounded-xl text-xs font-bold"></select>
+                <div class="col-span-2 bg-slate-900 p-6 rounded-[2rem] flex justify-between items-center shadow-xl">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Jumlah Perlu Bayar</p>
+                        <p class="text-3xl font-black text-amber-500">RM <span id="form-total">0</span></p>
                     </div>
-                    <label class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" id="w_addon_time" onchange="calculateWalkIn()" class="w-5 h-5 accent-slate-900">
-                        <span class="text-sm font-bold text-slate-700">Extra Time 10 Min (+RM20)</span>
-                    </label>
+                    <div class="text-right">
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Photographer</label>
+                        <select id="form-photographer" class="bg-slate-800 text-white border-none rounded-xl p-2 text-xs font-bold outline-none"></select>
+                    </div>
                 </div>
 
-                <!-- FRAME -->
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">Pilihan Frame (Premium)</label>
-                    <select id="w_frame_select" onchange="calculateWalkIn()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none mt-1 text-sm font-bold"></select>
-                </div>
-
-                <div class="bg-slate-900 p-6 rounded-[2rem] text-white flex justify-between items-center shadow-xl">
-                    <div><p class="text-[10px] text-slate-400 uppercase font-black">Total Bayaran</p><h2 class="text-3xl font-black text-yellow-500">RM <span id="w_total_display">0</span></h2></div>
-                    <button type="submit" class="bg-yellow-500 text-slate-900 px-8 py-4 rounded-2xl font-black hover:bg-yellow-400 transition">SIMPAN</button>
+                <div class="col-span-2 pt-4 flex gap-4">
+                    <button type="button" onclick="closeModal('customerModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-slate-500 text-[10px] uppercase tracking-widest">Batal</button>
+                    <button type="submit" id="btnSave" class="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition">Simpan Data</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: EDIT -->
-    <div id="editModal" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden">
-            <div class="p-6 border-b bg-slate-50 flex justify-between items-center">
-                <div><h2 class="text-xl font-black text-slate-800">Edit Maklumat</h2><p id="edit_orderID_label" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest"></p></div>
-                <button onclick="toggleModal('editModal', false)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 transition"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <form id="editForm" class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-                <input type="hidden" id="e_orderID">
-                <input type="tel" id="e_phone" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" placeholder="No Tel">
-                
-                <div class="bg-slate-50 p-4 rounded-3xl">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tema / Kategori</label>
-                    <select id="e_theme" onchange="onEditThemeChange()" class="w-full p-3 bg-white rounded-xl mt-2 font-bold outline-none"></select>
-                    <p id="e_package_label" class="text-[9px] font-black text-blue-600 mt-2 ml-2 uppercase"></p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="date" id="e_date" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
-                    <select id="e_time" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm"></select>
-                </div>
-
-                <div class="bg-indigo-50 p-4 rounded-3xl">
-                    <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest ml-2">Assign Shooter</label>
-                    <select id="e_photographer" class="w-full p-3 bg-white rounded-xl mt-2 font-bold outline-none border-none shadow-sm"></select>
-                </div>
-
-                <div class="bg-blue-50 p-4 rounded-3xl grid grid-cols-2 gap-4">
-                    <div class="flex flex-col items-center gap-2">
-                        <p class="text-[10px] font-bold text-blue-600 uppercase">Dewasa</p>
-                        <div class="flex items-center gap-3 bg-white p-1 rounded-full"><button type="button" onclick="adjustEditPax('adult', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button><span id="e_adult_val" class="font-black">0</span><button type="button" onclick="adjustEditPax('adult', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button></div>
-                    </div>
-                    <div class="flex flex-col items-center gap-2">
-                        <p class="text-[10px] font-bold text-blue-600 uppercase">Kanak-kanak</p>
-                        <div class="flex items-center gap-3 bg-white p-1 rounded-full"><button type="button" onclick="adjustEditPax('kid', -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold">-</button><span id="e_kid_val" class="font-black">0</span><button type="button" onclick="adjustEditPax('kid', 1)" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">+</button></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" id="e_addon_makeup" onchange="onEditMakeupToggle()" class="w-4 h-4 accent-blue-600">
-                        <span class="text-[9px] font-bold text-slate-600 uppercase">Makeup</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" id="e_addon_time" onchange="calculateEditPrice()" class="w-4 h-4 accent-blue-600">
-                        <span class="text-[9px] font-bold text-slate-600 uppercase">Time (+20)</span>
-                    </label>
-                </div>
-                <div id="e_mua_selection" class="hidden bg-blue-50/50 p-3 rounded-2xl">
-                    <select id="e_mua_select" onchange="calculateEditPrice()" class="w-full bg-white border-none p-3 rounded-xl text-xs font-bold outline-none"></select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="e_frame" onchange="calculateEditPrice()" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm"></select>
-                    <input type="text" id="e_photoNum" placeholder="No. Gambar" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
-                </div>
-
-                <div class="bg-slate-900 p-5 rounded-[2rem] text-white">
-                    <p class="text-[10px] text-slate-400 uppercase font-black text-center">Total Harga (RM)</p>
-                    <div class="flex items-center justify-center gap-2"><span class="text-3xl font-black text-yellow-500">RM</span><input type="number" id="e_totalPrice" class="bg-transparent text-4xl font-black text-yellow-500 outline-none w-32 text-center"></div>
-                </div>
-
-                <button type="submit" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-sm hover:bg-blue-700 transition shadow-xl">SIMPAN PERUBAHAN</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPTS -->
     <script src="assets/js/data.js"></script>
     <script src="assets/js/admin.js"></script>
 </body>

@@ -386,12 +386,20 @@ function submitBooking() {
 
     const uniqueID = "RAYA-" + Math.floor(10000 + Math.random() * 90000);
     const payload = {
-        orderID: uniqueID, name: bookingData.name, phone: bookingData.phone,
-        email: bookingData.email || "-", package: bookingData.packageId,
-        theme: bookingData.theme, date: bookingData.date, time: bookingData.time,
+        orderID: uniqueID,
+        name: bookingData.name,
+        phone: bookingData.phone,
+        email: bookingData.email || "-",
+        package: bookingData.packageId,
+        theme: bookingData.theme,
+        date: bookingData.date,
+        time: bookingData.time,
         pax: `${bookingData.paxAdult} Dewasa, ${bookingData.paxKids} Kanak-kanak`,
-        addOns: bookingData.addOns, totalPrice: bookingData.total,
-        frame: bookingData.frame, paymentType: bookingData.paymentType, status: "Pending"
+        addOns: bookingData.addOns,
+        totalPrice: bookingData.total,
+        frame: bookingData.frame,
+        paymentType: bookingData.paymentType,
+        status: "Pending"
     };
 
     fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
