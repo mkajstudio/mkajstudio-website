@@ -76,7 +76,7 @@ function openBookingWizard(categoryName, price, basePaxLimit, type, preSelectedT
     const wizard = document.getElementById('booking-wizard');
     if(wizard) wizard.classList.remove('hidden');
 
-    const initialPax = (type === 'couple') ? 2 : 1; 
+    const initialPax = (type === 'couple') ? 2 : 4; 
     const elName = document.getElementById('bk-name');
     const elEmail = document.getElementById('bk-email');
 
@@ -274,7 +274,7 @@ function nextStep(step) {
 
     // RESET LOGIC
     if (step === 3) {
-        bookingData.paxAdult = (bookingData.themeType === 'couple') ? 2 : 1;
+        bookingData.paxAdult = (bookingData.themeType === 'couple') ? 2 : 4;
         bookingData.paxKids = 0;
         
         const elTime = document.getElementById('bk-extra-time');
