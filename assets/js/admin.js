@@ -1,5 +1,6 @@
 /**
- * MKAJ ADMIN ENGINE - V31.0 (DATE GROUPING + DYNAMIC VIEWS)
+ * MKAJ ADMIN ENGINE - V32.0 (FINAL CLEANUP)
+ * Updates: Phone Normalization (60...) & Walk-in Payment Label
  */
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9AfunhFacp2Aa19jhnRTe8vwnvGXMV5y7u1lG4w4Yx8cr2SenLRAlQr_8agN8D-gS/exec";
@@ -7,22 +8,43 @@ const N8N_WEBHOOK_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance"
 
 let allBookings = [];
 let currentView = 'table'; 
-let sortConfig = { key: 'Date', direction: 'asc' }; // Set default ASC supaya tarikh tersusun kronologi
+let sortConfig = { key: 'Date', direction: 'asc' }; 
 
-// --- UTILS ---
+// --- 1. UTILS: DATA CLEANING & NORMALIZATION ---
+
+// Membersihkan string untuk pencarian (Matching)
 function clean(str) {
     if (!str) return "";
     return str.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
 }
+
+// Format No Phone ke 60XXXXXXXXXX (Format Standard DB)
+function formatPhoneForDB(phone) {
+    let cleaned = phone.toString().replace(/\D/g, ''); // Buang semua simbol (+, -, space)
+    
+    if (cleaned.startsWith('60')) {
+        return cleaned;
+    } else if (cleaned.startsWith('0')) {
+        return '6' + cleaned; // 012 -> 6012
+    } else {
+        return '60' + cleaned; // 12 -> 6012
+    }
+}
+
+// Bersihkan MUA untuk hantar ke DB
 function cleanMuaForDB(str) {
     if (!str || str === "Tiada") return "Tiada";
     return str.split(" (")[0].trim();
 }
+
+// Bersihkan Frame untuk hantar ke DB
 function cleanFrameForDB(str) {
     if (!str || str === "Tiada") return "Tiada";
     let text = str.split(" (+RM")[0];
     return text.replace(/[()"]/g, '').trim();
 }
+
+// --- 2. INITIALIZE & DATA FETCHING ---
 
 window.onload = function() {
     populateDropdowns();
@@ -40,57 +62,56 @@ async function fetchData() {
     finally { if(loader) loader.classList.add('hidden'); }
 }
 
-// --- VIEW SWITCHER ---
-window.switchView = function(view) {
-    currentView = view;
-    const tableDiv = document.getElementById('tableView');
-    const cardDiv = document.getElementById('cardView');
-    const tableBtn = document.getElementById('view-table-btn');
-    const cardBtn = document.getElementById('view-card-btn');
+// --- 3. SAVE CUSTOMER (WALK-IN & EDIT) ---
 
-    if (view === 'table') {
-        tableDiv.classList.remove('hidden');
-        cardDiv.classList.add('hidden');
-        tableBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white";
-        cardBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
-    } else {
-        tableDiv.classList.add('hidden');
-        cardDiv.classList.remove('hidden');
-        cardBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white";
-        tableBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
-    }
-    applyFilters();
+window.saveCustomer = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSave');
+    const originalText = btn.innerText;
+    
+    btn.disabled = true; 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+
+    const orderIDVal = document.getElementById('form-orderID').value;
+    const isWalkIn = orderIDVal === "MANUAL";
+    
+    // Normalisasi No Phone
+    const rawPhone = document.getElementById('form-phone').value;
+    const normalizedPhone = formatPhoneForDB(rawPhone);
+
+    const paxString = `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`;
+
+    const payload = {
+        action: isWalkIn ? "save_booking" : "update_customer_full",
+        orderID: orderIDVal,
+        name: document.getElementById('form-name').value,
+        phone: normalizedPhone, // <-- Phone dah bersih (60...)
+        theme: document.getElementById('form-theme').value,
+        package: document.getElementById('form-package').value,
+        date: document.getElementById('form-date').value,
+        time: document.getElementById('form-time').value,
+        pax: paxString,
+        addOns: getAddOnsSummary(),
+        frame: cleanFrameForDB(document.getElementById('form-frame').value),
+        photoNumber: document.getElementById('form-photoNumber').value,
+        photographer: document.getElementById('form-photographer').value,
+        totalPrice: document.getElementById('form-total').innerText,
+        // Update Label Bayaran mengikut jenis pendaftaran
+        paymentType: isWalkIn ? "FULL (WALK-IN)" : "Updated via Admin", 
+        status: "Confirmed"
+    };
+
+    try {
+        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        alert("Berjaya Disimpan!"); 
+        closeModal('customerModal'); 
+        fetchData();
+    } catch (err) { alert("Ralat Simpan Database."); }
+    finally { btn.disabled = false; btn.innerText = originalText; }
 };
 
-// --- SORTING ---
-window.toggleSort = function(key) {
-    if (sortConfig.key === key) {
-        sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortConfig.key = key;
-        sortConfig.direction = 'asc';
-    }
-    applyFilters();
-};
+// --- 4. VIEW & FILTER LOGIC (Grouping Included) ---
 
-function sortData(data) {
-    return data.sort((a, b) => {
-        let valA = a[sortConfig.key] || '';
-        let valB = b[sortConfig.key] || '';
-        if (sortConfig.key === 'Date') {
-            valA = new Date(normalizeDate(a.Date) + ' ' + (a.Time || '00:00'));
-            valB = new Date(normalizeDate(b.Date) + ' ' + (b.Time || '00:00'));
-        }
-        if (sortConfig.key === 'TotalPrice') {
-            valA = parseFloat(valA); valB = parseFloat(valB);
-        }
-        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-}
-
-// --- FILTER & RENDER LOGIC ---
 window.applyFilters = function() {
     const search = (document.getElementById('adminSearch')?.value || "").toLowerCase();
     const fDate = document.getElementById('filterDate')?.value || "all";
@@ -129,86 +150,69 @@ window.applyFilters = function() {
     });
 
     filtered = sortData(filtered);
-    
-    if (currentView === 'table') renderTable(filtered);
-    else renderCards(filtered);
+    if (currentView === 'table') renderTable(filtered); else renderCards(filtered);
     
     const stats = document.getElementById('stats-total');
     if(stats) stats.innerText = `Total: ${filtered.length} Rekod`;
 };
 
-// --- RENDER TABLE (WITH GROUPING) ---
 function renderTable(data) {
     const tbody = document.getElementById('adminTableBody');
     if (!tbody) return;
     tbody.innerHTML = "";
-
     let lastDate = "";
 
     data.forEach(b => {
         const currentDate = formatDateUI(b.Date);
-        
-        // Tambah Separator jika tarikh berubah
         if (currentDate !== lastDate) {
-            const sepRow = document.createElement('tr');
-            sepRow.className = "date-separator-row";
-            sepRow.innerHTML = `
-                <td colspan="9" class="p-3 text-center date-separator-text">
-                    <i class="far fa-calendar-alt mr-2"></i> ${currentDate}
-                </td>`;
-            tbody.appendChild(sepRow);
+            const sep = document.createElement('tr');
+            sep.className = "date-separator-row";
+            sep.innerHTML = `<td colspan="9" class="p-3 text-center date-separator-text"><i class="far fa-calendar-alt mr-2"></i> ${currentDate}</td>`;
+            tbody.appendChild(sep);
             lastDate = currentDate;
         }
 
         const tr = document.createElement('tr');
         const statusKey = (b.Status || "pending").toLowerCase().replace(/\s/g, '');
         const payType = (b.PaymentType || "").toLowerCase();
-        
         tr.className = `hover:bg-slate-100 transition border-b border-slate-100 row-${statusKey}`;
         
         const frameDisplay = b.Frame && b.Frame !== "Tiada" ? `<div class="text-blue-600 font-bold text-[11px]"><i class="fas fa-certificate mr-1"></i>${b.Frame}</div>` : `<div class="text-slate-300 italic text-[10px]">Tiada Frame</div>`;
         const photoDisplay = b.PhotoNumber ? `<div class="mt-1"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[9px] font-black uppercase">IMG: ${b.PhotoNumber}</span></div>` : "";
 
         tr.innerHTML = `
-            <td class="p-5 font-black text-slate-700">
-                <span class="text-xs">${b.Time}</span>
-            </td>
+            <td class="p-5 font-black text-slate-700 text-xs">${b.Time}</td>
             <td class="p-5">
                 <div class="text-[9px] font-black text-amber-600 tracking-tighter mb-0.5">${b.OrderID}</div>
                 <div class="font-bold text-slate-800 leading-tight">${b.Name}</div>
                 <div class="text-[11px] text-slate-400 font-medium">${b.Phone}</div>
             </td>
             <td class="p-5">
-                <div class="font-bold text-slate-700">${b.Theme}</div>
+                <div class="font-bold text-slate-700 text-xs">${b.Theme}</div>
                 <div class="text-[9px] text-slate-400 font-black uppercase truncate max-w-[120px]">${b.Package}</div>
             </td>
             <td class="p-5 text-[11px] font-bold text-slate-600">${b.Pax || '-'}</td>
             <td class="p-5 text-[11px] font-bold text-slate-600">${b.AddOns || '-'}</td>
             <td class="p-5">${frameDisplay}${photoDisplay}</td>
             <td class="p-5">
-                <div class="text-[10px] font-black uppercase text-slate-400">${b.PaymentType || 'Manual'}</div>
-                <div class="text-sm font-black">RM ${b.TotalPrice || '0'}</div>
+                <div class="text-[10px] font-black uppercase text-slate-400 leading-tight">${b.PaymentType || 'N/A'}</div>
+                <div class="text-sm font-black text-slate-800">RM ${b.TotalPrice || '0'}</div>
             </td>
             <td class="p-5 text-center border-l border-slate-200/50">
                 <span class="status-badge status-${statusKey}">${b.Status}</span>
                 <div class="text-[9px] text-slate-400 mt-1 font-black uppercase tracking-tighter">${b.Photographer || 'TBA'}</div>
             </td>
             <td class="p-5 text-center border-l border-slate-200/50">
-                <div class="flex flex-wrap justify-center gap-1.5 max-w-[120px] mx-auto">
-                    ${getActionButtons(b, statusKey, payType)}
-                </div>
-            </td>
-        `;
+                <div class="flex flex-wrap justify-center gap-1.5 max-w-[120px] mx-auto">${getActionButtons(b, statusKey, payType)}</div>
+            </td>`;
         tbody.appendChild(tr);
     });
 }
 
-// --- RENDER CARDS (WITH GROUPING) ---
 function renderCards(data) {
     const container = document.getElementById('adminCardContainer');
     if (!container) return;
     container.innerHTML = "";
-
     let lastDate = "";
 
     data.forEach(b => {
@@ -216,18 +220,16 @@ function renderCards(data) {
         const statusKey = (b.Status || "pending").toLowerCase().replace(/\s/g, '');
         const payType = (b.PaymentType || "").toLowerCase();
 
-        // Tambah Header Tarikh jika berubah
         if (currentDate !== lastDate) {
-            const dateHeader = document.createElement('div');
-            dateHeader.className = "card-date-header";
-            dateHeader.innerHTML = `<i class="far fa-calendar-check text-slate-400"></i> <span class="font-black text-slate-500 uppercase tracking-widest text-xs">${currentDate}</span>`;
-            container.appendChild(dateHeader);
+            const header = document.createElement('div');
+            header.className = "card-date-header";
+            header.innerHTML = `<i class="far fa-calendar-check text-slate-400"></i> <span class="font-black text-slate-500 uppercase tracking-widest text-xs">${currentDate}</span>`;
+            container.appendChild(header);
             lastDate = currentDate;
         }
         
         const card = document.createElement('div');
         card.className = `bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col gap-4 card-${statusKey}`;
-        
         card.innerHTML = `
             <div class="flex justify-between items-start">
                 <div>
@@ -237,40 +239,24 @@ function renderCards(data) {
                 </div>
                 <span class="status-badge status-${statusKey}">${b.Status}</span>
             </div>
-            
             <div class="grid grid-cols-2 gap-3 py-3 border-y border-slate-50">
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Masa Slot</p>
-                    <p class="text-xs font-bold text-slate-700">${b.Time}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Tema</p>
-                    <p class="text-xs font-bold text-slate-700">${b.Theme}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pax</p>
-                    <p class="text-xs font-bold text-slate-700">${b.Pax || '-'}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bayaran</p>
-                    <p class="text-xs font-black text-slate-800">RM ${b.TotalPrice}</p>
-                </div>
+                <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Masa Slot</p><p class="text-xs font-bold text-slate-700">${b.Time}</p></div>
+                <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Tema</p><p class="text-xs font-bold text-slate-700">${b.Theme}</p></div>
+                <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pax</p><p class="text-xs font-bold text-slate-700">${b.Pax || '-'}</p></div>
+                <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Bayaran</p><p class="text-xs font-black text-slate-800">RM ${b.TotalPrice}</p></div>
             </div>
-
             <div class="text-xs">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Add-Ons & Frame</p>
                 <div class="font-bold text-slate-600">${b.AddOns || '-'}</div>
                 <div class="text-blue-600 font-bold mt-1">${b.Frame || 'Tiada Frame'}</div>
                 ${b.PhotoNumber ? `<div class="mt-2 text-[10px] font-black text-amber-600 uppercase">IMG: ${b.PhotoNumber}</div>` : ''}
             </div>
-
-            <div class="mt-auto pt-4 flex flex-wrap gap-2 justify-center border-t border-slate-50">
-                ${getActionButtons(b, statusKey, payType)}
-            </div>
-        `;
+            <div class="mt-auto pt-4 flex flex-wrap gap-2 justify-center border-t border-slate-50">${getActionButtons(b, statusKey, payType)}</div>`;
         container.appendChild(card);
     });
 }
+
+// --- 5. DYNAMIC BUTTONS & ACTIONS ---
 
 function getActionButtons(b, statusKey, payType) {
     let btns = "";
@@ -281,9 +267,9 @@ function getActionButtons(b, statusKey, payType) {
     }
     if (statusKey !== 'canceled') {
         if (payType.includes("deposit")) {
-            btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
+            btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
         } else {
-            btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center"><i class="fas fa-receipt text-xs"></i></button>`;
+            btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Resit"><i class="fas fa-receipt text-xs"></i></button>`;
         }
     }
     btns += `<button onclick="editCustomer('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition flex items-center justify-center"><i class="fas fa-edit text-xs"></i></button>`;
@@ -295,8 +281,67 @@ function getActionButtons(b, statusKey, payType) {
     return btns;
 }
 
+window.handleN8N = async function(orderID, type) {
+    const b = allBookings.find(x => x.OrderID === orderID);
+    if (!b || !confirm(`Sahkan hantar data ke n8n?`)) return;
+    const payload = { trigger: type, orderID: b.OrderID, phone: b.Phone, nama: b.Name, tema: b.Theme, pax: b.Pax, addOns: b.AddOns, frame: b.Frame, totalPrice: b.TotalPrice };
+    try {
+        const res = await fetch(N8N_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        if(res.ok) alert(`✅ Berjaya!`); else alert("⚠️ n8n ralat.");
+    } catch (err) { alert("❌ Ralat n8n."); }
+};
 
-// --- RECALCULATE PRICE ---
+window.updateStatus = async function(id, newStatus, label) {
+    if(!confirm(`Sahkan ${label.toUpperCase()} ${id}?`)) return;
+    try {
+        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "update_payment", orderID: id, status: newStatus }) });
+        fetchData();
+    } catch (e) { alert("Error."); }
+};
+
+// --- 6. CORE APP LOGIC (Edit, Recalculate, UI) ---
+
+window.editCustomer = function(id) {
+    const b = allBookings.find(x => x.OrderID === id);
+    if(!b) return;
+
+    document.getElementById('modalTitle').innerText = `EDIT: ${id}`;
+    document.getElementById('form-orderID').value = b.OrderID;
+    document.getElementById('form-name').value = b.Name || "";
+    document.getElementById('form-phone').value = b.Phone || "";
+    document.getElementById('form-theme').value = b.Theme || "";
+    document.getElementById('form-package').value = b.Package || "KATEGORI FAMILY (1-8 PAX)";
+    document.getElementById('form-date').value = normalizeDate(b.Date);
+    document.getElementById('form-time').value = b.Time || "09:30";
+
+    const paxStr = b.Pax || "";
+    document.getElementById('form-pax-adult').value = parseInt(paxStr.match(/(\d+)\s*Dewasa/)?.[1] || 1);
+    document.getElementById('form-pax-kid').value = parseInt(paxStr.match(/(\d+)\s*Kanak/)?.[1] || 0);
+
+    const addStrClean = clean(b.AddOns || "");
+    document.getElementById('form-extraTime').checked = addStrClean.includes("extratime");
+
+    const muaSelect = document.getElementById('form-mua');
+    muaSelect.value = "Tiada";
+    for (let i = 0; i < muaSelect.options.length; i++) {
+        const shortName = clean(muaSelect.options[i].value.split(" (")[0]);
+        if (shortName !== "tiada" && addStrClean.includes(shortName)) { muaSelect.selectedIndex = i; break; }
+    }
+
+    const frameValClean = clean(b.Frame || "");
+    const frameSelect = document.getElementById('form-frame');
+    frameSelect.value = "Tiada";
+    for (let i = 0; i < frameSelect.options.length; i++) {
+        const optValClean = clean(frameSelect.options[i].value);
+        if (optValClean !== "tiada" && (frameValClean.includes(optValClean) || optValClean.includes(frameValClean))) { frameSelect.selectedIndex = i; break; }
+    }
+    
+    document.getElementById('form-photoNumber').value = b.PhotoNumber || "";
+    document.getElementById('form-photographer').value = b.Photographer || "Belum Ditetapkan";
+    recalculatePrice();
+    openModal('customerModal');
+};
+
 window.recalculatePrice = function() {
     const pkgSelect = document.getElementById('form-package');
     const themeSelect = document.getElementById('form-theme');
@@ -344,7 +389,87 @@ window.recalculatePrice = function() {
     document.getElementById('form-total').innerText = basePrice + extraPax + addonsTotal;
 };
 
-// --- GLOBAL ACCESSIBLE FUNCTIONS ---
+// --- 7. UI HELPERS ---
+
+window.switchView = (v) => {
+    currentView = v;
+    document.getElementById('tableView').classList.toggle('hidden', v !== 'table');
+    document.getElementById('cardView').classList.toggle('hidden', v !== 'card');
+    document.getElementById('view-table-btn').className = v === 'table' ? "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white" : "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+    document.getElementById('view-card-btn').className = v === 'card' ? "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white" : "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+    applyFilters();
+};
+
+window.toggleSort = (k) => {
+    sortConfig.direction = (sortConfig.key === k && sortConfig.direction === 'asc') ? 'desc' : 'asc';
+    sortConfig.key = k;
+    applyFilters();
+};
+
+function sortData(d) {
+    return d.sort((a, b) => {
+        let vA = a[sortConfig.key] || '', vB = b[sortConfig.key] || '';
+        if (sortConfig.key === 'Date') {
+            vA = new Date(normalizeDate(a.Date) + ' ' + (a.Time || '00:00'));
+            vB = new Date(normalizeDate(b.Date) + ' ' + (b.Time || '00:00'));
+        }
+        if (vA < vB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (vA > vB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+}
+
+function populateDropdowns() {
+    const tSelects = [document.getElementById('filterTheme'), document.getElementById('form-theme')];
+    tSelects.forEach(s => {
+        if (!s) return;
+        s.innerHTML = s.id === 'filterTheme' ? '<option value="all">Semua Tema</option>' : '';
+        for (const [key, val] of Object.entries(rayaThemesDetail)) {
+            let o = document.createElement('option'); o.value = val.title; o.innerText = val.title; s.appendChild(o);
+        }
+    });
+    const mSelect = document.getElementById('form-mua');
+    muaOptions.forEach(m => { if(m.name !== "Tiada") { let o = document.createElement('option'); o.value = m.name; o.innerText = `${m.name} (+RM${m.price})`; mSelect.appendChild(o); } });
+    const fSelect = document.getElementById('form-frame');
+    frameAddons.forEach(f => { if(f.name !== "Tiada") { let o = document.createElement('option'); o.value = f.name; o.innerText = `${f.name} (+RM${f.price})`; fSelect.appendChild(o); } });
+    const pSelect = document.getElementById('form-photographer');
+    photographersList.forEach(n => { let o = document.createElement('option'); o.value = n; o.innerText = n; pSelect.appendChild(o); });
+    const timeSelect = document.getElementById('form-time');
+    const slots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
+    slots.forEach(t => { let o = document.createElement('option'); o.value = t; o.innerText = t; timeSelect.appendChild(o); });
+}
+
+function getAddOnsSummary() {
+    let l = [];
+    if(document.getElementById('form-extraTime').checked) l.push("Extra Time");
+    const m = document.getElementById('form-mua').value;
+    if(m !== "Tiada") l.push(cleanMuaForDB(m));
+    return l.length > 0 ? l.join(", ") : "Tiada";
+}
+
+window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = 'auto'; }
+
+window.handleDateFilterChange = () => {
+    const v = document.getElementById('filterDate').value;
+    document.getElementById('customDateRange').classList.toggle('hidden', v !== 'custom');
+    if (v !== 'custom') applyFilters();
+};
+
+window.deleteBooking = async (id) => { if(confirm(`Padam ${id}?`)) { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete_row", orderID: id }) }); fetchData(); } };
+
+function normalizeDate(d) {
+    if(!d) return "";
+    const s = d.toString();
+    if(s.includes('/')) { const p = s.split('/'); return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; }
+    return s.split('T')[0];
+}
+
+function formatDateUI(s) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? s : d.toLocaleDateString('ms-MY', {day:'numeric', month:'short', year:'numeric'});
+}
+
 window.openWalkInModal = function() {
     document.getElementById('modalTitle').innerText = "WALK-IN BOOKING";
     document.getElementById('customerForm').reset();
@@ -355,202 +480,3 @@ window.openWalkInModal = function() {
     recalculatePrice();
     openModal('customerModal');
 };
-
-window.editCustomer = function(id) {
-    const b = allBookings.find(x => x.OrderID === id);
-    if(!b) return;
-
-    document.getElementById('modalTitle').innerText = `EDIT: ${id}`;
-    document.getElementById('form-orderID').value = b.OrderID;
-    document.getElementById('form-name').value = b.Name || "";
-    document.getElementById('form-phone').value = b.Phone || "";
-    document.getElementById('form-theme').value = b.Theme || "";
-    document.getElementById('form-package').value = b.Package || "KATEGORI FAMILY (1-8 PAX)";
-    document.getElementById('form-date').value = normalizeDate(b.Date);
-    document.getElementById('form-time').value = b.Time || "09:30";
-
-    const paxStr = b.Pax || "";
-    document.getElementById('form-pax-adult').value = parseInt(paxStr.match(/(\d+)\s*Dewasa/)?.[1] || 1);
-    document.getElementById('form-pax-kid').value = parseInt(paxStr.match(/(\d+)\s*Kanak/)?.[1] || 0);
-
-    const addStrClean = clean(b.AddOns || "");
-    document.getElementById('form-extraTime').checked = addStrClean.includes("extratime");
-
-    const muaSelect = document.getElementById('form-mua');
-    muaSelect.value = "Tiada";
-    for (let i = 0; i < muaSelect.options.length; i++) {
-        const shortName = clean(muaSelect.options[i].value.split(" (")[0]);
-        if (shortName !== "tiada" && addStrClean.includes(shortName)) {
-            muaSelect.selectedIndex = i; break;
-        }
-    }
-
-    const frameValClean = clean(b.Frame || "");
-    const frameSelect = document.getElementById('form-frame');
-    frameSelect.value = "Tiada";
-    for (let i = 0; i < frameSelect.options.length; i++) {
-        const optValClean = clean(frameSelect.options[i].value);
-        if (optValClean !== "tiada" && (frameValClean.includes(optValClean) || optValClean.includes(frameValClean))) {
-            frameSelect.selectedIndex = i; break;
-        }
-    }
-    
-    document.getElementById('form-photoNumber').value = b.PhotoNumber || "";
-    document.getElementById('form-photographer').value = b.Photographer || "Belum Ditetapkan";
-    
-    recalculatePrice();
-    openModal('customerModal');
-};
-
-window.saveCustomer = async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnSave');
-    const originalText = btn.innerText;
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-
-    const orderIDVal = document.getElementById('form-orderID').value;
-    const paxString = `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`;
-
-    const payload = {
-        action: orderIDVal === "MANUAL" ? "save_booking" : "update_customer_full",
-        orderID: orderIDVal,
-        name: document.getElementById('form-name').value,
-        phone: document.getElementById('form-phone').value,
-        theme: document.getElementById('form-theme').value,
-        package: document.getElementById('form-package').value,
-        date: document.getElementById('form-date').value,
-        time: document.getElementById('form-time').value,
-        pax: paxString,
-        addOns: getAddOnsSummary(),
-        frame: cleanFrameForDB(document.getElementById('form-frame').value),
-        photoNumber: document.getElementById('form-photoNumber').value,
-        photographer: document.getElementById('form-photographer').value,
-        totalPrice: document.getElementById('form-total').innerText,
-        paymentType: "Counter (Full)",
-        status: "Confirmed"
-    };
-
-    try {
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("Berjaya!"); closeModal('customerModal'); fetchData();
-    } catch (err) { alert("Error!"); }
-    finally { btn.disabled = false; btn.innerText = originalText; }
-};
-
-window.handleN8N = async function(orderID, type) {
-    const b = allBookings.find(x => x.OrderID === orderID);
-    if (!b) return;
-    const actionText = type === 'baki' ? `SETTLE BAKI` : `HANTAR RESIT`;
-    if (!confirm(`Sahkan ${actionText} untuk ${b.Name}?`)) return;
-
-    const payload = {
-        trigger: type, orderID: b.OrderID, phone: b.Phone, nama: b.Name,
-        tema: b.Theme, pax: b.Pax, addOns: b.AddOns, frame: b.Frame,
-        totalPrice: b.TotalPrice
-    };
-
-    try {
-        const res = await fetch(N8N_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        if(res.ok) alert(`✅ Berjaya!`);
-        else alert("⚠️ n8n ralat.");
-    } catch (err) { alert("❌ Ralat sambungan n8n."); }
-};
-
-window.updateStatus = async function(id, newStatus, label) {
-    if(!confirm(`Sahkan untuk ${label.toUpperCase()} tempahan ${id}?`)) return;
-    try {
-        await fetch(GOOGLE_SCRIPT_URL, { 
-            method: "POST", 
-            mode: "no-cors", 
-            body: JSON.stringify({ action: "update_payment", orderID: id, status: newStatus }) 
-        });
-        fetchData();
-    } catch (e) { alert("Ralat status."); }
-};
-
-window.handleDateFilterChange = function() {
-    const filterVal = document.getElementById('filterDate').value;
-    const customDiv = document.getElementById('customDateRange');
-    if (filterVal === 'custom') customDiv.classList.remove('hidden');
-    else { customDiv.classList.add('hidden'); applyFilters(); }
-};
-
-function populateDropdowns() {
-    const themeSelects = [document.getElementById('filterTheme'), document.getElementById('form-theme')];
-    themeSelects.forEach(select => {
-        if (!select) return;
-        select.innerHTML = select.id === 'filterTheme' ? '<option value="all">Semua Tema</option>' : '';
-        for (const [key, val] of Object.entries(rayaThemesDetail)) {
-            let opt = document.createElement('option');
-            opt.value = val.title; opt.innerText = val.title;
-            select.appendChild(opt);
-        }
-    });
-    const muaSelect = document.getElementById('form-mua');
-    muaOptions.forEach(m => {
-        if(m.name === "Tiada") return;
-        let opt = document.createElement('option');
-        opt.value = m.name; opt.innerText = `${m.name} (+RM${m.price})`;
-        muaSelect.appendChild(opt);
-    });
-    const frameSelect = document.getElementById('form-frame');
-    frameAddons.forEach(f => {
-        if(f.name === "Tiada") return;
-        let opt = document.createElement('option');
-        opt.value = f.name; opt.innerText = `${f.name} (+RM${f.price})`;
-        frameSelect.appendChild(opt);
-    });
-    const pgSelect = document.getElementById('form-photographer');
-    photographersList.forEach(name => {
-        let opt = document.createElement('option');
-        opt.value = name; opt.innerText = name;
-        pgSelect.appendChild(opt);
-    });
-    const timeSelect = document.getElementById('form-time');
-    const slots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
-    slots.forEach(t => {
-        let opt = document.createElement('option');
-        opt.value = t; opt.innerText = t;
-        timeSelect.appendChild(opt);
-    });
-}
-
-function getAddOnsSummary() {
-    let list = [];
-    if(document.getElementById('form-extraTime').checked) list.push("Extra Time");
-    const m = document.getElementById('form-mua').value;
-    if(m !== "Tiada") list.push(cleanMuaForDB(m));
-    return list.length > 0 ? list.join(", ") : "Tiada";
-}
-
-window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
-window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = 'auto'; }
-
-window.checkInCustomer = async function(id) {
-    if(!confirm(`Check-in ${id}?`)) return;
-    await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "check_in", orderID: id }) });
-    fetchData();
-};
-window.deleteBooking = async function(id) {
-    if(!confirm(`Padam rekod ${id}?`)) return;
-    await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete_row", orderID: id }) });
-    fetchData();
-};
-function normalizeDate(d) {
-    if(!d) return "";
-    const str = d.toString();
-    if(str.includes('/')) {
-        const p = str.split('/');
-        return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-    }
-    return str.split('T')[0];
-}
-function formatDateUI(s) {
-    const d = new Date(s);
-    if(isNaN(d.getTime())) return s;
-    return d.toLocaleDateString('ms-MY', {day:'numeric', month:'short'});
-}
