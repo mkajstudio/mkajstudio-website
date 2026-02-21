@@ -233,7 +233,7 @@ const rayaThemesDetail = {
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
         displayPrice: "Bermula RM 129", // Harga dipaparkan di grid luar
         price: 129, // Base price untuk tier 1
-        paxCover: 8, // Base limit untuk tier 1
+        paxCover: 6, // Base limit untuk tier 1
         tagline: "Elegance & Luxury.",
         desc: "Set mewah dengan latar belakang velvet. Sesuai untuk tema eksklusif keluarga besar.",
         //thumbnail: "assets/images/themes/poster-moden.webp",
@@ -241,9 +241,10 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
-            "Kategori 1-8 Pax (RM129)",
-            "Kategori 9-15 Pax (RM199)",
-            "Extra Pax > 15 orang (+RM10/head)"
+            "Cover 6 pax untuk RM129,",
+            "Extra Pax > 6 orang (+RM10/head)",
+            "Kanak-kanak Percuma",
+            "Max 20 Pax per sesi termasuk kanak-kanak"
         ]
     },
     'white': {
@@ -253,7 +254,7 @@ const rayaThemesDetail = {
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
         displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 8,
+        paxCover: 6,
         tagline: "Pure & Timeless.",
         desc: "Latar belakang serba putih minimalis. Sesuai untuk baju raya moden dan pastel.",
         //thumbnail: "assets/images/themes/poster-moden.webp",
@@ -261,9 +262,10 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
-            "Kategori 1-8 Pax (RM129)",
-            "Kategori 9-15 Pax (RM199)",
-            "Extra Pax > 15 orang (+RM10/head)"
+            "Cover 6 pax untuk RM129,",
+            "Extra Pax > 6 orang (+RM10/head)",
+            "Kanak-kanak Percuma",
+            "Max 20 Pax per sesi termasuk kanak-kanak"
         ]
     },
     'hening': {
@@ -273,7 +275,7 @@ const rayaThemesDetail = {
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
         displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 8,
+        paxCover: 6,
         tagline: "Nostalgia & Warmth.",
         desc: "Set kampung tradisional dengan elemen kayu. Membangkitkan nostalgia raya desa.",
         //thumbnail: "assets/images/themes/poster-moden.webp",
@@ -281,9 +283,10 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
-            "Kategori 1-8 Pax (RM129)",
-            "Kategori 9-15 Pax (RM199)",
-            "Extra Pax > 15 orang (+RM10/head)"
+            "Cover 6 pax untuk RM129,",
+            "Extra Pax > 6 orang (+RM10/head)",
+            "Kanak-kanak Percuma",
+            "Max 20 Pax per sesi termasuk kanak-kanak"
         ]
     },
     'qalbu': {
@@ -293,7 +296,7 @@ const rayaThemesDetail = {
         colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
         displayPrice: "Bermula RM 129",
         price: 129,
-        paxCover: 8,
+        paxCover: 6,
         tagline: "Radiance & Grace.",
         desc: "Set ala Timur Tengah (Arabic) yang elegan dan artistik.",
        //thumbnail: "assets/images/themes/poster-qalbu.webp",
@@ -301,9 +304,10 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 20 Minit",
             "Unlimited Shooting & Softcopy",
-            "Kategori 1-8 Pax (RM129)",
-            "Kategori 9-15 Pax (RM199)",
-            "Extra Pax > 15 orang (+RM10/head)"
+            "Cover 6 pax untuk RM129,",
+            "Extra Pax > 6 orang (+RM10/head)",
+            "Kanak-kanak Percuma",
+            "Max 20 Pax per sesi termasuk kanak-kanak"
         ]
     },
 
@@ -323,7 +327,7 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 15 Minit",
             "Unlimited Shooting & Softcopy",
-            "Maksima 4 Orang Sahaja",
+            "Maksima 4 Orang Sahaja (dewasa dan kanak-kanak)",
             "Sesuai untuk OOTD Raya Couple"
         ]
     },
@@ -342,7 +346,7 @@ const rayaThemesDetail = {
         inclusions: [
             "Sesi Fotografi 15 Minit",
             "Unlimited Shooting & Softcopy",
-            "Maksima 4 Orang Sahaja",
+            "Maksima 4 Orang Sahaja (dewasa dan kanak-kanak)",
             "Sesuai untuk OOTD Raya Couple"
         ]
     }

@@ -320,7 +320,7 @@ function filterThemes(type) {
     setTimeout(() => { gridContainer.style.opacity = 1; }, 50);
 }
 
-/* --- THEME DETAIL POPUP LOGIC --- */
+// --- THEME DETAIL POPUP LOGIC ---
 let modalSwiperInstance = null;
 let currentThemeKey = ""; 
 
@@ -329,41 +329,41 @@ function openThemeDetails(key) {
     const data = rayaThemesDetail[key];
     currentThemeKey = key; 
 
-    const titleEl = document.getElementById('th-modal-title');
-    const descEl = document.getElementById('th-modal-desc');
-    const catBadge = document.getElementById('th-cat-badge');
-
-    if(titleEl) titleEl.innerText = data.title;
-    if(descEl) descEl.innerText = data.desc;
-
-    const familyTierUI = document.getElementById('modal-tier-family');
-    const coupleTierUI = document.getElementById('modal-tier-couple');
-
-    if (data.type === 'family') {
-        if(familyTierUI) familyTierUI.classList.remove('hidden');
-        if(coupleTierUI) coupleTierUI.classList.add('hidden');
-    } else {
-        if(familyTierUI) familyTierUI.classList.add('hidden');
-        if(coupleTierUI) coupleTierUI.classList.remove('hidden');
-    }
-
-    const inclusionList = document.getElementById('th-modal-inclusions');
-    if (inclusionList && data.inclusions) {
-        inclusionList.innerHTML = ""; 
-        const checkColor = data.type === 'couple' ? 'text-pink-500' : 'text-green-500';
-        data.inclusions.forEach(item => {
-            const li = document.createElement('li');
-            li.className = "flex items-start gap-2 text-xs text-gray-700 font-medium";
-            li.innerHTML = `<i class="fas fa-check-circle ${checkColor} mt-0.5"></i> <span>${item}</span>`;
-            inclusionList.appendChild(li);
-        });
-    }
+    // Text Updates
+    document.getElementById('th-modal-title').innerText = data.title;
+    document.getElementById('th-modal-desc').innerText = data.desc;
     
-    if(catBadge) {
-        catBadge.innerText = data.categoryName;
-        catBadge.className = `inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 border ${data.colorClass}`;
+    // Badge
+    const catBadge = document.getElementById('th-cat-badge');
+    catBadge.innerText = data.categoryName;
+    catBadge.className = `inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 border ${data.colorClass}`;
+
+    // Inclusions
+    const inclusionList = document.getElementById('th-modal-inclusions');
+    inclusionList.innerHTML = ""; 
+    const checkColor = data.type === 'couple' ? 'text-pink-500' : 'text-green-500';
+    data.inclusions.forEach(item => {
+        const li = document.createElement('li');
+        li.className = "flex items-start gap-2 text-xs text-gray-700 font-medium";
+        li.innerHTML = `<i class="fas fa-check-circle ${checkColor} mt-0.5"></i> <span>${item}</span>`;
+        inclusionList.appendChild(li);
+    });
+
+    // HARGA & PAX DISPLAY (NEW LOGIC)
+    const priceDisplay = document.getElementById('th-display-price');
+    const paxDisplay = document.getElementById('th-display-pax');
+
+    if (data.type === 'couple') {
+        priceDisplay.innerText = "RM 89";
+        paxDisplay.innerText = "Max 4 Pax";
+        paxDisplay.className = "text-xs font-bold text-pink-500 uppercase tracking-widest";
+    } else {
+        priceDisplay.innerText = "RM 129";
+        paxDisplay.innerText = "Cover 6 Pax";
+        paxDisplay.className = "text-xs font-bold text-green-600 uppercase tracking-widest";
     }
 
+    // Slider Images
     const slidesContainer = document.getElementById('th-modal-slides-container');
     document.getElementById('theme-detail-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -371,28 +371,20 @@ function openThemeDetails(key) {
     if (slidesContainer && data.images.length > 0) {
         if (modalSwiperInstance) { modalSwiperInstance.destroy(true, true); modalSwiperInstance = null; }
         slidesContainer.innerHTML = "";
-        /* Dalam openThemeDetails, cari bahagian loop images */
-
-        data.images.forEach((imgUrl, index) => { // Tambah parameter 'index'
+        data.images.forEach(imgUrl => {
             const slide = document.createElement('div');
-            slide.className = "swiper-slide w-full h-full flex items-center justify-center bg-black"; 
-    
-            // UPDATE ONCLICK:
-            // Bila klik, panggil openLightbox(index)
-            // Index penting supaya kalau klik gambar no.3, lightbox buka terus gambar no.3
-            slide.innerHTML = `
-                <img src="${imgUrl}" 
-                    class="w-full h-full object-contain cursor-pointer hover:opacity-90 transition" 
-                    onclick="openLightbox(${index})">
-            `; 
-    
+            slide.className = "swiper-slide w-full h-full";
+            slide.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover block">`; 
             slidesContainer.appendChild(slide);
         });
         modalSwiperInstance = new Swiper(".modalSwiper", {
             observer: true, observeParents: true,
-            loop: data.images.length > 1, effect: "fade", speed: 500,
+            // FIX: Hanya loop jika gambar lebih dari 1
+            loop: data.images.length > 1, 
+            effect: "fade", speed: 500,
             navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-            pagination: { el: ".swiper-pagination", clickable: true }, autoplay: { delay: 3500 }
+            pagination: { el: ".swiper-pagination", clickable: true }, 
+            autoplay: { delay: 3500 }
         });
     }
 }
@@ -402,13 +394,23 @@ function closeThemeModal() {
     document.body.style.overflow = 'auto'; 
 }
 
-/* --- TNC LOGIC --- */
+// FUNGSI BOOKING (TRIGGER WIZARD)
 function bookCurrentTheme() {
-    closeThemeModal(); 
+    closeThemeModal();
     const data = rayaThemesDetail[currentThemeKey];
     if (!data) return;
+    
+    // Terus buka TNC, data disimpan dalam variable sementara di main.js atau global
     document.getElementById('tnc-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+}
+
+// Bila user setuju TNC -> Buka Wizard
+function agreeAndProceed() {
+    document.getElementById('tnc-modal').classList.add('hidden');
+    const theme = rayaThemesDetail[currentThemeKey];
+    // Pass maklumat asas ke Booking Wizard
+    openBookingWizard(theme.categoryName, theme.price, theme.paxCover, theme.type, theme.title);
 }
 
 function closeTncModal() {

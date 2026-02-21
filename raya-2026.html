@@ -218,88 +218,51 @@
         </a>
     </div>
 
-    <!-- ========== MODAL 1: THEME DETAILS ========== -->
+    <!-- ========== MODAL 1: THEME DETAILS (UPDATED) ========== -->
     <div id="theme-detail-modal" class="fixed inset-0 z-[80] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-4xl max-h-[90vh] md:h-auto md:aspect-video rounded-xl overflow-hidden flex flex-col md:flex-row relative shadow-2xl">
-            <!-- Close Btn -->
-            <button onclick="closeThemeModal()" class="absolute top-3 right-3 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 text-black hover:bg-red-100 transition shadow-lg">
-                <i class="fas fa-times"></i>
-            </button>
-            <!-- Left Img -->
-            <!-- GANTI BAHAGIAN 'LEFT IMG' DENGAN KOD INI -->
-
+            <button onclick="closeThemeModal()" class="absolute top-3 right-3 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 text-black hover:bg-red-100 transition shadow-lg"><i class="fas fa-times"></i></button>
+            
+            <!-- Left Img (Swiper) -->
             <div class="w-full h-60 md:w-1/2 md:h-auto bg-gray-900 relative shrink-0 group">
-    
-                <!-- Swiper Container untuk Modal -->
                 <div class="swiper modalSwiper w-full h-full">
-                    <div class="swiper-wrapper" id="th-modal-slides-container">
-                        <!-- JS akan masukkan gambar di sini secara automatik -->
-                    </div>
-        
-                    <!-- Navigation Buttons (Arrows) -->
+                    <div class="swiper-wrapper" id="th-modal-slides-container"></div>
                     <div class="swiper-button-next text-white scale-75 md:scale-100 opacity-0 group-hover:opacity-100 transition"></div>
                     <div class="swiper-button-prev text-white scale-75 md:scale-100 opacity-0 group-hover:opacity-100 transition"></div>
-                    <!-- Pagination (Titik) -->
                     <div class="swiper-pagination"></div>
                 </div>
-
             </div>
-            <!-- KANAN MODAL (Simple Scroll Layout) -->
-            <div class="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto bg-white text-left relative flex flex-col min-h-full">
-    
-                <!-- Kategori Badge -->
-                <div id="th-cat-badge" class="inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 w-max border">
-                    CATEGORY
-                </div>
 
-                <!-- Title & Desc -->
+            <!-- KANAN MODAL -->
+            <div class="w-full md:w-1/2 p-6 md:p-12 overflow-y-auto bg-white text-left relative flex flex-col min-h-full">
+                <div id="th-cat-badge" class="inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 w-max border">CATEGORY</div>
                 <h2 id="th-modal-title" class="font-serif text-3xl md:text-4xl mb-4 leading-tight text-black">Theme Title</h2>
                 <p id="th-modal-desc" class="text-gray-600 text-sm leading-relaxed mb-6">Description...</p>
     
-                <!-- Info Senarai (Compact Box) -->
                 <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Apa anda dapat:</h4>
-                    <!-- Grid 1 column mobile, 2 column pc supaya jimat ruang -->
-                    <ul id="th-modal-inclusions" class="grid grid-cols-1 gap-2">
-                        <!-- JS Masukkan List Sini -->
-                    </ul>
+                    <ul id="th-modal-inclusions" class="grid grid-cols-1 gap-2"></ul>
                 </div>
     
-                <!-- Spacer supaya tolak button ke bawah sikit kalau content sikit -->
                 <div class="mt-auto"></div>
 
-                <!-- Harga & Butang (DITUKAR KEPADA TIER SELECTION) -->
+                <!-- HARGA & BUTANG (REVERTED TO STANDARD PACKAGE) -->
                 <div class="pt-6 border-t border-gray-100 mt-auto">
-                    <!-- Container untuk Tema FAMILY -->
-                    <div id="modal-tier-family" class="hidden space-y-3">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Pilih Kategori Kehadiran:</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="selectTierAndBook('small')" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-amber-100 bg-amber-50 hover:border-amber-500 transition group">
-                                <span class="text-sm font-black text-slate-800 uppercase">1-8 PAX</span>
-                                <span class="text-lg font-serif font-bold text-amber-700 leading-none mt-1">RM 129</span>
-                            </button>
-                            <button onclick="selectTierAndBook('large')" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-gray-100 bg-gray-50 hover:border-amber-500 transition group">
-                                <span class="text-sm font-black text-slate-800 uppercase">9-15 PAX</span>
-                                <span class="text-lg font-serif font-bold text-slate-800 leading-none mt-1">RM 199</span>
-                            </button>
+                    
+                    <!-- Paparan Harga Dinamik -->
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Harga Pakej</p>
+                            <p class="text-3xl font-serif font-bold text-gray-900" id="th-display-price">RM 129</p> 
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-amber-600 uppercase tracking-widest" id="th-display-pax">Cover 6 Pax</p>
                         </div>
                     </div>
 
-                    <!-- Container untuk Tema COUPLE -->
-                    <div id="modal-tier-couple" class="hidden">
-                        <div class="flex justify-between items-end mb-4">
-                            <div>
-                                <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Harga Booking</p>
-                                <p class="text-3xl font-serif font-bold text-gray-900">RM 89</p> 
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs font-bold text-pink-500 uppercase tracking-widest">Max 4 Pax</p>
-                            </div>
-                        </div>
-                        <button onclick="selectTierAndBook('couple')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-slate-800 transition">
-                            PILIH TEMA INI
-                        </button>
-                    </div>
+                    <button onclick="bookCurrentTheme()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-slate-800 transition flex items-center justify-center gap-2">
+                        <span>TEMPAH SEKARANG</span> <i class="fas fa-arrow-right"></i>
+                    </button>
 
                     <div class="text-center pt-4">
                         <button onclick="closeThemeModal()" class="text-[10px] font-bold text-gray-400 hover:text-black uppercase tracking-widest">Kembali</button>
@@ -424,37 +387,22 @@
                     <!-- STEP 3: Kategori Pax & Counter (NEW LOGIC) -->
                     <div id="step-3" class="hidden step-content fade-in">
                         <h3 class="font-serif text-2xl mb-2">Bilangan Peserta</h3>
-                    
-                        <!-- Pilihan Kategori Family (Hanya muncul jika tema=family) -->
-                        <div id="family-tier-selector" class="mb-6 space-y-3 hidden">
-                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Pilih Kategori Kehadiran:</p>
-                            <div class="grid grid-cols-2 gap-3">
-                                <label id="tier-small-label" class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition border-amber-500 bg-amber-50">
-                                    <input type="radio" name="pax-tier" value="small" checked class="absolute top-4 right-4 accent-amber-600" onchange="updateFamilyTier()">
-                                    <span class="font-black text-lg">1-8 Pax</span>
-                                    <span class="text-xs font-bold text-amber-700">RM 129.00</span>
-                                </label>
-                                <label id="tier-large-label" class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition border-gray-100 bg-gray-50">
-                                    <input type="radio" name="pax-tier" value="large" class="absolute top-4 right-4 accent-amber-600" onchange="updateFamilyTier()">
-                                    <span class="font-black text-lg">9-15 Pax</span>
-                                    <span class="text-xs font-bold text-gray-500">RM 199.00</span>
-                                </label>
-                            </div>
-                        </div>
+                        <p id="bk-pax-subtitle" class="text-sm text-gray-500 mb-6">Sila masukkan jumlah kehadiran.</p>
 
-                        <!-- Pax Counter -->
                         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6">
+                            <!-- Dewasa -->
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="font-bold text-lg text-slate-800">Dewasa</p>
-                                    <p id="pax-price-hint" class="text-[10px] font-bold text-amber-600 uppercase">Covered by package</p>
+                                    <p id="pax-price-hint" class="text-[10px] font-bold text-amber-600 uppercase">Cover 6 Pax</p>
                                 </div>
                                 <div class="flex items-center gap-3 bg-gray-100 rounded-full p-1">
                                     <button type="button" onclick="updatePax('adult', -1)" class="w-10 h-10 bg-white shadow rounded-full font-bold">-</button>
-                                    <span id="bk-pax-adult" class="text-xl font-black w-8 text-center text-slate-800">0</span>
+                                    <span id="bk-pax-adult" class="text-xl font-black w-8 text-center text-slate-800">1</span>
                                     <button type="button" onclick="updatePax('adult', 1)" class="w-10 h-10 bg-slate-900 text-white shadow rounded-full font-bold">+</button>
                                 </div>
                             </div>
+                            <!-- Kanak-kanak -->
                             <div class="flex items-center justify-between border-t border-dashed pt-4">
                                 <div>
                                     <p class="font-bold text-lg text-slate-800">Kanak-kanak</p>
@@ -471,7 +419,7 @@
                         <div class="mt-8 flex justify-between items-center">
                             <button onclick="nextStep(2)" class="text-gray-400 text-sm">Kembali</button>
                             <div class="text-right">
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Base Price</p>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Base Price (+Extra)</p>
                                 <p class="font-serif text-2xl font-black text-amber-600 mb-2">RM <span id="bk-total-step3">0</span></p>
                                 <button onclick="nextStep(4)" class="bg-black text-white px-10 py-3 rounded-xl font-black shadow-lg">Next &rarr;</button>
                             </div>
@@ -634,6 +582,15 @@
             <div class="swiper-pagination text-white font-bold tracking-widest pb-4"></div>
         </div>
     </div>
+
+    <!-- Tambah fungsi helper di bahagian bawah script raya-2026.html -->
+    <script>
+    function selectThemeAndProceed() {
+        closeThemeModal();
+        const tncModal = document.getElementById('tnc-modal');
+        if(tncModal) tncModal.classList.remove('hidden');
+    }
+    </script>
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
