@@ -1,127 +1,203 @@
 /* 
    assets/js/booking.js 
-   MKAJ STUDIO V84.0 - ULTRA CLEAN DATA
-   - MUA: Removes (@handle) completely.
-   - Frame: Removes " (quotes) and () (parentheses).
+   MKAJ STUDIO V120.0 (MASTER FINAL BUILD)
+   - Fixed: Bug flow wizard (currentStep resets properly when reopened).
+   - Fixed: Ultra-clean data extraction for MUA & Frame (No IG handles, no prices, no quotes).
+   - Fixed: Robust Happy Hour real-time checking & Coupon date validation.
+   - Status: 100% Production Ready.
 */
 
 // --- 1. CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdGTp-FCzsQeZ4Kwgl-AOMA45XS-0bBu9TGiPAyUhb_LCTl-ObaHS-QEkCKKNoYv0g/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_ySDLSObNGq8wNMXeD4cQGhWUlQS8LxdgnqsIY-DngbBb5KX1KxhAlAliQi2wODxB/exec"; 
 const TIME_SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
 const SEASON_START = "2026-03-05", SEASON_END = "2026-04-03";
 
 // --- 2. GLOBAL STATE ---
 let currentStep = 1;
+let currentPkgConfig = null;
+let appliedPromoCode = null; 
+let appliedDiscountAmount = 0;
+let livePromoSettings = {}; 
 
 let bookingData = {
-    packageId: "",
-    packagePrice: 0,
-    basePaxLimit: 6, 
-    paxAdult: 1, 
-    paxKids: 0,
-    theme: "",
-    themeType: "family",
-    date: "",
-    time: "",
-    addOns: "",
-    frame: "Tiada",
-    total: 0,
-    paymentType: "Full Payment",
-    name: "", phone: "", email: ""
+    pkgKey: "", pkgName: "", themeTitle: "",
+    paxAdult: 1, paxKids: 0,
+    date: "", time: "", addOnsStr: "", frameStr: "Tiada", total: 0,
+    paymentType: "Full Payment", name: "", phone: "", email: "",
+    promoUsedKey: "" 
 };
 
 // --- 3. INIT & POPULATE ---
+async function fetchPromoSettings() {
+    try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=get_settings&t=${Date.now()}`);
+        livePromoSettings = await res.json();
+        updatePromoUI(); 
+    } catch(e) {
+        console.warn("Gagal mendapatkan tetapan promosi dari server.", e);
+    }
+}
+
+// --- Helper Ekstrak Masa (Letak atas updatePromoUI) ---
+function extractPromoTime(val) {
+    if(!val) return "00:00";
+    let str = String(val);
+    if(str.includes('T')) {
+        let d = new Date(str);
+        if(!isNaN(d)) return String(d.getHours()).padStart(2,'0') + ":" + String(d.getMinutes()).padStart(2,'0');
+    }
+    let m = str.match(/(\d{1,2}):(\d{2})/);
+    if(m) return String(m[1]).padStart(2,'0') + ":" + m[2];
+    return "00:00";
+}
+
+// --- GANTI 2 FUNGSI INI ---
+function updatePromoUI() {
+    const activeStr = String(livePromoSettings['happy_hour_active'] || 'FALSE').trim().toUpperCase();
+    const isActive = (activeStr === 'TRUE');
+    
+    const banner = document.getElementById('promo-banner');
+    
+    if (isActive && banner) {
+        if (isHappyHourNow()) {
+            const amt = livePromoSettings['happy_hour_amount'] || 0;
+            // FIX: Parse masa ke format HH:MM
+            const start = extractPromoTime(livePromoSettings['happy_hour_start']);
+            const end = extractPromoTime(livePromoSettings['happy_hour_end']);
+            
+            const fmt = (t) => {
+                if(!t) return "";
+                let [h, m] = t.split(':');
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12; h = h ? h : 12;
+                return `${h}:${m} ${ampm}`;
+            };
+
+            const banAmt = document.getElementById('ban-amount');
+            const banTime = document.getElementById('ban-time');
+            if(banAmt) banAmt.innerText = amt;
+            if(banTime) banTime.innerText = `${fmt(start)} - ${fmt(end)}`;
+            banner.classList.remove('hidden');
+        } else {
+            banner.classList.add('hidden'); 
+        }
+    } else if (banner) {
+        banner.classList.add('hidden');
+    }
+}
+
 function initBookingUI() {
+    // Populate Dropdown MUA
     const muaSel = document.getElementById('bk-mua-select');
     if (muaSel && typeof muaOptions !== 'undefined') {
         muaSel.innerHTML = '<option value="" disabled selected>-- Sila pilih MUA --</option>';
-        muaOptions.forEach(m => {
+        muaOptions.forEach(m => { 
             if(m.name !== "Tiada") { 
-                let opt = document.createElement('option');
+                let opt = document.createElement('option'); 
                 opt.value = m.name; 
-                opt.innerText = `${m.name} (+RM${m.price})`;
-                muaSel.appendChild(opt);
+                opt.innerText = `${m.name} (+RM${m.price})`; 
+                muaSel.appendChild(opt); 
             }
         });
     }
 
+    // Populate Dropdown Frame
     const frameSel = document.getElementById('bk-frame-select');
     if (frameSel && typeof frameAddons !== 'undefined') {
         frameSel.innerHTML = '';
-        frameAddons.forEach(f => {
-            let opt = document.createElement('option');
+        frameAddons.forEach(f => { 
+            let opt = document.createElement('option'); 
             opt.value = `${f.name} (+RM${f.price})`; 
-            opt.innerText = `${f.name} (+RM${f.price})`;
-            frameSel.appendChild(opt);
+            opt.innerText = `${f.name} (+RM${f.price})`; 
+            frameSel.appendChild(opt); 
         });
     }
+
+    // Force Payment Buttons Type
+    const bDep = document.getElementById('pay-opt-deposit');
+    const bFull = document.getElementById('pay-opt-full');
+    if(bDep) bDep.setAttribute('type', 'button');
+    if(bFull) bFull.setAttribute('type', 'button');
 }
 
 // --- 4. WIZARD FLOW ---
-function agreeAndProceed() {
-    const tnc = document.getElementById('tnc-modal');
-    if(tnc) tnc.classList.add('hidden');
-    
-    if(typeof currentThemeKey === 'undefined' || !rayaThemesDetail[currentThemeKey]) return;
-
-    const theme = rayaThemesDetail[currentThemeKey];
-    const isCouple = theme.type === 'couple';
-    const price = isCouple ? 89 : 129;
-    const limit = isCouple ? 4 : 6;
-    
-    openBookingWizard(theme.categoryName, price, limit, theme.type, theme.title);
-}
-
-function openBookingWizard(categoryName, price, basePaxLimit, type, preSelectedTheme) {
+function openBookingWizard(themeKey, pkgKey) {
     const wizard = document.getElementById('booking-wizard');
     if(wizard) wizard.classList.remove('hidden');
 
-    const initialPax = (type === 'couple') ? 2 : 4; 
+    currentPkgConfig = rayaPackages[pkgKey];
+    const themeInfo = rayaThemesDetail[themeKey];
+    
+    // Reset Promo UI
+    appliedPromoCode = null;
+    appliedDiscountAmount = 0;
+    
+    const promoInput = document.getElementById('bk-promo-input');
+    const promoMsg = document.getElementById('promo-message');
+    if(promoInput) { promoInput.value = ""; promoInput.disabled = false; }
+    if(promoMsg) promoMsg.classList.add('hidden');
+
     const elName = document.getElementById('bk-name');
+    const elPhone = document.getElementById('bk-phone');
     const elEmail = document.getElementById('bk-email');
 
+    // SETUP & RESET DATA 100%
     bookingData = {
-        packageId: categoryName, 
-        packagePrice: price, 
-        basePaxLimit: basePaxLimit,
-        paxAdult: initialPax, 
+        pkgKey: pkgKey,
+        pkgName: currentPkgConfig.name,
+        theme: themeInfo.title,         
+        themeType: themeInfo.type,      
+        paxAdult: currentPkgConfig.baseAdult,
         paxKids: 0,
-        theme: preSelectedTheme || "", 
-        themeType: type || 'family', 
-        date: "", time: "", addOns: "", frame: "Tiada", total: 0, paymentType: "Full Payment",
+        date: "", time: "", addOnsStr: "", frameStr: "Tiada", total: 0,
+        paymentType: "Full Payment", promoUsedKey: "",
         name: elName ? elName.value : "", 
-        phone: bookingData.phone || "",
+        phone: elPhone ? elPhone.value : "", 
         email: elEmail ? elEmail.value : ""
     };
 
-    const elExtra = document.getElementById('bk-extra-time');
-    if(elExtra) elExtra.checked = false;
-    
-    const elMuaCheck = document.getElementById('bk-mua-check');
-    const elMuaCont = document.getElementById('mua-selection-container');
-    if(elMuaCheck) elMuaCheck.checked = false;
-    if(elMuaCont) elMuaCont.classList.add('hidden');
-    
-    const elMuaSel = document.getElementById('bk-mua-select');
-    if(elMuaSel) elMuaSel.value = "";
-    
-    const elFrameSel = document.getElementById('bk-frame-select');
-    if(elFrameSel) elFrameSel.selectedIndex = 0;
-
     const pkgInput = document.getElementById('bk-package');
-    if(pkgInput) pkgInput.value = `${bookingData.packageId} - RM${bookingData.packagePrice}`;
-
-    const themeSelect = document.getElementById('bk-theme');
-    if (themeSelect) {
-        themeSelect.innerHTML = "";
-        for (const [key, val] of Object.entries(rayaThemesDetail)) {
-            if (val.type !== type) continue; 
-            let opt = document.createElement('option');
-            opt.value = val.title; opt.innerText = val.title;
-            themeSelect.appendChild(opt);
+    if(pkgInput) pkgInput.value = `${bookingData.pkgName}`;
+    
+    // Set Theme Dropdown Options
+    const thSelect = document.getElementById('bk-theme');
+    if (thSelect) {
+        thSelect.innerHTML = "";
+        for (const [k, v] of Object.entries(rayaThemesDetail)) {
+            if (v.type === themeInfo.type) { 
+                let opt = document.createElement('option'); 
+                opt.value = v.title; 
+                opt.innerText = v.title; 
+                thSelect.appendChild(opt);
+            }
         }
-        themeSelect.value = preSelectedTheme;
+        thSelect.value = themeInfo.title;
     }
+
+    // Reset All Addon Checkboxes & Selects
+    const tm = document.getElementById('bk-extra-time'); 
+    if(tm) tm.checked = false;
+    
+    const mc = document.getElementById('bk-mua-check'); 
+    if(mc) mc.checked = false;
+    
+    const muaCont = document.getElementById('mua-selection-container'); 
+    if(muaCont) muaCont.classList.add('hidden');
+    
+    const bMuaSel = document.getElementById('bk-mua-select'); 
+    if(bMuaSel) bMuaSel.value = "";
+    
+    const bFrmSel = document.getElementById('bk-frame-select'); 
+    if(bFrmSel) bFrmSel.selectedIndex = 0;
+
+    // Rules UI (Hide Extra Time for Pakej Lebaran)
+    const timeContainer = tm?.closest('label');
+    if(timeContainer) {
+        timeContainer.style.display = currentPkgConfig.noExtraTime ? 'none' : 'flex';
+    }
+
+    // FIX: MESTI RESET CURRENT STEP KE 1 BILA BUKA WIZARD
+    currentStep = 1; 
     
     checkThemeType(); 
     resetDateUI();
@@ -133,6 +209,7 @@ function openBookingWizard(categoryName, price, basePaxLimit, type, preSelectedT
 function closeWizard() {
     const wizard = document.getElementById('booking-wizard');
     if(wizard) wizard.classList.add('hidden');
+    
     if(typeof currentThemeKey !== 'undefined' && currentThemeKey !== "") {
         if(typeof openThemeDetails === 'function') openThemeDetails(currentThemeKey);
     } else {
@@ -140,311 +217,570 @@ function closeWizard() {
     }
 }
 
-// --- 5. THEME & DATE ---
 function checkThemeType() {
-    const select = document.getElementById('bk-theme');
-    if(!select) return;
-    bookingData.theme = select.value;
-    resetDateUI();
+    const sel = document.getElementById('bk-theme');
+    const catL = document.getElementById('bk-cat-label');
     
-    const catLabel = document.getElementById('bk-cat-label');
-    if(catLabel) {
-        if (bookingData.themeType === 'couple') {
-            catLabel.innerText = "KATEGORI COUPLE (MAX 4 PAX)";
-            catLabel.className = "text-[10px] font-bold mt-1 tracking-widest uppercase text-pink-500";
+    // Safety Check: Kalau element takde atau tema tak wujud dalam data
+    if(!sel || !catL || typeof rayaThemesDetail === 'undefined') return;
+    
+    const themeKey = Object.keys(rayaThemesDetail).find(key => rayaThemesDetail[key].title === sel.value);
+    
+    if (themeKey) {
+        bookingData.theme = sel.value; // Simpan tema
+        
+        // Logik Penentuan Label
+        // Kalau Pakej Mini -> Tulis Mini
+        // Kalau Pakej Family -> Tulis Nama Pakej (Cth: Pakej Riang - Base 7 Pax)
+        if (bookingData.pkgKey === 'mini') {
+            catL.innerText = "KATEGORI MINI / COUPLE (MAX 4 PAX)";
+            catL.className = "text-[10px] font-bold mt-1 text-pink-500 uppercase";
         } else {
-            catLabel.innerText = "KATEGORI FAMILY (COVER 6 PAX)";
-            catLabel.className = "text-[10px] font-bold mt-1 tracking-widest uppercase text-green-600";
+            // Ambil nama pakej dari config semasa
+            const pkgName = currentPkgConfig.name.split(' (')[0]; // "PAKEJ RIANG"
+            const basePax = currentPkgConfig.baseAdult;
+            catL.innerText = `${pkgName} (BASE ${basePax} PAX)`;
+            catL.className = "text-[10px] font-bold mt-1 text-green-600 uppercase";
         }
     }
 }
-
-function resetDateUI() {
-    const dateInput = document.getElementById('bk-date');
-    const errMsg = document.getElementById('date-error-msg');
-    
-    if(dateInput) {
-        dateInput.value = "";
-        dateInput.setAttribute('min', SEASON_START);
-        dateInput.setAttribute('max', SEASON_END);
-    }
-    if(errMsg) errMsg.classList.add('hidden');
-    
-    const container = document.getElementById('time-slots-container');
-    if(container) container.innerHTML = `<div class="col-span-4 text-center py-4 bg-gray-50 text-gray-400 text-sm italic">Sila pilih tarikh di atas dahulu.</div>`;
-    
-    const btnNext = document.getElementById('btn-step-2');
-    if(btnNext) btnNext.disabled = true;
-}
-
-// --- 6. PAX & PRICING ---
+// --- 5. PAX & PROMO LOGIC ---
 function updatePax(type, change) {
-    let currA = bookingData.paxAdult;
-    let currK = bookingData.paxKids;
-
-    if (type === 'adult') currA += change; else currK += change;
+    let A = bookingData.paxAdult; 
+    let K = bookingData.paxKids;
     
-    if (currA < 1) currA = 1;
-    if (currK < 0) currK = 0;
-    const totalHead = currA + currK;
-
-    if (bookingData.themeType === 'couple') {
-        if (totalHead > 4) { alert("Pakej Couple maksimum 4 orang sahaja."); return; }
+    if(type === 'adult') A += change; else K += change;
+    
+    if(A < 1) A = 1; 
+    if(K < 0) K = 0;
+    const tot = A + K;
+    
+    // Strict Limit Check (Mini Package)
+    if(currentPkgConfig.strict) {
+        if(A > currentPkgConfig.baseAdult) { alert(`Maksimum ${currentPkgConfig.baseAdult} Dewasa sahaja.`); return; }
+        if(tot > currentPkgConfig.maxTotal) { alert(`Maksimum total ${currentPkgConfig.maxTotal} orang.`); return; }
     } else {
-        if (totalHead > 20) { alert("Maksimum kapasiti studio 20 orang."); return; }
+        if(tot > currentPkgConfig.maxTotal) { alert(`Kapasiti studio penuh (${currentPkgConfig.maxTotal} max).`); return; }
     }
 
-    bookingData.paxAdult = currA; 
-    bookingData.paxKids = currK;
+    bookingData.paxAdult = A; 
+    bookingData.paxKids = K;
     refreshPaxUI();
 }
 
-function calculateTotal() {
-    let price = bookingData.packagePrice; 
-    let addonsListUI = [];
-
-    // Family Extra Charge Logic
-    if (bookingData.themeType === 'family') {
-        const limit = bookingData.basePaxLimit; 
-        if (bookingData.paxAdult > limit) {
-            let extra = bookingData.paxAdult - limit;
-            let charge = extra * 10;
-            price += charge;
-            addonsListUI.push(`Extra Dewasa x${extra} (+RM${charge})`);
-        }
-        
-        const hint = document.getElementById('pax-price-hint');
-        if(hint) hint.innerText = bookingData.paxAdult > limit ? `Extra (+RM10/pax)` : `Cover ${limit} Pax`;
-    }
-
-    // Addons
-    const elTime = document.getElementById('bk-extra-time');
-    if (elTime && elTime.checked) {
-        price += 20; addonsListUI.push("Extra Time");
-    }
+function isHappyHourNow() {
+    const activeStr = String(livePromoSettings['happy_hour_active'] || 'FALSE').trim().toUpperCase();
+    if (activeStr !== 'TRUE') return false;
     
-    const elMuaCheck = document.getElementById('bk-mua-check');
-    const elMuaSelect = document.getElementById('bk-mua-select');
-    if (elMuaCheck && elMuaCheck.checked && elMuaSelect && elMuaSelect.value) {
-        price += 150; 
-        addonsListUI.push(elMuaSelect.value); 
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // FIX: Parse masa dari database ke HH:MM
+    const startStr = extractPromoTime(livePromoSettings['happy_hour_start']);
+    const endStr = extractPromoTime(livePromoSettings['happy_hour_end']);
+    
+    const [sh, sm] = startStr.split(':').map(Number);
+    const [eh, em] = endStr.split(':').map(Number);
+    
+    const startMinutes = sh * 60 + (sm || 0);
+    const endMinutes = eh * 60 + (em || 0);
+
+    const limit = parseInt(livePromoSettings['happy_hour_limit']) || 0;
+    const used = parseInt(livePromoSettings['happy_hour_used']) || 0;
+
+    if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
+        if (limit === 0 || used < limit) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function applyPromoCode() {
+    const input = document.getElementById('bk-promo-input');
+    const msg = document.getElementById('promo-message');
+    if(!input || !msg) return;
+
+    const code = input.value.trim().toUpperCase();
+    
+    if (bookingData.promoUsedKey === "HAPPY_HOUR") {
+        msg.innerText = "❌ Anda sedang menikmati Happy Hour!";
+        msg.className = "text-[10px] font-bold mt-2 ml-1 text-red-500 block";
+        return;
     }
 
-    // Frame
+    const valueKey = "coupon_" + code;
+    if (livePromoSettings[valueKey]) {
+        
+        // --- SEMAKAN BARU: ADAKAH KUPON AKTIF? ---
+        const activeKey = "active_" + code;
+        if (livePromoSettings[activeKey] === 'FALSE') {
+            showCouponError("❌ Kod promosi ini telah ditutup/tidak aktif."); 
+            return;
+        }
+
+        const limitKey = "limit_" + code;
+        const usedKey = "used_" + code;
+        
+        const limit = parseInt(livePromoSettings[limitKey]) || 0;
+        const used = parseInt(livePromoSettings[usedKey]) || 0;
+        
+        if (used >= limit && limit > 0) {
+            showCouponError("❌ Kuota kod promosi ini telah habis."); return;
+        }
+
+        const startDate = livePromoSettings["start_" + code];
+        const endDate = livePromoSettings["end_" + code];
+        
+        if (startDate || endDate) {
+            if(!bookingData.date) { showCouponError("⚠️ Sila pilih tarikh slot dahulu."); return; }
+            
+            const slotDate = new Date(bookingData.date); 
+            slotDate.setHours(0,0,0,0);
+            
+            if (startDate) { 
+                const s = new Date(startDate); s.setHours(0,0,0,0); 
+                if (slotDate < s) { showCouponError(`❌ Sah bermula ${formatDateUI(startDate)}`); return; } 
+            }
+            if (endDate) { 
+                const e = new Date(endDate); e.setHours(0,0,0,0); 
+                if (slotDate > e) { showCouponError(`❌ Tamat pada ${formatDateUI(endDate)}`); return; } 
+            }
+        }
+
+        appliedPromoCode = code;
+        appliedDiscountAmount = parseInt(livePromoSettings[valueKey]);
+        bookingData.promoUsedKey = code; 
+        msg.innerText = `✅ Kupon Sah: Diskaun RM${appliedDiscountAmount}`;
+        msg.className = "text-[10px] font-bold mt-2 ml-1 text-green-500 block";
+    } else {
+        showCouponError("❌ Kod tidak sah");
+    }
+    calculateTotal();
+}
+
+function showCouponError(text) {
+    const msg = document.getElementById('promo-message');
+    if(msg) {
+        msg.innerText = text;
+        msg.className = "text-[10px] font-bold mt-2 ml-1 text-red-500 block";
+    }
+    appliedPromoCode = null; 
+    appliedDiscountAmount = 0; 
+    bookingData.promoUsedKey = "";
+    calculateTotal();
+}
+
+// --- 6. CALCULATION ENGINE ---
+function calculateTotal() {
+    let price = currentPkgConfig.price; 
+    let uiAddons = [];
+    let dbAddons = [];
+
+    // A. Extra Pax
+    if (!currentPkgConfig.strict) {
+        if (bookingData.paxAdult > currentPkgConfig.baseAdult) {
+            let extra = bookingData.paxAdult - currentPkgConfig.baseAdult;
+            let charge = extra * addonsPrice.extraPax; 
+            price += charge;
+            uiAddons.push(`Extra Dewasa x${extra} (+RM${charge})`);
+        }
+        const hint = document.getElementById('pax-price-hint');
+        if(hint) hint.innerText = bookingData.paxAdult > currentPkgConfig.baseAdult ? `Extra (+RM${addonsPrice.extraPax}/pax)` : `Cover ${currentPkgConfig.baseAdult} Pax`;
+    } else {
+        const hint = document.getElementById('pax-price-hint');
+        if(hint) hint.innerText = "Max 2 Dewasa";
+    }
+
+    // B. Extra Time
+    const elTime = document.getElementById('bk-extra-time');
+    if (elTime && elTime.checked && !currentPkgConfig.noExtraTime) {
+        price += addonsPrice.extraTime; 
+        uiAddons.push("Extra Time"); 
+        dbAddons.push("Extra Time");
+    }
+
+    // C. MUA
+    const elMuaCheck = document.getElementById('bk-mua-check');
+    const elMuaSel = document.getElementById('bk-mua-select');
+    if (elMuaCheck && elMuaCheck.checked && elMuaSel && elMuaSel.value) {
+        price += addonsPrice.mua;
+        
+        let muaRaw = elMuaSel.value; // "MUA Adam Shah (@adamshahh3386)"
+        let muaClean = muaRaw.split(' (')[0].trim(); // "MUA Adam Shah"
+        
+        uiAddons.push(muaRaw);
+        dbAddons.push(muaClean); // Clean Name for DB
+    }
+
+    // D. Frame
     const elFrame = document.getElementById('bk-frame-select');
+    let frameDBString = "Tiada";
+    let freeGiftText = currentPkgConfig.freeGift ? `${currentPkgConfig.freeGift} (FREE)` : "";
+    let paidFrameText = "";
+
     if (elFrame && elFrame.value && !elFrame.value.includes("Tiada")) {
         const match = elFrame.value.match(/\d+/g);
-        if(match) {
-            const framePrice = parseInt(match.pop());
-            price += framePrice;
-            bookingData.frame = elFrame.value.split(" (+")[0]; 
+        if (match) {
+            let fPrice = parseInt(match.pop());
+            if (currentPkgConfig.discountFrame) {
+                fPrice = fPrice * (1 - currentPkgConfig.discountFrame); 
+                uiAddons.push(`Diskaun Frame Tambahan 10%`);
+            }
+            price += fPrice;
+            
+            // Clean Frame string: "Majestic Gallery (24"x30") (+RM220)" -> "Majestic Gallery 24x30"
+            paidFrameText = elFrame.value.split(" (+")[0].replace(/[()"]/g, '').trim(); 
         }
-    } else {
-        bookingData.frame = "Tiada";
     }
 
-    bookingData.total = price;
-    bookingData.addOns = addonsListUI.length > 0 ? addonsListUI.join(", ") : "Tiada";
+    if (freeGiftText && paidFrameText) frameDBString = `${freeGiftText}, ${paidFrameText}`;
+    else if (freeGiftText) frameDBString = freeGiftText;
+    else if (paidFrameText) frameDBString = paidFrameText;
 
-    setText('bk-total-step3', price);
+    // E. Promo Deductions
+    let discountStr = "";
+    let totalDiscount = 0;
+
+    const promoInput = document.getElementById('bk-promo-input');
+    const pMsg = document.getElementById('promo-message');
+
+    if (isHappyHourNow() && !appliedPromoCode) {
+        const hhAmount = parseInt(livePromoSettings['happy_hour_amount']) || 0;
+        totalDiscount += hhAmount;
+        discountStr = `🔥 Happy Hour (-RM${hhAmount})`;
+        bookingData.promoUsedKey = "HAPPY_HOUR";
+        
+        if(promoInput) promoInput.disabled = true;
+        if(pMsg) {
+             pMsg.innerText = "✨ Happy Hour Auto-Applied!";
+             pMsg.classList.remove('hidden');
+             pMsg.className = "text-[10px] font-bold mt-2 ml-1 text-amber-500 block";
+        }
+    } else if (appliedPromoCode) {
+        totalDiscount += appliedDiscountAmount;
+        discountStr = `🎟️ Kupon ${appliedPromoCode} (-RM${appliedDiscountAmount})`;
+        if(promoInput) promoInput.disabled = false;
+    } else {
+        if(promoInput) promoInput.disabled = false;
+    }
+
+    // Avoid negative pricing
+    price = price - totalDiscount;
+    if (price < 0) price = 0;
+
+    // Finalize Data
+    bookingData.total = price;
+    bookingData.frameStr = frameDBString;
+    bookingData.addOnsStr = dbAddons.length > 0 ? dbAddons.join(", ") : "Tiada";
+    
+    // Update Summaries UI
+    setText('bk-total-step3', price + totalDiscount); 
     setText('bk-total-final', price);
     setText('lbl-full-amt', price);
-    setText('rev-frame', bookingData.frame);
+    setText('rev-frame', frameDBString);
     
     const rowAdd = document.getElementById('row-addons');
     if(rowAdd) {
-        if(bookingData.addOns !== "Tiada") {
-            setText('rev-addons', bookingData.addOns);
-            rowAdd.classList.remove('hidden');
-        } else { rowAdd.classList.add('hidden'); }
+        if(uiAddons.length > 0) { 
+            setText('rev-addons', uiAddons.join(", ")); 
+            rowAdd.classList.remove('hidden'); 
+        } else { 
+            rowAdd.classList.add('hidden'); 
+        }
+    }
+
+    const rowDisc = document.getElementById('row-discount');
+    if(rowDisc) {
+        if(totalDiscount > 0) { 
+            setText('rev-discount', discountStr); 
+            rowDisc.classList.remove('hidden'); 
+        } else { 
+            rowDisc.classList.add('hidden'); 
+        }
     }
 }
 
-// --- 7. NAV & SUBMIT ---
+// --- 7. NAVIGATION & SUBMIT ---
 function nextStep(step) {
-    if (step > currentStep) {
-        if (step === 2) {
-            const n = getValue('bk-name'), p = getValue('bk-phone');
+    // Forward Validation
+    if(step > currentStep) {
+         if (step === 2) {
+            const n = document.getElementById('bk-name') ? document.getElementById('bk-name').value : "";
+            const p = document.getElementById('bk-phone') ? document.getElementById('bk-phone').value : "";
             if (!n || !p) { alert("Sila isi Nama & No Telefon."); return; }
-            bookingData.name = n; 
-            bookingData.phone = "60" + p.replace(/\D/g, '').replace(/^60|^0/, '');
         }
-        if (step === 3 && (!bookingData.date || !bookingData.time)) { alert("Pilih masa."); return; }
+        if (step === 3) {
+            const d = document.getElementById('bk-date') ? document.getElementById('bk-date').value : "";
+            const t = document.getElementById('bk-time') ? document.getElementById('bk-time').value : "";
+            
+            // Sekat jika Tarikh atau Masa kosong
+            if (!d || !t || t === "") { 
+                alert("Sila semak kekosongan dan pilih masa slot terlebih dahulu."); 
+                return; 
+            }
+            bookingData.date = d;
+            bookingData.time = t;
+        }
     }
-
-    // RESET LOGIC
-    if (step === 3) {
-        bookingData.paxAdult = (bookingData.themeType === 'couple') ? 2 : 4;
+    
+    // Back to Pax (Reset Addons & Promo)
+    if(step === 3) {
+        bookingData.paxAdult = currentPkgConfig.baseAdult; 
         bookingData.paxKids = 0;
         
-        const elTime = document.getElementById('bk-extra-time');
-        if(elTime) elTime.checked = false;
-
-        const elMuaCheck = document.getElementById('bk-mua-check');
-        const elMuaCont = document.getElementById('mua-selection-container');
-        if(elMuaCheck) {
-            elMuaCheck.checked = false;
-            if(elMuaCont) elMuaCont.classList.add('hidden');
-        }
+        const et = document.getElementById('bk-extra-time'); if(et) et.checked = false;
+        const mc = document.getElementById('bk-mua-check'); if(mc) mc.checked = false;
+        const mCont = document.getElementById('mua-selection-container'); if(mCont) mCont.classList.add('hidden');
+        const ms = document.getElementById('bk-mua-select'); if(ms) ms.value = "";
+        const fs = document.getElementById('bk-frame-select'); if(fs) fs.selectedIndex = 0;
         
-        const elMuaSel = document.getElementById('bk-mua-select');
-        if(elMuaSel) elMuaSel.value = "";
+        appliedPromoCode = null; 
+        appliedDiscountAmount = 0; 
+        bookingData.promoUsedKey = "";
         
-        const elFrame = document.getElementById('bk-frame-select');
-        if(elFrame) elFrame.selectedIndex = 0;
-
-        refreshPaxUI(); 
+        const pi = document.getElementById('bk-promo-input'); if(pi) { pi.value = ""; pi.disabled = false; }
+        const pm = document.getElementById('promo-message'); if(pm) pm.classList.add('hidden');
+        
+        refreshPaxUI();
     }
-
-    if (step === 4) {
+    
+    // Final Summary
+    if(step === 4) {
         calculateTotal();
-        setText('rev-name', bookingData.name);
+        setText('rev-name', document.getElementById('bk-name').value);
         setText('rev-datetime', `${formatDateUI(bookingData.date)} @ ${bookingData.time}`);
         setText('rev-theme', bookingData.theme);
         setText('rev-pax', `${bookingData.paxAdult} Dewasa, ${bookingData.paxKids} Kanak-kanak`);
-        setText('rev-frame', bookingData.frame);
-        setText('rev-package', bookingData.themeType === 'couple' ? "KATEGORI COUPLE" : "KATEGORI FAMILY");
-        setPaymentType('full');
+        setText('rev-package', bookingData.pkgName); // e.g. "PAKEJ SALAM (RM89)"
+        setPaymentType('full'); 
     }
-    currentStep = step; showStep(step);
+
+    currentStep = step; 
+    showStep(step);
 }
 
-// --- SUBMIT BOOKING (ULTRA CLEAN DATA) ---
 function submitBooking() {
     const elMuaCheck = document.getElementById('bk-mua-check');
     const elMuaSelect = document.getElementById('bk-mua-select');
-
-    if (elMuaCheck && elMuaCheck.checked && elMuaSelect && !elMuaSelect.value) {
-        alert("Sila pilih MUA anda."); return;
+    
+    // Safety check for MUA Selection
+    if (elMuaCheck && elMuaCheck.checked && elMuaSelect && !elMuaSelect.value) { 
+        alert("Sila pilih MUA anda dari senarai."); 
+        return; 
     }
+    
     const btn = document.getElementById('btn-confirm-wa');
-    if(btn) { btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memproses...`; btn.disabled = true; }
+    if(btn) { 
+        btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memproses...`; 
+        btn.disabled = true; 
+    }
 
+    // Generate Unique ID
     const uniqueID = "RAYA-" + Math.floor(10000 + Math.random() * 90000);
-    const cleanPackage = bookingData.themeType === 'couple' ? "KATEGORI COUPLE" : "KATEGORI FAMILY";
     
-    let cleanAddons = [];
-    const elTime = document.getElementById('bk-extra-time');
-    if (elTime && elTime.checked) cleanAddons.push("Extra Time");
-    
-    if (elMuaCheck && elMuaCheck.checked) {
-        let muaRaw = elMuaSelect.value;
-        // FIX 1: Potong dekat " (" untuk buang username
-        // "MUA Adam Shah (@adam...)" -> "MUA Adam Shah"
-        let muaClean = muaRaw.split(' (')[0].trim();
-        cleanAddons.push(muaClean);
-    }
-    const finalAddons = cleanAddons.length > 0 ? cleanAddons.join(', ') : "Tiada";
+    // Format Phone
+    const phoneInput = document.getElementById('bk-phone');
+    let ph = phoneInput ? phoneInput.value.replace(/\D/g,'') : "000";
+    if(ph.startsWith('0')) ph = '6' + ph; 
+    else if(ph.startsWith('1')) ph = '60' + ph;
 
-    let frameRaw = document.getElementById('bk-frame-select').value;
-    let finalFrame = "Tiada";
-    if (frameRaw && !frameRaw.includes("Tiada")) {
-        // FIX 2: Buang harga (+RM..) DAN Buang Kurungan + Quote "
-        // "Majestic Gallery (24"x30") (+RM220)"
-        // -> split (+RM...) -> "Majestic Gallery (24"x30")"
-        // -> replace -> "Majestic Gallery 24x30"
-        finalFrame = frameRaw.split(' (+')[0].replace(/[()"]/g, '').trim();
-    }
+    // Clean Package Name for Database (Remove RM pricing in name if any)
+    const cleanPackage = bookingData.pkgName.split(' (')[0].trim();
 
     const payload = {
-        orderID: uniqueID, name: bookingData.name, phone: bookingData.phone,
-        email: bookingData.email || "-", package: cleanPackage,
-        theme: bookingData.theme, date: bookingData.date, time: bookingData.time,
+        action: "save_booking",
+        orderID: uniqueID, 
+        name: document.getElementById('bk-name').value, 
+        phone: ph,
+        email: document.getElementById('bk-email').value || "-", 
+        package: cleanPackage, 
+        theme: bookingData.theme, 
+        date: bookingData.date, 
+        time: bookingData.time,
         pax: `${bookingData.paxAdult} Dewasa, ${bookingData.paxKids} Kanak-kanak`,
-        addOns: finalAddons, totalPrice: bookingData.total,
-        frame: finalFrame, paymentType: bookingData.paymentType, status: "Pending"
+        addOns: bookingData.addOnsStr, // Already Cleaned 
+        totalPrice: bookingData.total,
+        frame: bookingData.frameStr,   // Already Cleaned
+        paymentType: bookingData.paymentType, 
+        status: "Pending",
+        promoUsed: bookingData.promoUsedKey 
     };
 
-    fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+    fetch(GOOGLE_SCRIPT_URL, { 
+        method: "POST", 
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(payload) 
+    })
     .then(() => {
-        let msgPay = bookingData.paymentType === 'Deposit' ? "💳 *JENIS BAYARAN: DEPOSIT (RM50)*" : `💳 *JENIS BAYARAN: PENUH (RM${bookingData.total})`;
-        const waMsg = `Hi MKAJ Studio! 👋\nSaya nak confirmkan Booking Raya 2026.\n\n🆔 *${uniqueID}*\n👤 ${bookingData.name}\n🕌 ${bookingData.theme}\n📅 ${formatDateUI(bookingData.date)} @ ${bookingData.time}\n👥 *Pax:* ${payload.pax}\n🖼️ *Frame:* ${finalFrame}\n➕ *Add-ons:* ${finalAddons}\n💰 *Total:* RM${bookingData.total}\n\n${msgPay} Terima kasih!`;
+        let msgPay = bookingData.paymentType.toLowerCase().includes('deposit') ? "💳 *JENIS BAYARAN: DEPOSIT (RM50)*" : `💳 *JENIS BAYARAN: PENUH (RM${bookingData.total})`;
+        let promoMsg = bookingData.promoUsedKey ? `\n🎁 *Promo Applied:* ${bookingData.promoUsedKey}` : '';
+        
+        const waMsg = `Hi MKAJ Studio! 👋\nSaya nak confirmkan Booking Raya 2026.\n\n🆔 *${uniqueID}*\n👤 ${payload.name}\n📦 ${payload.package}\n🕌 ${payload.theme}\n📅 ${formatDateUI(payload.date)} @ ${payload.time}\n👥 *Pax:* ${payload.pax}\n🖼️ *Frame:* ${payload.frame}\n➕ *Add-ons:* ${payload.addOns}${promoMsg}\n💰 *Total:* RM${payload.totalPrice}\n\n${msgPay}\n\nTerima kasih!`;
+        
         localStorage.setItem('lastWaMsg', waMsg);
         window.location.href = "success.html"; 
     });
 }
 
-function toggleMuaSelection() {
-    const isChecked = document.getElementById('bk-mua-check').checked;
-    document.getElementById('mua-selection-container').classList.toggle('hidden', !isChecked);
-    if(!isChecked) document.getElementById('bk-mua-select').value = "";
-    calculateTotal();
-}
-function checkAvailability() {
-    const el = document.getElementById('bk-date');
-    if(!el || !el.value) return;
-    const dateVal = el.value;
+// --- 8. UTILITIES & UI CONTROLS ---
 
-    const uD = new Date(dateVal); uD.setHours(0,0,0,0);
-    const sS = new Date(SEASON_START); sS.setHours(0,0,0,0);
+function checkAvailability() {
+    const el = document.getElementById('bk-date'); 
+    if(!el || !el.value) return;
+    
+    // Kosongkan slot lama
+    const container = document.getElementById('time-slots-container');
+    if(container) container.innerHTML = "";
+    
+    const btnStep2 = document.getElementById('btn-step-2');
+    if(btnStep2) btnStep2.disabled = true;
+
+    // Seasonal Check
+    const uD = new Date(el.value); uD.setHours(0,0,0,0); 
+    const sS = new Date(SEASON_START); sS.setHours(0,0,0,0); 
     const sE = new Date(SEASON_END); sE.setHours(0,0,0,0);
     
+    const err = document.getElementById('date-error-msg');
+    
     if (uD < sS || uD > sE) {
-        const err = document.getElementById('date-error-msg');
-        if(err) { err.innerText = "Tarikh Luar Musim (5 Mac - 3 April Sahaja)"; err.classList.remove('hidden'); }
-        document.getElementById('time-slots-container').innerHTML = "";
+        if(err) { 
+            err.innerText = "Maaf, Studio hanya beroperasi dari 5 Mac hingga 3 April 2026."; 
+            err.classList.remove('hidden'); 
+        }
         return;
-    } else {
-        const err = document.getElementById('date-error-msg');
-        if(err) err.classList.add('hidden');
+    } else { 
+        if(err) err.classList.add('hidden'); 
     }
-    bookingData.date = dateVal;
+    
+    bookingData.date = el.value; 
     calculateTotal(); 
-    const loader = document.getElementById('time-loader');
+    
+    const loader = document.getElementById('time-loader'); 
     if(loader) loader.classList.remove('hidden');
     
-    fetch(`${GOOGLE_SCRIPT_URL}?action=check_slots&date=${dateVal}&theme=${encodeURIComponent(bookingData.theme)}`)
+    fetch(`${GOOGLE_SCRIPT_URL}?action=check_slots&date=${el.value}&theme=${encodeURIComponent(bookingData.theme)}`)
     .then(res => res.json())
-    .then(data => {
-        if(loader) loader.classList.add('hidden');
-        renderTimeSlots(data.bookedSlotIds || []);
+    .then(data => { 
+        if(loader) loader.classList.add('hidden'); 
+        renderTimeSlots(data.bookedSlotIds || []); 
     });
 }
-function renderTimeSlots(fullSlots) {
+
+function resetDateUI() {
+    const dateInput = document.getElementById('bk-date');
+    const timeInput = document.getElementById('bk-time');
     const container = document.getElementById('time-slots-container');
+    const btnNext = document.getElementById('btn-step-2');
+    
+    if(dateInput) { dateInput.value = ""; dateInput.setAttribute('min', SEASON_START); dateInput.setAttribute('max', SEASON_END); }
+    if(timeInput) timeInput.value = "";
+    if(container) container.innerHTML = `<div class="col-span-4 text-center py-4 bg-gray-50 text-gray-400 text-sm italic">Sila pilih tarikh di atas dahulu.</div>`;
+    if(btnNext) btnNext.disabled = true;
+}
+
+function renderTimeSlots(fullSlots) {
+    const container = document.getElementById('time-slots-container'); 
+    if(!container) return;
+    
     container.innerHTML = '';
+    
     TIME_SLOTS.forEach(time => {
+        // Logic 1 Theme 1 Slot Check
         const isFull = fullSlots.includes(time) || fullSlots.includes(`${bookingData.theme}_${time}`);
-        const btn = document.createElement('button');
+        
+        const btn = document.createElement('button'); 
         btn.innerText = time;
-        if (isFull) {
-            btn.className = "bg-red-50 text-red-300 border border-red-100 cursor-not-allowed py-2 rounded-2xl text-xs line-through opacity-60";
-            btn.disabled = true;
+        
+        if (isFull) { 
+            btn.className = "bg-red-50 text-red-300 border border-red-100 cursor-not-allowed py-2 rounded-2xl text-xs line-through opacity-60"; 
+            btn.disabled = true; 
         } else {
             btn.className = "bg-white border border-gray-200 py-2 rounded-2xl text-xs font-bold hover:bg-amber-500 hover:text-white transition duration-200";
-            btn.onclick = () => {
-                Array.from(container.children).forEach(b => { if(!b.disabled) b.className = "bg-white border border-gray-200 py-2 rounded-2xl text-xs font-bold hover:bg-amber-500 hover:text-white transition duration-200"; });
-                btn.className = "bg-amber-500 text-white border-amber-600 py-2 rounded-2xl text-xs font-black shadow-lg transform scale-105";
-                bookingData.time = time;
-                document.getElementById('bk-time').value = time;
-                document.getElementById('btn-step-2').disabled = false;
+            btn.onclick = () => { 
+                Array.from(container.children).forEach(b => { 
+                    if(!b.disabled) b.className = "bg-white border border-gray-200 py-2 rounded-2xl text-xs font-bold hover:bg-amber-500 hover:text-white transition duration-200"; 
+                }); 
+                btn.className = "bg-amber-500 text-white border-amber-600 py-2 rounded-2xl text-xs font-black shadow-lg transform scale-105 transition"; 
+                
+                bookingData.time = time; 
+                const timeInput = document.getElementById('bk-time');
+                if(timeInput) timeInput.value = time; 
+                
+                const btnNext = document.getElementById('btn-step-2');
+                if(btnNext) btnNext.disabled = false; 
             };
         }
         container.appendChild(btn);
     });
 }
-function showStep(step) {
-    document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
-    const target = document.getElementById(`step-${step}`);
-    if(target) target.classList.remove('hidden');
-    for(let i=1; i<=4; i++) {
-        const dot = document.getElementById(`step-dot-${i}`);
-        if(dot) dot.className = i <= step ? "w-2 h-2 rounded-full bg-amber-600" : "w-2 h-2 rounded-full bg-gray-300";
+
+function toggleMuaSelection() { 
+    const c = document.getElementById('bk-mua-check'); 
+    const cont = document.getElementById('mua-selection-container');
+    if(c && cont) { 
+        cont.classList.toggle('hidden', !c.checked); 
+        if(!c.checked) {
+            const sel = document.getElementById('bk-mua-select');
+            if(sel) sel.value = ""; 
+        }
+        calculateTotal(); 
+    } 
+}
+
+function showStep(step) { 
+    document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden')); 
+    const target = document.getElementById(`step-${step}`); 
+    if(target) target.classList.remove('hidden'); 
+    
+    for(let i=1; i<=4; i++) { 
+        const dot = document.getElementById(`step-dot-${i}`); 
+        if(dot) dot.className = i <= step ? "w-2 h-2 rounded-full bg-amber-600" : "w-2 h-2 rounded-full bg-gray-300"; 
+    } 
+}
+
+function setPaymentType(t) { 
+    bookingData.paymentType = (t === 'full') ? "Full Payment" : "Deposit"; 
+    const bDep = document.getElementById('pay-opt-deposit'); 
+    const bFull = document.getElementById('pay-opt-full'); 
+    
+    if(bDep && bFull) {
+        if(t === 'deposit') {
+            bDep.className = "p-4 border-2 rounded-2xl text-center border-amber-600 bg-amber-50 shadow-inner ring-2 ring-amber-600/20 scale-[1.02] font-bold transition";
+            bFull.className = "p-4 border-2 rounded-2xl text-center border-gray-100 opacity-50 grayscale transition hover:opacity-100 hover:grayscale-0";
+        } else {
+            bFull.className = "p-4 border-2 rounded-2xl text-center border-green-600 bg-green-50 shadow-inner ring-2 ring-green-600/20 scale-[1.02] font-bold transition";
+            bDep.className = "p-4 border-2 rounded-2xl text-center border-gray-100 opacity-50 grayscale transition hover:opacity-100 hover:grayscale-0";
+        }
     }
 }
-function setPaymentType(t) {
-    bookingData.paymentType = (t === 'full') ? "Full Payment" : "Deposit";
-    const bDep = document.getElementById('pay-opt-deposit');
-    const bFull = document.getElementById('pay-opt-full');
-    if(bDep) bDep.className = (t === 'deposit') ? "p-4 border-2 rounded-2xl text-center border-amber-600 bg-amber-50 shadow-inner ring-2 ring-amber-600/20 scale-[1.02] font-bold" : "p-4 border-2 rounded-2xl text-center border-gray-100 opacity-50 grayscale";
-    if(bFull) bFull.className = (t === 'full') ? "p-4 border-2 rounded-2xl text-center border-green-600 bg-green-50 shadow-inner ring-2 ring-green-600/20 scale-[1.02] font-bold" : "p-4 border-2 rounded-2xl text-center border-gray-100 opacity-50 grayscale";
-}
-function refreshPaxUI() { setText('bk-pax-adult', bookingData.paxAdult); setText('bk-pax-kid', bookingData.paxKids); calculateTotal(); }
-function setText(id, val) { const el = document.getElementById(id); if(el) el.innerText = val; }
-function getValue(id) { const el = document.getElementById(id); return el ? el.value : ""; }
-function formatDateUI(s) { if(!s) return ""; const d = new Date(s); return d.toLocaleDateString('ms-MY', {day:'numeric', month:'short'}); }
 
+function refreshPaxUI() { 
+    setText('bk-pax-adult', bookingData.paxAdult); 
+    setText('bk-pax-kid', bookingData.paxKids); 
+    calculateTotal(); 
+}
+
+function setText(id, val) { 
+    const el = document.getElementById(id); 
+    if(el) el.innerText = val; 
+}
+
+function getValue(id) { 
+    const el = document.getElementById(id); 
+    return el ? el.value : ""; 
+}
+
+function formatDateUI(s) { 
+    if(!s) return ""; 
+    const d = new Date(s); 
+    return d.toLocaleDateString('ms-MY', {day:'numeric', month:'short'}); 
+}
+
+// Initializer Trigger
 window.onload = () => { 
     if (typeof renderTncAndFaq === "function") renderTncAndFaq();
     initBookingUI(); 
+    fetchPromoSettings(); 
 };

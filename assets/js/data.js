@@ -208,174 +208,204 @@ const slideshowData = {
    Pastikan gambar saiz besar (Landscape) berkualiti tinggi.
 */
 const rayaHeroImages = [
-    "assets/images/hero/raya-hero/studio-raya-masjid-tanah.webp",
-    "assets/images/hero/raya-hero/studio-raya-kuala-sungai-baru.webp",
+    "assets/images/hero/raya-hero/studio-raya-hero-1.webp",
     "assets/images/hero/raya-hero/studio-raya-sungai-udang.webp",
-    "assets/images/hero/raya-hero/studio-raya-alor-gajah.webp"
+    "assets/images/hero/raya-hero/studio-raya-hero-2.webp",
+    "assets/images/hero/raya-hero/studio-raya-alor-gajah.webp",
+    "assets/images/hero/raya-hero/studio-raya-masjid-tanah.webp",
+    "assets/images/hero/raya-hero/studio-raya-hero-3.webp",
+    "assets/images/hero/raya-hero/studio-raya-kuala-sungai-baru.webp"
     // Boleh tambah lagi: "assets/images/hero/hero-raya-4.webp"
 ];
 
 
 
 /* 
-   DATABASE MKAJ STUDIO 2026
-   --------------------------------------------------
-   Pusat Rujukan Data untuk Website, Booking & Admin
+   DATABASE MKAJ STUDIO 2026 (UPDATED V3.0)
+   - Centralized Package Definitions
+   - Promo System Architecture
 */
 
-// 1. INFO TEMA RAYA (Main Database)
+// --- 1. KONFIGURASI PAKEJ (Control Center) ---
+// Di sini kita set harga, masa, dan peraturan setiap pakej.
+const rayaPackages = {
+// PAKEJ FAMILY (TEMA LAIN)
+    'salam': {
+        name: "PAKEJ SALAM",
+        price: 89,
+        originalPrice: 159,
+        time: 15,
+        baseAdult: 4,
+        maxTotal: 20, // Kapasiti studio
+        strict: false, // FALSE = Boleh tambah pax (+RM10)
+        desc: "Asas 4 Dewasa",
+        features: ["Softcopy Google Drive", "Unlimited Shoot", "Cover 4 Dewasa, Tambah Pax RM10/Head (Dewasa)", "Masa 15 minit setiap sesi"]
+    },
+    'riang': {
+        name: "PAKEJ RIANG",
+        price: 119,
+        originalPrice: 199,
+        time: 20,
+        baseAdult: 6,
+        maxTotal: 20,
+        strict: false,
+        discountFrame: 0.10, // Diskaun 10% untuk frame
+        desc: "Asas 6 Dewasa + Diskaun Frame 10%",
+        features: ["Softcopy Google Drive", "Unlimited Shoot", "Cover 6 Dewasa, Tambah Pax RM10/Head (Dewasa)", "Diskaun Sebanyak 10% Untuk Semua Frame", "Masa 20 minit setiap sesi"]
+    },
+    'lebaran': {
+        name: "PAKEJ LEBARAN",
+        price: 300,
+        originalPrice: 450,
+        time: 30,
+        baseAdult: 10,
+        maxTotal: 20,
+        strict: false,
+        discountFrame: 0.10, 
+        freeGift: "Royale Portrait 20x24", // Nama frame percuma
+        noExtraTime: true, // Disable add-on masa
+        desc: "Asas 10 Dewasa + Percuma Frame Besar",
+        features: ["Softcopy Google Drive", "Unlimited Shoot", "Cover 10 Dewasa, Tambah Pax RM10/Head (Dewasa)", "Percuma Frame Saiz 20x24 berharga RM200", "Diskaun Sebanyak 10% Untuk Tambahan Frame", "Masa 30 minit setiap sesi (Tidak boleh tambah masa)"]
+    },
+        // PAKEJ KHAS (TEMA OLD LUXURY)
+    'mini': {
+        name: "PAKEJ MINI",
+        price: 50,
+        originalPrice: 79, // Untuk paparan 'Slash Price'
+        time: 15,
+        baseAdult: 2,
+        maxTotal: 4, // Strict limit: 2 Dewasa + 2 Kanak-kanak
+        strict: true, // TRUE = Tidak boleh tambah pax lebih dari limit
+        desc: "Max 2 Dewasa + 2 Kanak-kanak",
+        features: ["Softcopy Google Drive", "Unlimited Shoot", "Cover 2 Dewasa + 2 Kanak-kanak", "Masa 15 minit setiap sesi"]
+    }
+    
+    
+};
+// --- 2. INFO TEMA RAYA (Mapping ke Pakej) ---
 const rayaThemesDetail = {
-    // --- TEMA FAMILY (Tier 1: RM129 | Tier 2: RM199) ---
-    'velvet': {
+'velvet': {
         title: "Royale Velvet",
-        type: "family",
-        categoryName: "KATEGORI FAMILY",
-        colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
-        displayPrice: "Bermula RM 129", // Harga dipaparkan di grid luar
-        price: 129, // Base price untuk tier 1
-        paxCover: 6, // Base limit untuk tier 1
+        type: "standard", // Rujuk Pakej 1/2/3
+        categoryName: "TEMA FAMILY",
+        colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Elegance & Luxury.",
-        desc: "Set mewah dengan latar belakang velvet. Sesuai untuk tema eksklusif keluarga besar.",
-        //thumbnail: "assets/images/themes/poster-moden.webp",
-        images: ["assets/images/themes/velvet.webp"],
-        inclusions: [
-            "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Cover 6 pax untuk RM129,",
-            "Extra Pax > 6 orang (+RM10/head)",
-            "Kanak-kanak Percuma",
-            "Max 20 Pax per sesi termasuk kanak-kanak"
-        ]
+        desc: "Set mewah dengan latar belakang velvet.",
+        images: ["assets/images/themes/velvet.webp",
+                    "assets/images/themes/velvet-1.webp",
+                    "assets/images/themes/velvet-2.webp",
+                    "assets/images/themes/velvet-3.webp"
+        ],
+        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'white': {
         title: "Whisper White",
-        type: "family",
-        categoryName: "KATEGORI FAMILY",
-        colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
-        displayPrice: "Bermula RM 129",
-        price: 129,
-        paxCover: 6,
+        type: "standard",
+        categoryName: "TEMA FAMILY",
+        colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Pure & Timeless.",
-        desc: "Latar belakang serba putih minimalis. Sesuai untuk baju raya moden dan pastel.",
-        //thumbnail: "assets/images/themes/poster-moden.webp",
-        images: ["assets/images/themes/white.webp"],
-        inclusions: [
-            "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Cover 6 pax untuk RM129,",
-            "Extra Pax > 6 orang (+RM10/head)",
-            "Kanak-kanak Percuma",
-            "Max 20 Pax per sesi termasuk kanak-kanak"
-        ]
+        desc: "Latar belakang serba putih minimalis.",
+        images: ["assets/images/themes/white.webp",
+                    "assets/images/themes/white-1.webp",
+                    "assets/images/themes/white-2.webp",
+                    "assets/images/themes/white-3.webp"
+        ],
+        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'hening': {
         title: "Hening Rindu",
-        type: "family",
-        categoryName: "KATEGORI FAMILY",
-        colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
-        displayPrice: "Bermula RM 129",
-        price: 129,
-        paxCover: 6,
+        type: "standard",
+        categoryName: "TEMA FAMILY",
+        colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Nostalgia & Warmth.",
-        desc: "Set kampung tradisional dengan elemen kayu. Membangkitkan nostalgia raya desa.",
-        //thumbnail: "assets/images/themes/poster-moden.webp",
-        images: ["assets/images/themes/hening.webp"],
-        inclusions: [
-            "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Cover 6 pax untuk RM129,",
-            "Extra Pax > 6 orang (+RM10/head)",
-            "Kanak-kanak Percuma",
-            "Max 20 Pax per sesi termasuk kanak-kanak"
-        ]
+        desc: "Set kampung tradisional elemen kayu.",
+        images: ["assets/images/themes/hening.webp",
+                    "assets/images/themes/hening-1.webp",
+                    "assets/images/themes/hening-2.webp",
+                    "assets/images/themes/hening-3.webp",
+                    "assets/images/themes/hening-4.webp",
+                    "assets/images/themes/hening-5.webp"
+        ],
+        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'qalbu': {
         title: "Noor Qalbu",
-        type: "family",
-        categoryName: "KATEGORI FAMILY",
-        colorClass: "text-green-600 bg-green-50 border-green-200", // UI Class Hijau
-        displayPrice: "Bermula RM 129",
-        price: 129,
-        paxCover: 6,
+        type: "standard",
+        categoryName: "TEMA FAMILY",
+        colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Radiance & Grace.",
-        desc: "Set ala Timur Tengah (Arabic) yang elegan dan artistik.",
-       //thumbnail: "assets/images/themes/poster-qalbu.webp",
-        images: ["assets/images/themes/qalbu.webp"],
-        inclusions: [
-            "Sesi Fotografi 20 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Cover 6 pax untuk RM129,",
-            "Extra Pax > 6 orang (+RM10/head)",
-            "Kanak-kanak Percuma",
-            "Max 20 Pax per sesi termasuk kanak-kanak"
-        ]
+        desc: "Set ala Timur Tengah (Arabic) yang elegan.",
+        images: ["assets/images/themes/qalbu.webp",
+                    "assets/images/themes/qalbu-1.webp",
+                    "assets/images/themes/qalbu-2.webp",
+                    "assets/images/themes/qalbu-3.webp"
+        ],
+        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
 
-    // --- TEMA COUPLE (Fixed RM89) ---
-    'space': {
-        title: "Space Grey",
-        type: "couple",
-        categoryName: "KATEGORI COUPLE",
-        colorClass: "text-pink-500 bg-pink-50 border-pink-200", // UI Class Pink
-        displayPrice: "RM 89",
-        price: 89,
-        paxCover: 4,
-        tagline: "Romance & Intimacy.",
-        desc: "Tema premium untuk pasangan atau kumpulan kecil (Max 4 pax).",
-        //thumbnail: "assets/images/themes/poster-space.webp",
-        images: ["assets/images/themes/coming_soon.webp"],
-        inclusions: [
-            "Sesi Fotografi 15 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Maksima 4 Orang Sahaja (dewasa dan kanak-kanak)",
-            "Sesuai untuk OOTD Raya Couple"
-        ]
-    },
-    'secret': {
-        title: "Secret Garden",
-        type: "couple",
-        categoryName: "KATEGORI COUPLE",
-        colorClass: "text-pink-500 bg-pink-50 border-pink-200", // UI Class Pink
-        displayPrice: "RM 89",
-        price: 89,
-        paxCover: 4,
-        tagline: "Nature & Love.",
-        desc: "Tema floral tertutup. Romantik dan eksklusif untuk 4 orang.",
-        //thumbnail: "assets/images/themes/poster-secret.webp",
-        images: ["assets/images/themes/coming_soon.webp"],
-        inclusions: [
-            "Sesi Fotografi 15 Minit",
-            "Unlimited Shooting & Softcopy",
-            "Maksima 4 Orang Sahaja (dewasa dan kanak-kanak)",
-            "Sesuai untuk OOTD Raya Couple"
-        ]
+        // TEMA MINI
+    'old_luxury': {
+        title: "Old Luxury",
+        type: "mini", // Rujuk rayaPackages.mini
+        categoryName: "TEMA MINI",
+        colorClass: "text-slate-600 bg-slate-100 border-slate-300",
+        tagline: "Classic & Timeless.",
+        desc: "Tema klasik eksklusif. Sesuai untuk potret keluarga kecil.",
+        images: ["assets/images/themes/coming_soon.webp"], 
+        inclusions: ["Sesi 15 Minit", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Terhad kepada: 2 Dewasa + 2 Kanak-kanak"]
     }
+    
+    // TEMA STANDARD (FAMILY - PAKEJ 1, 2, 3)
+    
 };
 
-// 2. DATA ADD-ONS (MUA & FRAME)
+// --- 3. HARGA ADD-ONS (Global) ---
+const addonsPrice = {
+    extraPax: 10, // RM10 per head (Dewasa)
+    extraTime: 20,
+    mua: 150
+};
+
+// Senarai MUA
 const muaOptions = [
     { name: "Tiada", price: 0 },
-    { name: "MUA Adam Shah (@adamshahh3386)", price: 150 },
-    { name: "MUA Shaazeerakarim (@makeupbyshaazeerakarim)", price: 150 }
+    { name: "MUA Adam Shah (@adamshahh3386)", price: addonsPrice.mua },
+    { name: "MUA Shaazeerakarim (@makeupbyshaazeerakarim)", price: addonsPrice.mua }
 ];
 
+// Senarai Frame
 const frameAddons = [
     { name: "Tiada", price: 0 },
-    { name: 'Classic Heirloom (12"x18")', price: 120 },
-    { name: 'Royale Portrait (20"x24")', price: 180 },
-    { name: 'Majestic Gallery (24"x30")', price: 220 },
-    { name: 'Legacy Grandeur (24"x36")', price: 300 }
+    { name: 'Classic Heirloom (12"x18")', price: 130 },
+    { name: 'Royale Portrait (20"x24")', price: 200 },
+    { name: 'Majestic Gallery (24"x30")', price: 240 },
+    { name: 'Legacy Grandeur (24"x36")', price: 330 }
 ];
 
-// 4. JURUGAMBAR (Full-Time)
+// --- 4. SISTEM PROMOSI (Persediaan) ---
+const promoSystem = {
+    // Happy Hour Setting (Default OFF, akan di-override oleh Google Sheet / Boss Portal)
+    happyHour: {
+        active: false,      // ON/OFF
+        startTime: "14:00", // Masa Mula
+        endTime: "16:00",   // Masa Tamat
+        discountAmount: 10, // Tolak RM10
+        limit: 0,
+        used: 0, // Counter penggunaan
+        label: "🔥 Happy Hour Promo"
+    },
+    // Kupon Statik (Boleh tambah sini)
+    coupons: {} //Akan diisi dari database
+};
+
+// --- 5. STAFF (Max 5 Photographer) ---
 const photographersList = [
     "Belum Ditetapkan",
     "Photographer 1",
     "Photographer 2",
     "Photographer 3",
     "Photographer 4",
-    "Photographer 5",
-    "Photographer 6"
+    "Photographer 5"
 ];
 
 const staff = {
@@ -384,7 +414,6 @@ const staff = {
     "Photographer 3": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Photographer 4": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Photographer 5": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
-    "Photographer 6": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Admin": { type: "ADMIN", basic: 1800, commission: 0, jobs: 0 }
 };
 
@@ -407,7 +436,7 @@ const tncList = [
     },
     {
         title: "Pakej & Peserta",
-        desc: "Bilangan peserta ikut had kategori (Family/Couple). Peserta tambahan dikenakan caj sebanyak RM10 setiap peserta."
+        desc: "Bilangan peserta ikut had kategori (Family/Mini). Peserta tambahan dikenakan caj sebanyak RM10 setiap peserta."
     },
     {
         title: "Peralatan & Kerosakan",
