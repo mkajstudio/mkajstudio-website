@@ -404,8 +404,8 @@ function getActionButtons(b, statusKey, payType) {
     else if (statusKey === 'confirmed') btns += `<button onclick="updateStatus('${b.OrderID}', 'Arrived', 'Check-in')" class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Check-in"><i class="fas fa-user-check text-xs"></i></button>`;
     
     if (statusKey !== 'canceled') {
-        if (payType.includes("deposit")) btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Baki n8n"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
-        else btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Resit n8n"><i class="fas fa-receipt text-xs"></i></button>`;
+        if (payType.includes("deposit")) btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Settle Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
+        else btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Hantar Resit"><i class="fas fa-receipt text-xs"></i></button>`;
     }
     btns += `<button onclick="editCustomer('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition flex items-center justify-center" title="Edit"><i class="fas fa-edit text-xs"></i></button>`;
     
@@ -494,14 +494,14 @@ function populateDropdowns() {
 
 window.handleN8N = async function(id, type) {
     const b = allBookings.find(x => String(x.OrderID) === String(id));
-    if (!b || !confirm(`Sahkan n8n ${type.toUpperCase()} untuk ${b.Name}?`)) return;
+    if (!b || !confirm(`Sahkan ${type.toUpperCase()} untuk ${b.Name}?`)) return;
     try {
         await fetch(N8N_WEBHOOK_URL, { 
             method: "POST", 
             headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify({ trigger: type, orderID: b.OrderID, phone: b.Phone, nama: b.Name, tema: b.Theme, pax: b.Pax, totalPrice: b.TotalPrice, addOns: b.AddOns, frame: b.Frame }) 
         });
-        alert("Dihantar ke n8n!");
+        alert("Berjaya dihantar!");
         if (type === 'baki') {
             b.PaymentType = "FULL (SETTLE AT STUDIO)";
             applyFilters();
