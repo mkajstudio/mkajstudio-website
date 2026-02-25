@@ -88,12 +88,10 @@
     </footer>
 
     <script>
-        // PENTING: URL Google Script Tuan
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxkvi6i4ar752ZzIvDUlFsDka4kwL9AMS9oD-PzG2mErQ7JghFdnu3Ex4pWg_203HPk/exec";
         
         let currentMode = 'phone';
 
-        // Fungsi Tukar Tab
         function switchMode(mode) {
             currentMode = mode;
             const tabP = document.getElementById('tabPhone');
@@ -121,7 +119,6 @@
             }
         }
 
-        // Fungsi Paksa Nombor Sahaja
         function validateNumberOnly(input) {
             const originalValue = input.value;
             const cleanValue = originalValue.replace(/\D/g, '');
@@ -136,20 +133,14 @@
             }
         }
 
-        // FUNGSI BARU: Padam/Clear Carian
         function clearSearch() {
             document.getElementById('searchPhone').value = '';
             document.getElementById('searchID').value = '';
             document.getElementById('results').innerHTML = '';
             document.getElementById('errPhone').classList.add('hidden');
             document.getElementById('errID').classList.add('hidden');
-            
-            // Fokus semula ke kotak input yang aktif
-            if(currentMode === 'phone') {
-                document.getElementById('searchPhone').focus();
-            } else {
-                document.getElementById('searchID').focus();
-            }
+            if(currentMode === 'phone') document.getElementById('searchPhone').focus();
+            else document.getElementById('searchID').focus();
         }
 
         function formatDisplayDate(dateStr) {
@@ -175,29 +166,13 @@
 
             if (currentMode === 'phone') {
                 let phone = document.getElementById('searchPhone').value;
-                if(!phone) {
-                    errPhone.innerText = "Sila masukkan nombor telefon.";
-                    errPhone.classList.remove('hidden');
-                    return;
-                }
-                if(!phone.startsWith('01')) {
-                    errPhone.innerText = "Nombor telefon mesti bermula dengan 01.";
-                    errPhone.classList.remove('hidden');
-                    return;
-                }
-                if(phone.length < 10 || phone.length > 11) {
-                    errPhone.innerText = "Nombor telefon tidak sah (Mesti 10-11 digit).";
-                    errPhone.classList.remove('hidden');
-                    return;
-                }
+                if(!phone) { errPhone.innerText = "Sila masukkan nombor telefon."; errPhone.classList.remove('hidden'); return; }
+                if(!phone.startsWith('01')) { errPhone.innerText = "Nombor telefon mesti bermula dengan 01."; errPhone.classList.remove('hidden'); return; }
+                if(phone.length < 10 || phone.length > 11) { errPhone.innerText = "Nombor telefon tidak sah (Mesti 10-11 digit)."; errPhone.classList.remove('hidden'); return; }
                 query = phone;
             } else {
                 let idVal = document.getElementById('searchID').value;
-                if(!idVal) {
-                    errID.innerText = "Sila masukkan angka Booking ID.";
-                    errID.classList.remove('hidden');
-                    return;
-                }
+                if(!idVal) { errID.innerText = "Sila masukkan angka Booking ID."; errID.classList.remove('hidden'); return; }
                 query = "RAYA-" + idVal;
             }
 
@@ -230,21 +205,52 @@
             });
         }
 
+        // --- RENDER FUNCTION ---
         function renderResults(data) {
             const container = document.getElementById('results');
             container.innerHTML = `<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">${data.length} Tempahan Dijumpai</p>`;
-
-            // Sort by Date
             data.sort((a,b) => new Date(a.Date) - new Date(b.Date));
 
             data.forEach(item => {
-                const isCanceled = (item.Status || "").toLowerCase().includes("cancel");
-                const statusColor = isCanceled ? "bg-red-100 text-red-600" : (item.Status === 'Confirmed' ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700");
-                
+                const status = (item.Status || "").trim();
+                const isCanceled = status.toLowerCase().includes("cancel") || status.toLowerCase().includes("reject");
+                const isConfirmed = status === 'Confirmed' || status === 'Arrived';
+                const statusColor = isCanceled ? "bg-red-100 text-red-600" : (isConfirmed ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700");
                 const safeItem = encodeURIComponent(JSON.stringify(item));
 
+                // --- BUTANG LOGIC ---
+                let actionBtn = "";
+
+                if (isCanceled) {
+                    // Cuma buang kad dari skrin (remove element)
+                    actionBtn = `
+                        <button onclick="this.closest('.card-box').remove()" class="w-full bg-gray-100 text-gray-500 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition">
+                            Tutup Paparan
+                        </button>`;
+                } 
+                else if (isConfirmed) {
+                    const resitLink = item.ResitRasmi || ""; 
+                    if (resitLink.length > 5) {
+                        actionBtn = `
+                            <a href="${resitLink}" target="_blank" class="block w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-center hover:bg-blue-700 transition flex justify-center items-center gap-2">
+                                <i class="fas fa-file-pdf text-lg"></i> Lihat Resit Rasmi
+                            </a>`;
+                    } else {
+                        actionBtn = `
+                            <button disabled class="w-full bg-slate-200 text-slate-400 py-3 rounded-xl font-bold text-xs uppercase tracking-widest cursor-not-allowed">
+                                Resit Belum Dijana
+                            </button>`;
+                    }
+                } 
+                else {
+                    actionBtn = `
+                        <button onclick="resendWhatsApp('${safeItem}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition flex justify-center items-center gap-2">
+                            <i class="fab fa-whatsapp text-lg text-green-400"></i> Hantar Konfirmasi
+                        </button>`;
+                }
+
                 container.innerHTML += `
-                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 ${isCanceled ? 'border-red-500' : 'border-amber-500'} relative mb-4">
+                    <div class="card-box bg-white p-6 rounded-2xl shadow-md border-l-4 ${isCanceled ? 'border-red-500' : 'border-amber-500'} relative mb-4">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <span class="text-[10px] font-black text-slate-400 tracking-widest block mb-1">#${item.OrderID}</span>
@@ -265,11 +271,7 @@
                             <div class="flex justify-between border-t border-slate-200 pt-2 mt-2"><span class="text-slate-400">Total</span><span class="text-amber-600 text-sm">RM ${item.TotalPrice}</span></div>
                         </div>
 
-                        ${!isCanceled ? `
-                            <button onclick="resendWhatsApp('${safeItem}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition flex justify-center items-center gap-2">
-                                <i class="fab fa-whatsapp text-lg text-green-400"></i> Jana Semula Resit
-                            </button>
-                        ` : ''}
+                        ${actionBtn}
                     </div>
                 `;
             });
@@ -277,12 +279,9 @@
 
         function resendWhatsApp(encodedData) {
             const item = JSON.parse(decodeURIComponent(encodedData));
-            
             const isDep = (item.PaymentType || "").toLowerCase().includes("deposit");
             const msgPay = isDep ? "💳 *JENIS BAYARAN: DEPOSIT (RM50)*" : `💳 *JENIS BAYARAN: PENUH (RM${item.TotalPrice})*`;
-            
             const waMsg = `Hi MKAJ Studio! 👋\nSaya nak *hantar semula* butiran Booking Raya 2026 saya.\n\n🆔 *${item.OrderID}*\n👤 ${item.Name}\n📦 ${item.Package}\n🕌 ${item.Theme}\n📅 ${formatDisplayDate(item.Date)} @ ${item.Time}\n👥 *Pax:* ${item.Pax}\n🖼️ *Frame:* ${item.Frame}\n➕ *Add-ons:* ${item.AddOns}\n💰 *Total:* RM${item.TotalPrice}\n\n${msgPay}\n\nTerima kasih!`;
-            
             const waUrl = `https://wa.me/60147299454?text=${encodeURIComponent(waMsg)}`;
             window.open(waUrl, '_blank');
         }
