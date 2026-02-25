@@ -3,7 +3,7 @@
  * Updates: Robust Null-Checking, Pakej V2.0 Logic, Phone Fix, n8n Sync
  */
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_ySDLSObNGq8wNMXeD4cQGhWUlQS8LxdgnqsIY-DngbBb5KX1KxhAlAliQi2wODxB/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkvi6i4ar752ZzIvDUlFsDka4kwL9AMS9oD-PzG2mErQ7JghFdnu3Ex4pWg_203HPk/exec";
 const N8N_WEBHOOK_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance"; 
 
 let allBookings = [];

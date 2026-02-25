@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semak Tempahan | MKAJ Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; background-color: #f8fafc; } .font-serif { font-family: 'Playfair Display', serif; }</style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- NAVBAR -->
+    <nav class="bg-black text-white p-4 shadow-xl">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <a href="raya-2026.html" class="flex items-center gap-2">
+                <i class="fas fa-camera text-amber-500 text-xl"></i>
+                <span class="text-lg font-bold tracking-widest lowercase">mkajstudio<span class="text-amber-500">.co</span></span>
+            </a>
+            <a href="raya-2026.html" class="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest"><i class="fas fa-arrow-left"></i> Kembali</a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-lg">
+        <div class="text-center mb-8">
+            <h1 class="font-serif text-3xl md:text-4xl text-slate-900 mb-2">Semak Tempahan</h1>
+            <p class="text-sm text-slate-500">Sila pilih kaedah carian di bawah.</p>
+        </div>
+
+        <!-- SEARCH BOX CONTAINER -->
+        <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 mb-8">
+            
+            <!-- TOGGLE BUTTONS -->
+            <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+                <button id="tabPhone" onclick="switchMode('phone')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow text-slate-800 transition">
+                    No. Telefon
+                </button>
+                <button id="tabID" onclick="switchMode('id')" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition">
+                    Booking ID
+                </button>
+            </div>
+
+            <!-- MODE 1: PHONE INPUT -->
+            <div id="modePhone">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">No. Telefon (WhatsApp)</label>
+                <input type="tel" id="searchPhone" placeholder="Cth: 0123456789" class="w-full mt-2 p-4 border border-slate-200 rounded-xl outline-none focus:border-amber-500 font-bold" oninput="validateNumberOnly(this)">
+                <p id="errPhone" class="text-[10px] text-red-500 font-bold mt-2 ml-1 hidden"></p>
+            </div>
+
+            <!-- MODE 2: BOOKING ID INPUT -->
+            <div id="modeID" class="hidden">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Booking ID</label>
+                <div class="flex mt-2">
+                    <span class="inline-flex items-center px-4 bg-slate-50 border border-r-0 border-slate-200 rounded-l-xl font-black text-slate-500 tracking-widest">
+                        RAYA-
+                    </span>
+                    <input type="tel" id="searchID" placeholder="12345" class="w-full p-4 border border-slate-200 rounded-r-xl outline-none focus:border-amber-500 font-bold tracking-widest" oninput="validateNumberOnly(this)">
+                </div>
+                <p id="errID" class="text-[10px] text-red-500 font-bold mt-2 ml-1 hidden"></p>
+            </div>
+
+            <!-- BUTTONS: CLEAR & SEARCH -->
+            <div class="flex gap-3 mt-6">
+                <button onclick="clearSearch()" class="w-1/3 bg-slate-100 text-slate-500 py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-200 transition">
+                    Padam
+                </button>
+                <button onclick="submitSearch()" id="btnSearch" class="w-2/3 bg-amber-500 text-slate-900 py-4 rounded-xl font-black uppercase tracking-widest shadow-lg hover:bg-amber-400 transition">
+                    Semak
+                </button>
+            </div>
+        </div>
+
+        <!-- LOADER -->
+        <div id="loader" class="hidden text-center py-10">
+            <i class="fas fa-circle-notch fa-spin text-3xl text-amber-500 mb-3"></i>
+            <p class="text-xs font-bold text-slate-400 animate-pulse">Sedang mencari data...</p>
+        </div>
+
+        <!-- RESULTS CONTAINER -->
+        <div id="results" class="space-y-4"></div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-6 text-center text-gray-600 text-xs mt-auto">
+        &copy; 2026 MKAJ Studio. All rights reserved.
+    </footer>
+
+    <script>
+        // PENTING: URL Google Script Tuan
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkvi6i4ar752ZzIvDUlFsDka4kwL9AMS9oD-PzG2mErQ7JghFdnu3Ex4pWg_203HPk/exec";
+        
+        let currentMode = 'phone';
+
+        // Fungsi Tukar Tab
+        function switchMode(mode) {
+            currentMode = mode;
+            const tabP = document.getElementById('tabPhone');
+            const tabI = document.getElementById('tabID');
+            const modeP = document.getElementById('modePhone');
+            const modeI = document.getElementById('modeID');
+            
+            document.getElementById('errPhone').classList.add('hidden');
+            document.getElementById('errID').classList.add('hidden');
+
+            if(mode === 'phone') {
+                tabP.classList.add('bg-white', 'shadow', 'text-slate-800');
+                tabP.classList.remove('text-slate-500');
+                tabI.classList.remove('bg-white', 'shadow', 'text-slate-800');
+                tabI.classList.add('text-slate-500');
+                modeP.classList.remove('hidden');
+                modeI.classList.add('hidden');
+            } else {
+                tabI.classList.add('bg-white', 'shadow', 'text-slate-800');
+                tabI.classList.remove('text-slate-500');
+                tabP.classList.remove('bg-white', 'shadow', 'text-slate-800');
+                tabP.classList.add('text-slate-500');
+                modeI.classList.remove('hidden');
+                modeP.classList.add('hidden');
+            }
+        }
+
+        // Fungsi Paksa Nombor Sahaja
+        function validateNumberOnly(input) {
+            const originalValue = input.value;
+            const cleanValue = originalValue.replace(/\D/g, '');
+            input.value = cleanValue;
+            
+            const errEl = currentMode === 'phone' ? document.getElementById('errPhone') : document.getElementById('errID');
+            if (originalValue !== cleanValue) {
+                errEl.innerText = "Sila masukkan angka sahaja.";
+                errEl.classList.remove('hidden');
+            } else {
+                errEl.classList.add('hidden');
+            }
+        }
+
+        // FUNGSI BARU: Padam/Clear Carian
+        function clearSearch() {
+            document.getElementById('searchPhone').value = '';
+            document.getElementById('searchID').value = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('errPhone').classList.add('hidden');
+            document.getElementById('errID').classList.add('hidden');
+            
+            // Fokus semula ke kotak input yang aktif
+            if(currentMode === 'phone') {
+                document.getElementById('searchPhone').focus();
+            } else {
+                document.getElementById('searchID').focus();
+            }
+        }
+
+        function formatDisplayDate(dateStr) {
+            if(!dateStr) return "-";
+            let d = new Date(dateStr);
+            if(isNaN(d)) {
+                const parts = dateStr.split('/');
+                if(parts.length===3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            }
+            return d.toLocaleDateString('ms-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        document.getElementById('searchPhone').addEventListener('keypress', function(e) { if(e.key === 'Enter') submitSearch(); });
+        document.getElementById('searchID').addEventListener('keypress', function(e) { if(e.key === 'Enter') submitSearch(); });
+
+        function submitSearch() {
+            let query = "";
+            const errPhone = document.getElementById('errPhone');
+            const errID = document.getElementById('errID');
+            
+            errPhone.classList.add('hidden');
+            errID.classList.add('hidden');
+
+            if (currentMode === 'phone') {
+                let phone = document.getElementById('searchPhone').value;
+                if(!phone) {
+                    errPhone.innerText = "Sila masukkan nombor telefon.";
+                    errPhone.classList.remove('hidden');
+                    return;
+                }
+                if(!phone.startsWith('01')) {
+                    errPhone.innerText = "Nombor telefon mesti bermula dengan 01.";
+                    errPhone.classList.remove('hidden');
+                    return;
+                }
+                if(phone.length < 10 || phone.length > 11) {
+                    errPhone.innerText = "Nombor telefon tidak sah (Mesti 10-11 digit).";
+                    errPhone.classList.remove('hidden');
+                    return;
+                }
+                query = phone;
+            } else {
+                let idVal = document.getElementById('searchID').value;
+                if(!idVal) {
+                    errID.innerText = "Sila masukkan angka Booking ID.";
+                    errID.classList.remove('hidden');
+                    return;
+                }
+                query = "RAYA-" + idVal;
+            }
+
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('btnSearch').disabled = true;
+
+            fetch(`${GAS_URL}?action=check_my_booking&query=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(res => {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('btnSearch').disabled = false;
+
+                if(res.status === 'success' && res.data.length > 0) {
+                    renderResults(res.data);
+                } else {
+                    document.getElementById('results').innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-600 p-6 rounded-2xl text-center">
+                            <i class="fas fa-search mb-2 text-2xl opacity-50"></i>
+                            <p class="font-bold text-sm">Tiada tempahan dijumpai.</p>
+                            <p class="text-xs mt-1 opacity-70">Sila semak semula maklumat yang dimasukkan.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('btnSearch').disabled = false;
+                alert("Ralat sistem. Sila cuba sebentar lagi.");
+            });
+        }
+
+        function renderResults(data) {
+            const container = document.getElementById('results');
+            container.innerHTML = `<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">${data.length} Tempahan Dijumpai</p>`;
+
+            // Sort by Date
+            data.sort((a,b) => new Date(a.Date) - new Date(b.Date));
+
+            data.forEach(item => {
+                const isCanceled = (item.Status || "").toLowerCase().includes("cancel");
+                const statusColor = isCanceled ? "bg-red-100 text-red-600" : (item.Status === 'Confirmed' ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700");
+                
+                const safeItem = encodeURIComponent(JSON.stringify(item));
+
+                container.innerHTML += `
+                    <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 ${isCanceled ? 'border-red-500' : 'border-amber-500'} relative mb-4">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] font-black text-slate-400 tracking-widest block mb-1">#${item.OrderID}</span>
+                                <span class="${statusColor} px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">${item.Status}</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xl font-black text-slate-800">${item.Time}</p>
+                                <p class="text-[10px] font-bold text-slate-500">${formatDisplayDate(item.Date)}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4 text-xs font-bold text-slate-700 space-y-2">
+                            <div class="flex justify-between"><span class="text-slate-400">Tema</span><span class="text-right truncate ml-4">${item.Theme}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Pakej</span><span class="text-right truncate ml-4">${item.Package}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Pax</span><span class="text-right truncate ml-4">${item.Pax}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Addons</span><span class="text-right truncate ml-4">${item.AddOns || '-'}</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Frame</span><span class="text-right truncate ml-4">${item.Frame || '-'}</span></div>
+                            <div class="flex justify-between border-t border-slate-200 pt-2 mt-2"><span class="text-slate-400">Total</span><span class="text-amber-600 text-sm">RM ${item.TotalPrice}</span></div>
+                        </div>
+
+                        ${!isCanceled ? `
+                            <button onclick="resendWhatsApp('${safeItem}')" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition flex justify-center items-center gap-2">
+                                <i class="fab fa-whatsapp text-lg text-green-400"></i> Jana Semula Resit
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function resendWhatsApp(encodedData) {
+            const item = JSON.parse(decodeURIComponent(encodedData));
+            
+            const isDep = (item.PaymentType || "").toLowerCase().includes("deposit");
+            const msgPay = isDep ? "💳 *JENIS BAYARAN: DEPOSIT (RM50)*" : `💳 *JENIS BAYARAN: PENUH (RM${item.TotalPrice})*`;
+            
+            const waMsg = `Hi MKAJ Studio! 👋\nSaya nak *hantar semula* butiran Booking Raya 2026 saya.\n\n🆔 *${item.OrderID}*\n👤 ${item.Name}\n📦 ${item.Package}\n🕌 ${item.Theme}\n📅 ${formatDisplayDate(item.Date)} @ ${item.Time}\n👥 *Pax:* ${item.Pax}\n🖼️ *Frame:* ${item.Frame}\n➕ *Add-ons:* ${item.AddOns}\n💰 *Total:* RM${item.TotalPrice}\n\n${msgPay}\n\nTerima kasih!`;
+            
+            const waUrl = `https://wa.me/60147299454?text=${encodeURIComponent(waMsg)}`;
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
