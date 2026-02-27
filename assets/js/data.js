@@ -253,6 +253,18 @@ const rayaPackages = {
         desc: "Asas 6 Dewasa + Diskaun Frame 10%",
         features: ["Softcopy Google Drive", "Unlimited Shoot", "Cover 6 Dewasa, Tambah Pax RM10/Head (Dewasa)", "Diskaun Sebanyak 10% Untuk Semua Frame", "Masa 20 minit setiap sesi"]
     },
+    'ceria': {
+        name: "PAKEJ CERIA",
+        price: 159,
+        originalPrice: 239,
+        time: 20,
+        baseAdult: 12,
+        maxTotal: 20,
+        strict: false,
+        discountFrame: 0.10,
+        desc: "Asas 12 Dewasa + Diskaun Frame 10%",
+        features:["Softcopy Google Drive", "Unlimited Shoot", "Cover 12 Dewasa, Tambah Pax RM10/Head (Dewasa)", "Diskaun Sebanyak 10% Untuk Semua Frame", "Masa 20 minit setiap sesi"]
+    },
     'lebaran': {
         name: "PAKEJ LEBARAN",
         price: 300,
@@ -296,7 +308,7 @@ const rayaThemesDetail = {
                     "assets/images/themes/velvet-2.webp",
                     "assets/images/themes/velvet-3.webp"
         ],
-        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
+        inclusions: ["Pilih Pakej Salam, Riang, Ceria atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'white': {
         title: "Whisper White",
@@ -310,7 +322,7 @@ const rayaThemesDetail = {
                     "assets/images/themes/white-2.webp",
                     "assets/images/themes/white-3.webp"
         ],
-        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
+        inclusions: ["Pilih Pakej Salam, Riang, Ceria atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'hening': {
         title: "Hening Rindu",
@@ -326,7 +338,7 @@ const rayaThemesDetail = {
                     "assets/images/themes/hening-4.webp",
                     "assets/images/themes/hening-5.webp"
         ],
-        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
+        inclusions: ["Pilih Pakej Salam, Riang, Ceria atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
     'qalbu': {
         title: "Noor Qalbu",
@@ -340,7 +352,7 @@ const rayaThemesDetail = {
                     "assets/images/themes/qalbu-2.webp",
                     "assets/images/themes/qalbu-3.webp"
         ],
-        inclusions: ["Pilih Pakej Salam, Riang atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
+        inclusions: ["Pilih Pakej Salam, Riang, Ceria atau Lebaran", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Max 20 Pax (Dewasa + Kanak-kanak)"]
     },
 
         // TEMA MINI
@@ -453,6 +465,10 @@ const tncList = [
     {
         title: "Hak Cipta",
         desc: "Studio berhak menggunakan gambar untuk tujuan portfolio & pemasaran (melainkan dimaklumkan untuk privasi)."
+    },
+    {
+        title: "Make Up Artist (MUA)",
+        desc: "Jika memilih pakej dengan MUA, pastikan tiba 30 minit lebih awal untuk persiapan. Harga MUA terhad basic touch up dan 30 min sesi make up. Terhad kepada 1 pax sahaja."
     },
     {
         title: "Lain-lain",

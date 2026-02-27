@@ -398,7 +398,7 @@ function openPackageModal() {
         if (data.type === 'mini') {
             container.appendChild(createPackageCard(rayaPackages['mini'], 'mini'));
         } else {
-            ['salam', 'riang', 'lebaran'].forEach(pkgKey => {
+            ['salam', 'riang', 'ceria', 'lebaran'].forEach(pkgKey => {
                 if(rayaPackages[pkgKey]) container.appendChild(createPackageCard(rayaPackages[pkgKey], pkgKey));
             });
         }

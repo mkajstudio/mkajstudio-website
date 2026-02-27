@@ -120,13 +120,13 @@ window.recalculatePrice = function() {
     const themeType = themeData ? themeData.type : 'standard';
 
     if (themeType === 'mini') {
-        pkgSelect.value = "PAKEJ MINI (OLD LUXURY)";
+        pkgSelect.value = "PAKEJ MINI";
         if (totalHead > 4 || adults > 2) {
             alert("⚠️ Had Tema Mini: Maksimum 2 Dewasa + 2 Kanak-kanak.");
             adultInput.value = 2; kidInput.value = 0; adults = 2;
         }
     } else {
-        if (pkgSelect.value.includes("MINI")) pkgSelect.value = "PAKEJ 1 (SALAM)";
+        if (pkgSelect.value.includes("MINI")) pkgSelect.value = "PAKEJ SALAM";
     }
 
     // B. Cari Config Pakej
@@ -228,10 +228,11 @@ window.editCustomer = function(id) {
         // Safety check untuk Pakej
         const pkgSelect = document.getElementById('form-package');
         const dbPackage = (b.Package || "").toUpperCase();
-        if (dbPackage.includes("MINI")) pkgSelect.value = "PAKEJ MINI (OLD LUXURY)";
-        else if (dbPackage.includes("SALAM")) pkgSelect.value = "PAKEJ 1 (SALAM)";
-        else if (dbPackage.includes("RIANG")) pkgSelect.value = "PAKEJ 2 (RIANG)";
-        else if (dbPackage.includes("LEBARAN")) pkgSelect.value = "PAKEJ 3 (LEBARAN)";
+        if (dbPackage.includes("MINI")) pkgSelect.value = "PAKEJ MINI";
+        else if (dbPackage.includes("SALAM")) pkgSelect.value = "PAKEJ SALAM";
+        else if (dbPackage.includes("RIANG")) pkgSelect.value = "PAKEJ RIANG";
+        else if (dbPackage.includes("CERIA")) pkgSelect.value = "PAKEJ CERIA";
+        else if (dbPackage.includes("LEBARAN")) pkgSelect.value = "PAKEJ LEBARAN";
         else pkgSelect.selectedIndex = 1; // Default Salam
 
         document.getElementById('form-date').value = normalizeDate(b.Date);

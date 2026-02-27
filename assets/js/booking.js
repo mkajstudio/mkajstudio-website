@@ -233,7 +233,7 @@ function checkThemeType() {
         // Kalau Pakej Mini -> Tulis Mini
         // Kalau Pakej Family -> Tulis Nama Pakej (Cth: Pakej Riang - Base 7 Pax)
         if (bookingData.pkgKey === 'mini') {
-            catL.innerText = "KATEGORI MINI / COUPLE (MAX 4 PAX)";
+            catL.innerText = "KATEGORI MINI / COUPLE (MAX 2  DEWASA + 2 KANAK-KANAK)";
             catL.className = "text-[10px] font-bold mt-1 text-pink-500 uppercase";
         } else {
             // Ambil nama pakej dari config semasa
