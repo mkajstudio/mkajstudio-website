@@ -3,7 +3,7 @@
  * Updates: Robust Null-Checking, Pakej V2.0 Logic, Phone Fix, n8n Sync
  */
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkvi6i4ar752ZzIvDUlFsDka4kwL9AMS9oD-PzG2mErQ7JghFdnu3Ex4pWg_203HPk/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_d7TuP2BpFEGay6tUkqQP2ocq1R-sJFNF66410BEzE4ZW8BOFHPa8hRhOJom6EENS/exec";
 const N8N_WEBHOOK_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance"; 
 
 let allBookings = [];
@@ -181,7 +181,7 @@ window.saveCustomer = async function(e) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sinking...';
 
     const orderIDVal = document.getElementById('form-orderID').value;
-    const isWalkIn = orderIDVal === "MANUAL";
+    const isWalkIn = orderIDVal === "";
     
     const payload = {
         action: isWalkIn ? "save_booking" : "update_customer_full",
@@ -489,7 +489,7 @@ function populateDropdowns() {
     // Masa
     const timeSelect = document.getElementById('form-time'); 
     timeSelect.innerHTML = '';
-    const slots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
+    const slots = ["08:30","09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"];
     slots.forEach(t => { let o = document.createElement('option'); o.value = t; o.innerText = t; timeSelect.appendChild(o); });
 }
 
@@ -528,7 +528,7 @@ window.deleteBooking = async (id) => {
 window.openWalkInModal = () => { 
     document.getElementById('modalTitle').innerText = "WALK-IN BOOKING"; 
     document.getElementById('customerForm').reset(); 
-    document.getElementById('form-orderID').value = "MANUAL"; 
+    document.getElementById('form-orderID').value = ""; 
     document.getElementById('form-date').value = new Date().toISOString().split('T')[0]; 
     document.getElementById('form-pax-adult').value = 1; 
     document.getElementById('form-pax-kid').value = 0; 
