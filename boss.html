@@ -348,8 +348,7 @@
             // UPDATED: 5 SHOOTERS
             const staff = { 
                 "Photographer 1": { basic: 2000, jobs: 0 }, "Photographer 2": { basic: 2000, jobs: 0 }, 
-                "Photographer 3": { basic: 2000, jobs: 0 }, "Photographer 4": { basic: 2000, jobs: 0 }, 
-                "Photographer 5": { basic: 2000, jobs: 0 }, "Admin": { basic: 1800, jobs: 0 } 
+                "Photographer 3": { basic: 2000, jobs: 0 }, "Admin": { basic: 1800, jobs: 0 } 
             };
             salesData.forEach(item => { let p = (item.Photographer || "").trim(); if(staff[p]) staff[p].jobs++; });
 
