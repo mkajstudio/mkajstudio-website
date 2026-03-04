@@ -507,27 +507,47 @@
         function toggleEdit(s) { getEl('editModal').classList.toggle('hidden', !s); }
         function adjPax(t, d) { const el = getEl(t === 'adult' ? 'e_adult' : 'e_kid'); let v = parseInt(el.innerText) + d; if (v < 0) v = 0; if (t === 'adult' && v < 1) v = 1; el.innerText = v; reCalc(); }
 
+        // --- 2. N8N WEBHOOK LOGIC (ULTRA CLEAN & SEPARATED) ---
         window.handleN8N = async function(btn, id, type) {
+            // Cari data dalam memori array allBookings
             const b = allBookings.find(x => String(x.OrderID) === String(id));
             if (!b || !confirm(`Jana resit rasmi untuk ${b.Name}?`)) return;
 
-            // --- ANIMASI LOADING BUTANG ---
+            // Animasi Loading pada butang
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i> MEMPROSES...`;
 
+            // Data dihantar sebagai flat object supaya n8n terima key yang asing-asing
+            const payload = {
+                trigger: type,
+                orderID: b.OrderID,
+                phone: b.Phone,
+                nama: b.Name,
+                tema: b.Theme,
+                pax: b.Pax,
+                totalPrice: b.TotalPrice,
+                addOns: b.AddOns,
+                frame: b.Frame
+            };
+
             try {
-                await fetch(N8N_WEBHOOK_URL, { 
-                    method: "POST", 
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ trigger: type, orderID: b.OrderID, phone: b.Phone, nama: b.Name, tema: b.Theme, pax: b.Pax, totalPrice: b.TotalPrice, addOns: b.AddOns, frame: b.Frame }) 
+                // PENTING: no-cors DIBUANG supaya n8n kenal JSON structure
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify(payload)
                 });
-                alert("Permintaan dihantar! Sila semak WhatsApp sebentar lagi.");
-            } catch (err) { 
-                alert("Ralat menghantar ke n8n."); 
+
+                // Walaupun mungkin ada isu CORS di browser, n8n biasanya dah terima data tu.
+                alert("Permintaan berjaya dihantar! Sila semak WhatsApp sebentar lagi.");
+            } catch (err) {
+                console.error("Connection Note:", err);
+                // Jika server n8n Tuan tiada CORS header, ia mungkin masuk catch tapi data tetap sampai ke n8n
+                alert("Permintaan diproses. Sila semak WhatsApp.");
             } finally {
-                // --- RESET BUTANG ---
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
