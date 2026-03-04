@@ -415,17 +415,13 @@ const photographersList = [
     "Belum Ditetapkan",
     "Photographer 1",
     "Photographer 2",
-    "Photographer 3",
-    "Photographer 4",
-    "Photographer 5"
+    "Photographer 3"
 ];
 
 const staff = {
     "Photographer 1": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Photographer 2": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Photographer 3": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
-    "Photographer 4": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
-    "Photographer 5": { type: "FT", basic: 2000, commission: 10, jobs: 0 },
     "Admin": { type: "ADMIN", basic: 1800, commission: 0, jobs: 0 }
 };
 
