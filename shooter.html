@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKAJ Dashboard | Ultimate V3.2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #0a0a0b; --panel-bg: #141416; --card-bg: #1c1c1e; --accent: #f39c12; --success: #2ecc71; --danger: #e74c3c; --text-main: #ffffff; --text-dim: #8e8e93; --border: #2c2c2e; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 18px; font-weight: 700; color: var(--accent); }
+        .status-container { display: flex; gap: 8px; }
+        .sync-status { font-size: 9px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+        .st-online { background: var(--success); color: #000; }
+        .st-offline { background: var(--danger); color: #fff; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+        .board { display: grid; grid-template-columns: 320px 1fr 280px; gap: 20px; flex: 1; height: 85vh; }
+        .column { background: var(--panel-bg); border-radius: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); overflow: hidden; }
+        .column-header { padding: 15px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border); text-align: center; }
+        .list-area { padding: 15px; display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+        .shooting-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; overflow-y: auto; }
+        .station-pod { background: var(--card-bg); border-radius: 12px; padding: 15px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; position: relative; }
+        .station-pod.active { border-color: var(--accent); }
+        .running-tag { display: none; background: var(--success); color: #000; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 8px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+        .cam-info-bar { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px dashed #444; }
+        .btn-unassign { background: #333; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: none; align-items: center; justify-content: center; cursor: pointer; border: none; }
+        .btn-unassign:hover { background: var(--danger); }
+        .drop-zone { min-height: 60px; background: rgba(0,0,0,0.1); border-radius: 10px; border: 1px dashed #333; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+        .cust-card { background: #2c3e50; padding: 12px; border-radius: 10px; cursor: grab; border-left: 4px solid var(--accent); position: relative; }
+        .cust-card.not-arrived { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+        .cust-card b { display: block; font-size: 14px; }
+        .cust-card .details { font-size: 10px; color: var(--text-dim); }
+        .ai-badge { margin-top: 5px; font-size: 9px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; display: inline-block; font-weight: bold; }
+        .status-label { position: absolute; top: 10px; right: 10px; font-size: 8px; font-weight: 800; padding: 2px 5px; border-radius: 3px; }
+        .lbl-arr { background: var(--success); color: #000; }
+        .lbl-miss { background: var(--danger); color: #fff; }
+        .ai-live-ctrl { display: none; justify-content: space-between; align-items: center; background: #2c2c2e; padding: 6px 10px; border-radius: 6px; margin-top: 5px; }
+        .btn-sw-ai { background: var(--accent); color: black; border: none; padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; cursor: pointer; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; }
+        .glass-box { background: rgba(28, 28, 30, 0.95); border: 1px solid var(--border); width: 300px; border-radius: 20px; padding: 25px; }
+        .item-picker { background: #2c2c2e; padding: 12px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MKAJ SMART DASHBOARD</h1>
+        <div class="status-container">
+            <div class="sync-status st-demo" id="dbStatus">DB: SYNC...</div>
+            <div class="sync-status st-offline" id="pyStatus">PYTHON: OFFLINE</div>
+        </div>
+    </div>
+
+    <div class="board">
+        <div class="column"><div class="column-header">Waiting & Arrival Today</div><div id="area-waiting" class="list-area drop-target"></div></div>
+        <div class="column"><div class="column-header">Live Shooting Stations</div><div class="shooting-grid">
+            <script>
+                ["White", "Hening", "Velvet", "Qalbu", "Old"].forEach(t => {
+                    const id = t.toLowerCase();
+                    document.write(`
+                        <div class="station-pod" id="pod-${id}">
+                            <div style="font-weight: 700; font-size: 13px;">${t.toUpperCase()} STATION <span class="running-tag" id="run-${id}">RUNNING</span></div>
+                            <div class="cam-info-bar" onclick="openCamPicker('${id}')">
+                                <div class="cam-text" id="text-${id}">NO CAMERA</div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <button class="btn-unassign" id="un-${id}" onclick="unassignCam(event, '${id}')">✖</button>
+                                    <div class="st-none" id="status-${id}" style="font-size:9px; font-weight:700; color:var(--danger)">OFFLINE</div>
+                                </div>
+                            </div>
+                            <div class="drop-zone" id="drop-${id}"></div>
+                            <div class="ai-live-ctrl" id="ai-ctrl-${id}">
+                                <span id="ai-label-${id}" style="font-size:9px; font-weight:700;">AI: LRC</span>
+                                <button class="btn-sw-ai" onclick="openAISwitcher('${id}')">TUKAR AI</button>
+                            </div>
+                        </div>
+                    `);
+                });
+            </script>
+        </div></div>
+        <div class="column"><div class="column-header">Finished Today</div><div id="area-complete" class="list-area drop-target"></div></div>
+    </div>
+
+    <div class="overlay" id="camOverlay"><div class="glass-box"><h2>Pilih Kamera</h2><div id="camList"></div><button onclick="closeOverlay('camOverlay')" style="width:100%; padding:10px; background:none; border:1px solid #444; color:white; border-radius:10px; cursor:pointer;">Batal</button></div></div>
+    <div class="overlay" id="aiOverlay"><div class="glass-box"><h2>AI Processing</h2><select id="aiChoice" style="width:100%; padding:12px; background:#2c2c2e; color:white; border:none; border-radius:10px; margin-bottom:15px;"><option value="LrC">Adobe Lightroom (LrC)</option><option value="Radiant">Radiant Photo</option></select><button onclick="confirmSesi()" id="btnStart" style="width:100%; padding:12px; background:var(--accent); color:black; font-weight:700; border:none; border-radius:10px; cursor:pointer;">SAHKAN</button></div></div>
+
+    <script>
+        // ==========================================
+        // ⚙️ SMART HYBRID CONFIGURATION (FIXED)
+        // ==========================================
+        const currentDomain = window.location.hostname;
+        const TUNNEL_URL = "https://api-studio.mkajstudio.com"; 
+
+        const CONFIG = {
+            GAS_URL: "https://script.google.com/macros/s/AKfycbxO3GtI8VN1OMUfhCGBvKBs2XpelJ7OkOf9TN76EP-laFigVV_NNbuH5BQlt5MONmE/exec",
+        
+            // JIKA BUKAN LOCALHOST, TERUS GUNA TUNNEL (PALING SELAMAT)
+            PYTHON_URL: (currentDomain === "localhost" || currentDomain === "127.0.0.1") 
+                        ? "http://localhost:9999" 
+                        : TUNNEL_URL,
+        
+            SYNC_INTERVAL: 15000 
+        };
+
+        let currentStation = null, draggedCust = null, targetDropZone = null, isSwitchingAI = false;
+        const availableCameras = [{id:'c1', name:'Sony A7IV', sn:'5562', assignedTo:null}, {id:'c2', name:'Canon R6', sn:'9901', assignedTo:null}];
+
+        // --- 🔍 MONITORING PYTHON (DIKEMASKINI) ---
+        async function checkPython() {
+            const pyTag = document.getElementById('pyStatus');
+            try {
+                // Kita guna mod 'no-cache' supaya status sentiasa fresh
+                const res = await fetch(`${CONFIG.PYTHON_URL}/`, { 
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-store'
+                });
+            
+                if(res.ok) {
+                    pyTag.innerText = "PYTHON: ONLINE";
+                    pyTag.className = "sync-status st-online";
+                } else {
+                    throw new Error();
+                }
+            } catch(e) {
+                pyTag.innerText = "PYTHON: OFFLINE";
+            pyTag.className = "sync-status st-offline";
+            }
+        }
+
+        function isToday(dateStr) {
+            if(!dateStr) return false;
+            try {
+                const now = new Date();
+                let bDate = new Date(dateStr);
+                if (isNaN(bDate)) {
+                    const parts = dateStr.split('/');
+                    if(parts.length === 3) bDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+                return bDate.getDate() === now.getDate() && bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+            } catch(e) { return false; }
+        }
+
+        function isWithinRange(timeStr) {
+            if(!timeStr) return false;
+            try {
+                const now = new Date();
+                const [time, mod] = timeStr.split(' ');
+                let [h, m] = time.split(':');
+                if(h === '12') h = '00'; if(mod === 'PM') h = parseInt(h)+12;
+                const sessTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+                return (Math.abs(now - sessTime) / (1000 * 60)) <= 60;
+            } catch(e) { return true; }
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`${CONFIG.GAS_URL}?action=get_data`);
+                const data = await res.json();
+                renderBoard(data);
+                document.getElementById('dbStatus').innerText = "DB: ONLINE"; document.getElementById('dbStatus').className = "sync-status st-online";
+            } catch(e) { document.getElementById('dbStatus').innerText = "DB: OFFLINE"; }
+        }
+
+        function renderBoard(customers) {
+            const waitingArea = document.getElementById('area-waiting'), finishedArea = document.getElementById('area-complete');
+            const shootingIds = Array.from(document.querySelectorAll('.drop-zone .cust-card')).map(c => c.id);
+            waitingArea.innerHTML = ''; finishedArea.innerHTML = '';
+            customers.forEach(c => {
+                if(shootingIds.includes(c.OrderID)) return;
+                const status = c.Status ? c.Status.trim() : "";
+                if(!isToday(c.Date)) return;
+                if(["Arrived", "Confirmed", "Finished"].includes(status)) {
+                    if(status === "Finished" || isWithinRange(c.Time)) {
+                        const card = document.createElement('div'); card.id = c.OrderID;
+                        const isArrived = (status === "Arrived");
+                        card.className = `cust-card ${!isArrived && status !== "Finished" ? 'not-arrived' : ''}`;
+                        card.draggable = isArrived;
+                        card.innerHTML = `<span class="status-label ${isArrived || status === 'Finished' ? 'lbl-arr' : 'lbl-miss'}">${status.toUpperCase()}</span><b>${c.Name}</b><div class="details">ID: ${c.OrderID}<br>Sesi: ${c.Time} | Tema: ${c.Theme}</div>`;
+                        if(status === "Finished") finishedArea.appendChild(card); else waitingArea.appendChild(card);
+                        card.addEventListener('dragstart', function(e) { if(this.draggable) { draggedCust = this; setTimeout(() => this.style.opacity = '0.3', 0); }});
+                    }
+                }
+            });
+        }
+
+        async function updateStatusDB(oid, stat, theme = "", ai = "") {
+            fetch(CONFIG.GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_status', orderID: oid, status: stat }) });
+            if(stat === "Shooting" || stat === "Finished") {
+                fetch(`${CONFIG.PYTHON_URL}/update_session`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: (stat==="Shooting"?"start":"stop"), id: oid, theme: theme, ai: ai }) }).catch(e => {});
+            }
+        }
+
+        function openCamPicker(sid) {
+            currentStation = sid; const list = document.getElementById('camList'); list.innerHTML = '';
+            availableCameras.forEach(cam => {
+                const used = cam.assignedTo && cam.assignedTo !== sid;
+                const d = document.createElement('div'); d.className = 'item-picker';
+                d.innerHTML = `📷 <div><b>${cam.name}</b><br><small>SN: ${cam.sn} ${used?'(GUNA DI '+used.toUpperCase()+')':''}</small></div>`;
+                d.onclick = () => {
+                    availableCameras.forEach(c => { if(c.assignedTo === sid) c.assignedTo = null; });
+                    cam.assignedTo = sid;
+                    document.getElementById('text-'+sid).innerText = cam.name.toUpperCase();
+                    document.getElementById('status-'+sid).style.display = "none";
+                    document.getElementById('un-'+sid).style.display = "flex";
+                    document.getElementById('pod-'+sid).classList.add('active');
+                    closeOverlay('camOverlay');
+                };
+                list.appendChild(d);
+            });
+            document.getElementById('camOverlay').style.display = 'flex';
+        }
+
+        function unassignCam(event, sid) {
+            event.stopPropagation();
+            if(confirm(`Nyahikat kamera?`)) {
+                availableCameras.forEach(c => { if(c.assignedTo === sid) c.assignedTo = null; });
+                document.getElementById('text-'+sid).innerText = "NO CAMERA";
+                document.getElementById('status-'+sid).style.display = "block";
+                document.getElementById('un-'+sid).style.display = "none";
+                document.getElementById('pod-'+sid).classList.remove('active');
+            }
+        }
+
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop', e => {
+            const zone = e.target.closest('.drop-zone, .list-area');
+            if(!zone || !draggedCust) return;
+            if(zone.classList.contains('drop-zone')) {
+                currentStation = zone.parentElement.id.replace('pod-', '');
+                if(document.getElementById('pod-'+currentStation).classList.contains('active')) {
+                    targetDropZone = zone; isSwitchingAI = false; document.getElementById('aiOverlay').style.display = 'flex';
+                } else { alert("Sila assign kamera dahulu!"); draggedCust.style.opacity = '1'; draggedCust = null; }
+            } else if(zone.id === 'area-complete') {
+                if(confirm("Tamatkan sesi?")) {
+                    const pod = draggedCust.closest('.station-pod');
+                    const sid = pod ? pod.id.replace('pod-', '') : "";
+                    zone.appendChild(draggedCust); updateStatusDB(draggedCust.id, "Finished", sid);
+                    if(pod) { document.getElementById('run-'+sid).style.display = 'none'; document.getElementById('ai-ctrl-'+sid).style.display = 'none'; }
+                }
+                draggedCust.style.opacity = '1'; draggedCust = null;
+            } else { zone.appendChild(draggedCust); draggedCust.style.opacity = '1'; draggedCust = null; }
+        });
+
+        function confirmSesi() {
+            const ai = document.getElementById('aiChoice').value;
+            let targetCard = draggedCust;
+            if(isSwitchingAI) {
+                const pod = document.getElementById('pod-' + currentStation);
+                targetCard = pod.querySelector('.cust-card');
+            }
+            if(!targetCard) { alert("Ralat pelanggan!"); closeOverlay('aiOverlay'); return; }
+            if(!isSwitchingAI) {
+                targetDropZone.appendChild(targetCard);
+                document.getElementById('run-'+currentStation).style.display = 'inline-block';
+                document.getElementById('ai-ctrl-'+currentStation).style.display = 'flex';
+                updateStatusDB(targetCard.id, "Shooting", currentStation, ai);
+            }
+            document.getElementById('ai-label-'+currentStation).innerText = "AI: " + ai;
+            let badge = targetCard.querySelector('.ai-badge');
+            if(!badge) { badge = document.createElement('div'); badge.className = 'ai-badge'; targetCard.appendChild(badge); }
+            badge.innerText = "AI: " + ai;
+            targetCard.style.opacity = '1'; draggedCust = null; closeOverlay('aiOverlay');
+        }
+
+        function openAISwitcher(sid) { currentStation = sid; isSwitchingAI = true; document.getElementById('aiOverlay').style.display = 'flex'; }
+        function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+        
+        fetchData(); setInterval(fetchData, 15000);
+        checkPython(); setInterval(checkPython, 5000);
+    </script>
+</body>
+</html>
