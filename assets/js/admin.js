@@ -9,6 +9,7 @@ const N8N_WEBHOOK_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance"
 let allBookings = [];
 let currentView = 'table'; 
 let sortConfig = { key: 'Date', direction: 'asc' }; 
+let originalDataCopy = null; // Simpan data asal untuk dibandingkan
 
 // --- KOD PIN ADMIN ---
 const ADMIN_PIN = "0000"; // <--- Tukar nombor PIN Tuan di sini
@@ -173,50 +174,19 @@ window.recalculatePrice = function() {
 // 4. ACTION HANDLERS (SAVE, EDIT, STATUS)
 // ==========================================
 
-window.saveCustomer = async function(e) {
+window.saveCustomer = function(e) {
     e.preventDefault();
-    const btn = document.getElementById('btnSave');
-    const originalText = btn.innerText;
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sinking...';
-
-    const orderIDVal = document.getElementById('form-orderID').value;
-    const isWalkIn = orderIDVal === "";
-    
-    const payload = {
-        action: isWalkIn ? "save_booking" : "update_customer_full",
-        orderID: orderIDVal,
-        name: document.getElementById('form-name').value,
-        phone: formatPhoneForDB(document.getElementById('form-phone').value),
-        theme: document.getElementById('form-theme').value,
-        package: document.getElementById('form-package').value,
-        date: document.getElementById('form-date').value,
-        time: document.getElementById('form-time').value,
-        pax: `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`,
-        addOns: getAddOnsSummary(),
-        frame: cleanFrameForDB(document.getElementById('form-frame').value),
-        photoNumber: document.getElementById('form-photoNumber').value,
-        photographer: document.getElementById('form-photographer').value,
-        totalPrice: document.getElementById('form-total').innerText,
-        paymentType: isWalkIn ? "FULL (WALK-IN)" : "Updated via Admin", 
-        status: "Confirmed"
-    };
-
-    try {
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("Simpan Berjaya!"); 
-        closeModal('customerModal'); 
-        fetchData();
-    } catch (err) { 
-        alert("Ralat sambungan."); 
-    } finally { 
-        btn.disabled = false; btn.innerText = originalText; 
-    }
+    showComparison(); // Panggil paparan perbandingan
 };
 
 window.editCustomer = function(id) {
     const b = allBookings.find(x => String(x.OrderID) === String(id));
     if(!b) { alert("Data tidak dijumpai."); return; }
+
+    // --- TAMBAHAN BARU ---
+    originalDataCopy = JSON.parse(JSON.stringify(b)); // Salin data asal secara mendalam
+    document.getElementById('customerForm').classList.remove('hidden'); 
+    document.getElementById('editReviewSection').classList.add('hidden');
 
     try {
         document.getElementById('modalTitle').innerText = `EDIT: ${id}`;
@@ -267,6 +237,7 @@ window.editCustomer = function(id) {
         
         recalculatePrice();
         openModal('customerModal');
+        fetchAdminSlots(); 
     } catch (err) {
         console.error("Critical Edit Error:", err);
         alert("Ralat teknikal semasa membuka data.");
@@ -401,17 +372,35 @@ function renderCards(data) {
 
 function getActionButtons(b, statusKey, payType) {
     let btns = "";
-    if (statusKey === 'pending') btns += `<button onclick="updateStatus('${b.OrderID}', 'Confirmed', 'Sahkan')" class="w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center" title="Sahkan"><i class="fas fa-check-circle text-xs"></i></button>`;
-    else if (statusKey === 'confirmed') btns += `<button onclick="updateStatus('${b.OrderID}', 'Arrived', 'Check-in')" class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Check-in"><i class="fas fa-user-check text-xs"></i></button>`;
     
-    if (statusKey !== 'canceled') {
-        if (payType.includes("deposit")) btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Settle Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
-        else btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Hantar Resit"><i class="fas fa-receipt text-xs"></i></button>`;
+    // 1. Logik Butang Status (Sahkan / Check-in)
+    if (statusKey === 'pending') {
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Confirmed', 'Sahkan')" class="w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center" title="Sahkan Tempahan"><i class="fas fa-check-circle text-xs"></i></button>`;
+    } else if (statusKey === 'confirmed') {
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Arrived', 'Check-in')" class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Check-in"><i class="fas fa-user-check text-xs"></i></button>`;
     }
+
+    // --- 2. LOGIK n8n (Settle Baki & Jana Resit) ---
+    if (statusKey !== 'canceled') {
+        
+        // A. Butang Settle Baki: Hanya keluar jika PaymentType adalah 'deposit'
+        if (payType.includes("deposit")) {
+            btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Settle Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
+        }
+
+        // B. Butang Jana Resit: SENTIASA KELUAR untuk semua status aktif (termasuk deposit)
+        btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Hantar Resit"><i class="fas fa-receipt text-xs"></i></button>`;
+    }
+
+    // 3. Logik Butang Edit (Slate)
     btns += `<button onclick="editCustomer('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition flex items-center justify-center" title="Edit"><i class="fas fa-edit text-xs"></i></button>`;
-    
-    if (statusKey === 'canceled') btns += `<button onclick="deleteBooking('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center" title="Padam Database"><i class="fas fa-trash-alt text-xs"></i></button>`;
-    else btns += `<button onclick="updateStatus('${b.OrderID}', 'Canceled', 'Batal')" class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 hover:bg-orange-600 hover:text-white transition flex items-center justify-center" title="Batal"><i class="fas fa-times-circle text-xs"></i></button>`;
+
+    // 4. Logik Butang Batal vs Padam (Danger Zone)
+    if (statusKey === 'canceled') {
+        btns += `<button onclick="deleteBooking('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center" title="Padam Database"><i class="fas fa-trash-alt text-xs"></i></button>`;
+    } else {
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Canceled', 'Batal')" class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 hover:bg-orange-600 hover:text-white transition flex items-center justify-center" title="Batal"><i class="fas fa-times-circle text-xs"></i></button>`;
+    }
     
     return btns;
 }
@@ -546,3 +535,184 @@ function getAddOnsSummary() {
 
 window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; };
 window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = 'auto'; };
+
+// 1. Bina Jadual Perbandingan
+window.showComparison = function() {
+    const tableBody = document.getElementById('comparisonTableBody');
+    tableBody.innerHTML = "";
+    
+    // Senarai kunci data untuk dibandingkan (Ikut rupa header table)
+    const fields = [
+        { label: 'Nama', id: 'form-name', key: 'Name' },
+        { label: 'Telefon', id: 'form-phone', key: 'Phone' },
+        { label: 'Tema', id: 'form-theme', key: 'Theme' },
+        { label: 'Pakej', id: 'form-package', key: 'Package' },
+        { label: 'Tarikh', id: 'form-date', key: 'Date' },
+        { label: 'Masa', id: 'form-time', key: 'Time' },
+        { label: 'Frame', id: 'form-frame', key: 'Frame' },
+        { label: 'Pax', id: '', custom: () => `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`, key: 'Pax' },
+        { label: 'Jumlah (RM)', id: 'form-total', key: 'TotalPrice', isText: true }
+    ];
+
+    let changeCount = 0;
+
+    fields.forEach(f => {
+        let newVal = f.custom ? f.custom() : (f.isText ? document.getElementById(f.id).innerText : document.getElementById(f.id).value);
+        let oldVal = f.key === 'Date' ? normalizeDate(originalDataCopy[f.key]) : originalDataCopy[f.key];
+
+        // Jika data berubah
+        if (String(newVal).trim() !== String(oldVal).trim()) {
+            changeCount++;
+            tableBody.innerHTML += `
+                <tr class="border-b border-white">
+                    <td class="p-3 font-bold text-slate-500">${f.label}</td>
+                    <td class="p-3 text-slate-400 line-through">${oldVal || '-'}</td>
+                    <td class="p-3 text-green-600 font-black">${newVal}</td>
+                </tr>`;
+        }
+    });
+
+    if (changeCount === 0) {
+        tableBody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400 italic">Tiada sebarang perubahan dikesan pada data.</td></tr>`;
+    }
+
+    document.getElementById('customerForm').classList.add('hidden');
+    document.getElementById('editReviewSection').classList.remove('hidden');
+};
+
+// 2. Patah Balik ke Form
+window.backToEdit = function() {
+    document.getElementById('customerForm').classList.remove('hidden');
+    document.getElementById('editReviewSection').classList.add('hidden');
+};
+
+// 3. Simpan & Trigger n8n (Jika diminta)
+window.finalSaveBooking = async function(shouldNotify) {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+
+    const orderID = document.getElementById('form-orderID').value;
+    const paxString = `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`;
+
+    const payload = {
+        action: "update_customer_full",
+        orderID: orderID,
+        name: document.getElementById('form-name').value,
+        phone: formatPhoneForDB(document.getElementById('form-phone').value),
+        theme: document.getElementById('form-theme').value,
+        package: document.getElementById('form-package').value,
+        date: document.getElementById('form-date').value,
+        time: document.getElementById('form-time').value,
+        pax: paxString,
+        addOns: getAddOnsSummary(),
+        frame: cleanFrameForDB(document.getElementById('form-frame').value),
+        photoNumber: document.getElementById('form-photoNumber').value,
+        photographer: document.getElementById('form-photographer').value,
+        totalPrice: document.getElementById('form-total').innerText,
+    };
+
+    try {
+        // A. SIMPAN KE GOOGLE SPREADSHEET
+        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+
+        // B. HANTAR KE n8n (Hanya jika butang Simpan & Hantar ditekan)
+        if (shouldNotify) {
+            const n8nPayload = {
+                trigger: "update_confirmation", // Trigger baru untuk n8n
+                ...payload
+            };
+            await fetch(N8N_WEBHOOK_URL, { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(n8nPayload) 
+            });
+        }
+
+        alert(shouldNotify ? "Data disimpan & notifikasi dihantar!" : "Data berjaya dikemaskini!");
+        closeModal('customerModal');
+        fetchData();
+    } catch (err) {
+        alert("Ralat teknikal berlaku.");
+        btn.disabled = false;
+        btn.innerHTML = "Cuba Semula";
+    }
+};
+
+// ========================================================
+// LOGIK SEMAK SLOT & DOUBLE BOOKING (ADMIN VERSION)
+// ========================================================
+
+window.fetchAdminSlots = async function() {
+    const date = document.getElementById('form-date').value;
+    const theme = document.getElementById('form-theme').value;
+    const container = document.getElementById('admin-slot-container');
+    const warning = document.getElementById('admin-slot-warning');
+
+    if (!date || !theme || !container) return;
+
+    container.innerHTML = "<p class='col-span-4 text-[10px] text-slate-400 animate-pulse'>Menyemak kekosongan...</p>";
+    if(warning) warning.classList.add('hidden');
+
+    try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=check_slots&date=${date}&theme=${encodeURIComponent(theme)}`);
+        const data = await res.json();
+        renderAdminTimeSlots(data.bookedSlotIds || []);
+    } catch (e) {
+        container.innerHTML = "<p class='col-span-4 text-[10px] text-red-400'>Gagal semak database.</p>";
+    }
+};
+
+function renderAdminTimeSlots(bookedSlots) {
+    const container = document.getElementById('admin-slot-container');
+    const timeSelect = document.getElementById('form-time');
+    const warning = document.getElementById('admin-slot-warning');
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    // Guna list masa yang sama dengan sistem booking
+    const SLOTS = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30"];
+
+    SLOTS.forEach(time => {
+        // Tanda penuh jika: Tema sama dah ada jam tu OR 5 photographer dah penuh jam tu
+        const isFull = bookedSlots.includes(time) || bookedSlots.includes(`${document.getElementById('form-theme').value}_${time}`);
+        
+        // Pengecualian: Jika jam ni milik asal customer yang kita tgh edit, tanda dia 'Available'
+        const isOriginal = (originalDataCopy && time === originalDataCopy.Time && document.getElementById('form-date').value === normalizeDate(originalDataCopy.Date));
+
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.innerText = time;
+        
+        // Styling Butang
+        if (isFull && !isOriginal) {
+            btn.className = "p-2 text-[9px] font-bold rounded-lg bg-red-50 text-red-400 border border-red-100 hover:bg-red-500 hover:text-white transition";
+            btn.title = "Slot Bertindih (Double Booking)";
+        } else {
+            btn.className = "p-2 text-[9px] font-bold rounded-lg bg-white text-slate-600 border border-slate-200 hover:border-amber-500 transition";
+        }
+
+        // Highlight kalau jam ni yang terpilih dalam dropdown
+        if (time === timeSelect.value) {
+            btn.classList.add('ring-2', 'ring-amber-500', 'bg-amber-50');
+            if (isFull && !isOriginal && warning) warning.classList.remove('hidden');
+        }
+
+        btn.onclick = () => {
+            timeSelect.value = time; // Update dropdown utama
+            // Update UI butang
+            Array.from(container.children).forEach(b => b.classList.remove('ring-2', 'ring-amber-500', 'bg-amber-50'));
+            btn.classList.add('ring-2', 'ring-amber-500', 'bg-amber-50');
+            
+            // Tunjuk/Sorok amaran
+            if (isFull && !isOriginal) {
+                if(warning) warning.classList.remove('hidden');
+            } else {
+                if(warning) warning.classList.add('hidden');
+            }
+        };
+
+        container.appendChild(btn);
+    });
+}

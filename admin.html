@@ -145,7 +145,7 @@
 
                 <div class="col-span-2 md:col-span-1">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tema Raya</label>
-                    <select id="form-theme" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 outline-none font-bold" onchange="recalculatePrice()"></select></div>
+                    <select id="form-theme" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 outline-none font-bold" onchange="recalculatePrice(); fetchAdminSlots();"></select></div>
                 <div class="col-span-2 md:col-span-1">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Pakej</label>
                     <!-- Di dalam form-package select -->
@@ -158,8 +158,19 @@
                     </select>
                 </div>
 
-                <div class="col-span-2 md:col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tarikh</label><input type="date" id="form-date" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500"></div>
-                <div class="col-span-2 md:col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slot Masa</label><select id="form-time" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500"></select></div>
+                <div class="col-span-2 md:col-span-1"><label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tarikh</label><input type="date" id="form-date" onchange="fetchAdminSlots();" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500"></div>
+                <!-- Cari bahagian Slot Masa dalam Form, tmbh kod di bawah ni -->
+                <div class="col-span-2 md:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Slot Masa</label>
+                    <select id="form-time" class="w-full border-2 border-slate-100 rounded-2xl p-4 text-sm mt-1 font-bold outline-none focus:border-amber-500" onchange="checkConflict()">
+                        <!-- Option akan diisi oleh JS -->
+                    </select>
+                    <!-- TAMBAHAN: Ruang untuk grid slot (sama mcm booking.js) -->
+                    <div id="admin-slot-container" class="grid grid-cols-4 gap-2 mt-3"></div>
+                    <p id="admin-slot-warning" class="hidden text-[10px] text-red-500 font-bold mt-2 ml-1">
+                        ⚠️ Amaran: Slot ini sudah diambil oleh pelanggan lain.
+                    </p>
+                </div>
 
                 <div class="col-span-2 grid grid-cols-2 gap-4 bg-slate-50 p-5 rounded-3xl border border-slate-100">
                     <div>
@@ -186,6 +197,43 @@
 
                 <div class="col-span-2 pt-4 flex gap-4"><button type="button" onclick="closeModal('customerModal')" class="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-slate-500 text-[10px] uppercase tracking-widest">Batal</button><button type="submit" id="btnSave" class="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition shadow-xl">Simpan Data</button></div>
             </form>
+            <!-- KOD BARU: PAPARAN PERBANDINGAN (Letak bawah </form>) -->
+            <div id="editReviewSection" class="hidden p-8 bg-white overflow-y-auto max-h-[75vh] custom-scrollbar">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-white">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-800 uppercase tracking-tighter text-lg">Sahkan Perubahan</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sila semak data sebelum hantar ke n8n</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden mb-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-[9px] font-black uppercase text-slate-500">
+                                <th class="p-3">Perkara</th>
+                                <th class="p-3">Data Asal</th>
+                                <th class="p-3 text-green-600">Data Baru</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparisonTableBody" class="text-[11px]">
+                            <!-- JS akan masukkan baris perbandingan di sini -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    <button type="button" onclick="finalSaveBooking(true)" class="w-full py-4 bg-green-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 shadow-xl shadow-green-100 flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i> SIMPAN & HANTAR CONFIRMATION (n8n)
+                    </button>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="backToEdit()" class="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-slate-500 text-[10px] uppercase tracking-widest">Patah Balik</button>
+                        <button type="button" onclick="finalSaveBooking(false)" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">Simpan Sahaja</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
