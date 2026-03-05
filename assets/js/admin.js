@@ -176,7 +176,16 @@ window.recalculatePrice = function() {
 
 window.saveCustomer = function(e) {
     e.preventDefault();
-    showComparison(); // Panggil paparan perbandingan
+    const orderID = document.getElementById('form-orderID').value;
+
+    // Jika Walk-in: Terus simpan tanpa page perbandingan
+    if (orderID === "MANUAL" || orderID === "") {
+        window.finalSaveBooking(false); 
+    } 
+    // Jika Edit: Tunjuk Perbandingan Dulu
+    else {
+        window.showComparison();
+    }
 };
 
 window.editCustomer = function(id) {
@@ -539,9 +548,9 @@ window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'
 // 1. Bina Jadual Perbandingan
 window.showComparison = function() {
     const tableBody = document.getElementById('comparisonTableBody');
+    if(!tableBody) return;
     tableBody.innerHTML = "";
     
-    // Senarai kunci data untuk dibandingkan (Ikut rupa header table)
     const fields = [
         { label: 'Nama', id: 'form-name', key: 'Name' },
         { label: 'Telefon', id: 'form-phone', key: 'Phone' },
@@ -557,10 +566,14 @@ window.showComparison = function() {
     let changeCount = 0;
 
     fields.forEach(f => {
-        let newVal = f.custom ? f.custom() : (f.isText ? document.getElementById(f.id).innerText : document.getElementById(f.id).value);
-        let oldVal = f.key === 'Date' ? normalizeDate(originalDataCopy[f.key]) : originalDataCopy[f.key];
+        const newVal = f.custom ? f.custom() : (f.isText ? document.getElementById(f.id).innerText : document.getElementById(f.id).value);
+        
+        // SAFETY FIX: Check kalau originalDataCopy wujud
+        let oldVal = "-";
+        if (originalDataCopy && originalDataCopy[f.key] !== undefined) {
+            oldVal = f.key === 'Date' ? normalizeDate(originalDataCopy[f.key]) : originalDataCopy[f.key];
+        }
 
-        // Jika data berubah
         if (String(newVal).trim() !== String(oldVal).trim()) {
             changeCount++;
             tableBody.innerHTML += `
@@ -573,7 +586,7 @@ window.showComparison = function() {
     });
 
     if (changeCount === 0) {
-        tableBody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400 italic">Tiada sebarang perubahan dikesan pada data.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-400 italic">Tiada sebarang perubahan dikesan.</td></tr>`;
     }
 
     document.getElementById('customerForm').classList.add('hidden');
@@ -588,15 +601,17 @@ window.backToEdit = function() {
 
 // 3. Simpan & Trigger n8n (Jika diminta)
 window.finalSaveBooking = async function(shouldNotify) {
-    const btn = event.currentTarget;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+    const btn = document.getElementById('btnSave');
+    const originalText = btn ? btn.innerText : "Simpan Data";
 
+    // 1. Tentukan jenis action berdasarkan orderID
     const orderID = document.getElementById('form-orderID').value;
-    const paxString = `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`;
+    const isWalkIn = (orderID === "MANUAL" || orderID === "");
+    const actionType = isWalkIn ? "save_booking" : "update_customer_full";
 
+    // 2. Bina Data Payload (Pastikan nama variable sama mcm sedia ada)
     const payload = {
-        action: "update_customer_full",
+        action: actionType,
         orderID: orderID,
         name: document.getElementById('form-name').value,
         phone: formatPhoneForDB(document.getElementById('form-phone').value),
@@ -604,38 +619,55 @@ window.finalSaveBooking = async function(shouldNotify) {
         package: document.getElementById('form-package').value,
         date: document.getElementById('form-date').value,
         time: document.getElementById('form-time').value,
-        pax: paxString,
+        pax: `${document.getElementById('form-pax-adult').value} Dewasa, ${document.getElementById('form-pax-kid').value} Kanak-kanak`,
         addOns: getAddOnsSummary(),
         frame: cleanFrameForDB(document.getElementById('form-frame').value),
         photoNumber: document.getElementById('form-photoNumber').value,
         photographer: document.getElementById('form-photographer').value,
         totalPrice: document.getElementById('form-total').innerText,
+        // Label bayaran walkin yang Tuan minta
+        paymentType: isWalkIn ? "FULL (WALK-IN)" : (originalDataCopy ? originalDataCopy.PaymentType : "Updated via Admin"),
+        status: "Confirmed"
     };
 
+    if(btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sinking...';
+    }
+
     try {
-        // A. SIMPAN KE GOOGLE SPREADSHEET
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        // Hantar ke Apps Script (Wajib tanpa no-cors supaya kita boleh baca status kejayaan)
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
 
-        // B. HANTAR KE n8n (Hanya jika butang Simpan & Hantar ditekan)
-        if (shouldNotify) {
-            const n8nPayload = {
-                trigger: "update_confirmation", // Trigger baru untuk n8n
-                ...payload
-            };
-            await fetch(N8N_WEBHOOK_URL, { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify(n8nPayload) 
-            });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            // Hantar ke n8n (Hanya jika butang Simpan & Hantar ditekan DAN ianya bukan Walk-in)
+            if (shouldNotify && !isWalkIn) {
+                await fetch(N8N_WEBHOOK_URL, { 
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ trigger: "update_confirmation", ...payload }) 
+                });
+            }
+
+            alert(isWalkIn ? "Walk-in Berjaya Disimpan!" : "Data Berjaya Dikemaskini!");
+            closeModal('customerModal');
+            fetchData(); // Tarik data fresh
+        } else {
+            alert("Ralat Database: " + result.message);
         }
-
-        alert(shouldNotify ? "Data disimpan & notifikasi dihantar!" : "Data berjaya dikemaskini!");
-        closeModal('customerModal');
-        fetchData();
     } catch (err) {
-        alert("Ralat teknikal berlaku.");
-        btn.disabled = false;
-        btn.innerHTML = "Cuba Semula";
+        console.error("Save Error:", err);
+        alert("Database Error! Sila pastikan Apps Script di-deploy sebagai 'Anyone'.");
+    } finally {
+        if(btn) {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
     }
 };
 
