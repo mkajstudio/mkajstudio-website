@@ -243,6 +243,7 @@ function checkThemeType() {
             catL.className = "text-[10px] font-bold mt-1 text-green-600 uppercase";
         }
     }
+    resetDateUI();
 }
 // --- 5. PAX & PROMO LOGIC ---
 function updatePax(type, change) {
