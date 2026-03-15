@@ -10,10 +10,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .toggle-active { background-color: #eab308; color: #000; shadow: 0 0 15px rgba(234,179,8,0.4); }
-        .input-dark { background-color: #1e293b; border: 1px solid #334155; color: white; padding: 0.5rem; border-radius: 0.5rem; width: 100%; outline: none; transition: 0.2s; }
+        .toggle-active { background-color: #eab308; color: #000; box-shadow: 0 0 15px rgba(234,179,8,0.4); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        .modal-bg { background-color: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen">
@@ -22,7 +22,7 @@
     <nav class="p-6 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 text-slate-950 w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl">B</div>
+                <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 text-slate-950 w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-yellow-500/20">B</div>
                 <div>
                     <h1 class="text-xl font-black tracking-tighter text-white uppercase leading-none">MKAJ <span class="text-yellow-500">HQ</span></h1>
                     <p id="reportTitle" class="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Laporan Keseluruhan</p>
@@ -52,79 +52,103 @@
         <!-- FINANCIAL OVERVIEW -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 relative overflow-hidden group">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Kutipan Kasar</p>
-                <h2 id="totalRevenue" class="text-4xl font-black text-white">RM 0</h2>
-                <div class="mt-4"><span class="bg-green-500/10 text-green-500 text-[10px] px-2 py-1 rounded font-bold uppercase">Paid & Confirmed</span></div>
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 leading-none">Kutipan Kasar</p>
+                <h2 id="totalRevenue" class="text-4xl font-black text-white mt-2">RM 0</h2>
+                <div class="mt-4"><span class="bg-green-500/10 text-green-500 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tighter">Gross Income</span></div>
             </div>
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 relative overflow-hidden">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Untung Bersih (Est.)</p>
-                <h2 id="netProfit" class="text-4xl font-black text-emerald-400">RM 0</h2>
-                <p class="text-[9px] text-slate-500 mt-2 italic">*Revenue - Payroll - Teknikal</p>
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 text-emerald-500 leading-none">Untung Bersih (Est.)</p>
+                <h2 id="netProfit" class="text-4xl font-black text-emerald-400 mt-2">RM 0</h2>
+                <p class="text-[9px] text-slate-500 mt-2 italic">*Kasar - Gaji - Kos Profesional</p>
             </div>
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 relative overflow-hidden">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Jumlah Sesi</p>
-                <h2 id="totalBookings" class="text-4xl font-black text-blue-400">0</h2>
-                <p class="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tighter">Total <span id="paxCount">0</span> Pax Terlibat</p>
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 leading-none">Bilangan Sesi</p>
+                <h2 id="totalBookings" class="text-4xl font-black text-blue-400 mt-2">0</h2>
+                <p class="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tighter"><span id="paxCount">0</span> Orang Peserta</p>
             </div>
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 relative overflow-hidden">
-                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Kos Teknikal</p>
-                <h2 id="totalTech" class="text-4xl font-black text-orange-400">RM 0</h2>
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1 leading-none">Kos Profesional</p>
+                <h2 id="totalTech" class="text-4xl font-black text-orange-400 mt-2">RM 0</h2>
                 <p class="text-[9px] text-slate-500 mt-2 uppercase font-bold">RM20 per sesi</p>
             </div>
         </div>
 
-        <!-- PAYROLL -->
+        <!-- PAYROLL SECTION -->
         <div class="flex items-center justify-between mb-6 border-l-4 border-yellow-500 pl-4">
             <div>
-                <h3 class="text-xl font-black uppercase tracking-widest text-white">Gaji & Komisen Staff</h3>
-                <p class="text-[10px] text-slate-500 font-bold uppercase">Pengiraan berdasarkan sesi (RM10/job)</p>
+                <h3 class="text-xl font-black uppercase tracking-widest text-white">Prestasi Gaji Staff</h3>
+                <p class="text-[10px] text-slate-500 font-bold uppercase">Basic + Komisen (RM10/job)</p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] text-slate-500 font-bold uppercase">Total Kos Gaji</p>
-                <p id="totalPayroll" class="text-xl font-black text-rose-500">RM 0</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase leading-none">Jumlah Beban Gaji</p>
+                <p id="totalPayroll" class="text-xl font-black text-rose-500 mt-1">RM 0</p>
             </div>
         </div>
-        <div id="payrollGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"></div>
+        <div id="payrollGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"></div>
 
-        <!-- CHARTS -->
+        <!-- CHARTS SECTION -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             <div class="lg:col-span-2 bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl">
-                <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-6"><i class="fas fa-chart-bar mr-2 text-yellow-500"></i> Prestasi Sesi</h3>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-6"><i class="fas fa-chart-bar mr-2 text-yellow-500"></i> Trend Sesi</h3>
                 <div class="h-64"><canvas id="salesChart"></canvas></div>
             </div>
             <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl flex flex-col">
-                <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-4"><i class="fas fa-chart-pie mr-2 text-pink-500"></i> Populariti Tema</h3>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-white mb-4"><i class="fas fa-chart-pie mr-2 text-pink-500"></i> Tema Popular</h3>
                 <div class="flex-grow flex items-center justify-center relative"><canvas id="themeChart"></canvas></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL SCHEDULE (Kekal) -->
-    <div id="scheduleModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+    <!-- MODAL: JADUAL SHOOTER -->
+    <div id="scheduleModal" class="hidden fixed inset-0 modal-bg z-[100] flex items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-4xl h-[85vh] rounded-[2.5rem] shadow-2xl border border-slate-800 flex flex-col overflow-hidden">
             <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900">
-                <div><h2 class="text-2xl font-black text-white uppercase">Jadual Tugasan</h2></div>
+                <div>
+                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Jadual Tugasan</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Semak slot mengikut nama krew</p>
+                </div>
                 <button onclick="toggleModal('scheduleModal', false)" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-500 transition flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6 flex flex-col h-full overflow-hidden">
-                <select id="modalShooterSelect" onchange="renderSchedule()" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl font-bold mb-6">
-                    <option value="Photographer 1">Photographer 1</option>
-                    <option value="Photographer 2">Photographer 2</option>
-                </select>
-                <div id="scheduleList" class="flex-1 overflow-y-auto custom-scrollbar space-y-2"></div>
+                <div class="mb-6">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Pilih Photographer</label>
+                    <select id="modalShooterSelect" onchange="renderSchedule()" class="w-full bg-slate-800 text-white border border-slate-700 p-4 rounded-xl font-bold focus:border-yellow-500 outline-none">
+                        <option value="Photographer 1">Photographer 1</option>
+                        <option value="Photographer 2">Photographer 2</option>
+                    </select>
+                </div>
+                <!-- Table Header -->
+                <div class="grid grid-cols-12 gap-2 px-4 mb-2 text-[10px] font-black text-slate-500 uppercase">
+                    <div class="col-span-3">Masa</div>
+                    <div class="col-span-6">Pelanggan</div>
+                    <div class="col-span-3 text-right">Status</div>
+                </div>
+                <div id="scheduleList" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PROMO (Kekal) -->
-    <div id="promoModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <!-- Struktur promoModal tuan sebelum ni dikekalkan -->
-        <div class="bg-slate-900 w-full max-w-5xl h-[85vh] rounded-[2.5rem] shadow-2xl border border-slate-800 flex flex-col overflow-hidden p-8">
-             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-white uppercase">Marketing Center</h2>
-                <button onclick="toggleModal('promoModal', false)" class="text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
-             </div>
-             <p class="text-slate-400 italic">Gunakan Google Sheets SETTINGS tab untuk kawalan promo harian.</p>
+    <!-- MODAL: URUS PROMO -->
+    <div id="promoModal" class="hidden fixed inset-0 modal-bg z-[100] flex items-center justify-center p-4">
+        <div class="bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-slate-800 p-8 text-center">
+            <div class="w-20 h-20 bg-purple-500/10 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-bullhorn text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-2">Marketing Center</h2>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">Kawalan Happy Hour dan Kod Kupon dilakukan melalui tab <b>SETTINGS</b> di Google Sheets Database untuk keselamatan data.</p>
+            
+            <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 text-left space-y-4 mb-8">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300 uppercase">Happy Hour Active</span>
+                    <span class="bg-slate-900 px-3 py-1 rounded-lg text-[10px] font-black text-yellow-500 border border-slate-700 uppercase">Rujuk Sheet</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300 uppercase">Kupon Aktif</span>
+                    <span class="bg-slate-900 px-3 py-1 rounded-lg text-[10px] font-black text-yellow-500 border border-slate-700 uppercase">Rujuk Sheet</span>
+                </div>
+            </div>
+
+            <button onclick="toggleModal('promoModal', false)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest transition">Tutup Panel</button>
         </div>
     </div>
 
@@ -138,6 +162,12 @@
         if (sessionStorage.getItem("boss_auth") !== "true") {
             let p = prompt("KOD RAHSIA BOSS:");
             if(p === BOSS_PIN) sessionStorage.setItem("boss_auth", "true"); else window.location.href = "admin.html";
+        }
+
+        function toggleModal(id, show) {
+            const el = document.getElementById(id);
+            if(show) { el.classList.remove('hidden'); if(id === 'scheduleModal') renderSchedule(); } 
+            else { el.classList.add('hidden'); }
         }
 
         function changeReportMode(mode) {
@@ -155,7 +185,7 @@
                 globalData = await response.json();
                 if(btn) btn.classList.remove('fa-spin');
                 processBossData();
-            } catch (err) { console.error(err); alert("Gagal sambung ke database."); }
+            } catch (err) { alert("Gagal sambung database."); }
         }
 
         function parseDateMY(dateStr) {
@@ -168,10 +198,9 @@
 
         function processBossData() {
             const now = new Date();
-            const todayStr = now.toLocaleDateString('en-CA'); // format YYYY-MM-DD
+            const todayStr = now.toLocaleDateString('en-CA');
             const validStatuses = ['Confirmed', 'Arrived', 'Shooting', 'Finished'];
 
-            // Tapis data berdasarkan mode (Harian vs Keseluruhan)
             let filteredData = globalData.filter(r => validStatuses.includes(r.Status));
 
             if (reportMode === 'harian') {
@@ -181,86 +210,92 @@
                 });
             }
 
-            let totalRevenue = 0;
-            let totalPax = 0;
+            let totalRevenue = 0, totalPax = 0;
             let staffStats = {
-                "Photographer 1": { basic: 2000, jobs: 0 },
-                "Photographer 2": { basic: 2000, jobs: 0 },
-                "Admin": { basic: 1800, jobs: 0 }
+                "Photographer 1": { basic: 2000, jobs: 0, hasComm: true },
+                "Photographer 2": { basic: 2000, jobs: 0, hasComm: true },
+                "Admin": { basic: 1800, jobs: 0, hasComm: false },
+                "Editor": { basic:2000, jobs: 0, hasComm: false } 
             };
 
             filteredData.forEach(item => {
-                // Kira Revenue
                 totalRevenue += parseFloat(String(item.TotalPrice).replace(/[^0-9.]/g, '')) || 0;
-                
-                // Kira Pax
                 let paxStr = item.Pax || "";
                 let adults = parseInt(paxStr.match(/(\d+)\s*Dewasa/)?.[1] || 0);
                 let kids = parseInt(paxStr.match(/(\d+)\s*Kanak/)?.[1] || 0);
                 totalPax += (adults + kids);
-
-                // Kira Jobs per staff
                 let p = (item.Photographer || "").trim();
                 if(staffStats[p]) staffStats[p].jobs++;
             });
 
-            // Kos Teknikal (RM20 per sesi)
-            const totalTechCost = filteredData.length * 20;
-
-            // Pengiraan Gaji
-            let totalPayrollCost = 0;
-            let payrollHTML = "";
+            const professionalCost = filteredData.length * 20;
+            let totalPayrollCost = 0, payrollHTML = "";
 
             Object.entries(staffStats).forEach(([name, info]) => {
-                let commission = (name !== "Admin") ? (info.jobs * 10) : 0;
-                
-                // Jika Harian, kita tunjuk "Daily Weight" gaji basic (Basic / 30 hari)
-                // Jika Overall, tunjuk gaji penuh
+                let commission = info.hasComm ? (info.jobs * 10) : 0;
                 let displayBasic = (reportMode === 'harian') ? (info.basic / 30) : info.basic;
                 let totalGajiStaff = displayBasic + commission;
-                
                 totalPayrollCost += totalGajiStaff;
 
                 payrollHTML += `
-                    <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl">
+                    <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-xl">
                         <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="font-black text-white text-sm uppercase tracking-wider">${name}</h4>
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 mt-1 inline-block">RM ${info.basic} Basic</span>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Gaji + Komisen</p>
-                                <p class="text-xl font-black text-yellow-500">RM ${Math.round(totalGajiStaff).toLocaleString()}</p>
-                            </div>
+                            <div><h4 class="font-black text-white text-[10px] uppercase">${name}</h4><span class="text-[8px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 mt-1 inline-block">RM ${Math.round(displayBasic)} Basic</span></div>
+                            <div class="text-right"><p class="text-[8px] font-bold text-slate-500 uppercase leading-none">Gaji Staff</p><p class="text-lg font-black text-yellow-500">RM ${Math.round(totalGajiStaff).toLocaleString()}</p></div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 pt-4 border-t border-slate-800">
-                            <div><p class="text-[9px] font-bold text-slate-500 uppercase">Jobs Done</p><p class="text-lg font-bold text-white">${info.jobs}</p></div>
-                            <div class="text-right"><p class="text-[9px] font-bold text-slate-500 uppercase">Komisyen</p><p class="text-lg font-bold text-emerald-400">+RM ${commission}</p></div>
+                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800">
+                            <div><p class="text-[8px] font-black text-slate-500 uppercase">Jobs</p><p class="text-md font-bold text-white">${info.jobs}</p></div>
+                            <div class="text-right"><p class="text-[8px] font-black text-slate-500 uppercase">Comm</p><p class="text-md font-bold text-emerald-400">+RM ${commission}</p></div>
                         </div>
                     </div>
                 `;
             });
 
-            // Update UI
             document.getElementById('totalRevenue').innerText = `RM ${totalRevenue.toLocaleString()}`;
-            document.getElementById('totalTech').innerText = `RM ${totalTechCost.toLocaleString()}`;
+            document.getElementById('totalTech').innerText = `RM ${professionalCost.toLocaleString()}`;
             document.getElementById('totalBookings').innerText = filteredData.length;
             document.getElementById('paxCount').innerText = totalPax;
             document.getElementById('totalPayroll').innerText = `RM ${Math.round(totalPayrollCost).toLocaleString()}`;
             document.getElementById('payrollGrid').innerHTML = payrollHTML;
-            
-            // Untung Bersih: Revenue - (Gaji Staff + Komisen Teknikal)
-            const netProfitValue = totalRevenue - (totalPayrollCost + totalTechCost);
-            document.getElementById('netProfit').innerText = `RM ${Math.round(netProfitValue).toLocaleString()}`;
+            document.getElementById('netProfit').innerText = `RM ${Math.round(totalRevenue - (totalPayrollCost + professionalCost)).toLocaleString()}`;
 
             renderCharts(filteredData);
         }
 
+        function renderSchedule() {
+            const shooter = document.getElementById('modalShooterSelect').value;
+            const container = document.getElementById('scheduleList');
+            container.innerHTML = '';
+            
+            let scheduleData = globalData.filter(r => r.Photographer === shooter);
+            scheduleData.sort((a, b) => parseDateMY(a.Date) - parseDateMY(b.Date) || a.Time.localeCompare(b.Time));
+
+            if (scheduleData.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-slate-600 italic text-sm">Tiada tugasan untuk ${shooter}.</div>`;
+                return;
+            }
+
+            let lastDate = "";
+            scheduleData.forEach(item => {
+                const dateStr = parseDateMY(item.Date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' });
+                if(dateStr !== lastDate) {
+                    container.innerHTML += `<div class="bg-slate-800 px-4 py-2 rounded-lg text-[10px] font-black uppercase text-yellow-500 mt-4 mb-2 sticky top-0">${dateStr}</div>`;
+                    lastDate = dateStr;
+                }
+                container.innerHTML += `
+                    <div class="grid grid-cols-12 gap-2 px-4 py-4 bg-slate-800/40 rounded-2xl items-center hover:bg-slate-800 transition border border-slate-800/50">
+                        <div class="col-span-3 text-xs font-black text-white">${item.Time}</div>
+                        <div class="col-span-6"><p class="text-xs font-bold text-slate-300 truncate">${item.Name}</p><p class="text-[9px] text-slate-500 uppercase font-bold">${item.Theme}</p></div>
+                        <div class="col-span-3 text-right"><span class="text-[9px] font-black uppercase text-slate-600">${item.Status}</span></div>
+                    </div>
+                `;
+            });
+        }
+
         function renderCharts(data) {
-            // Chart 1: Harian (Sales Trend)
             const salesByDate = {};
             data.forEach(item => {
-                const d = parseDateMY(item.Date).toLocaleDateString('en-MY', { day: '2-digit', month: '2-digit' });
+                const d = parseDateMY(item.Date).toLocaleDateString('ms-MY', { day: '2-digit', month: '2-digit' });
                 salesByDate[d] = (salesByDate[d] || 0) + 1;
             });
             const sortedDates = Object.keys(salesByDate).sort();
@@ -273,7 +308,6 @@
                 data: {
                     labels: sortedDates,
                     datasets: [{
-                        label: 'Sesi',
                         data: counts,
                         borderColor: '#eab308',
                         backgroundColor: 'rgba(234, 179, 8, 0.1)',
@@ -285,7 +319,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // Chart 2: Theme Pie
             const themeCounts = {};
             data.forEach(item => {
                 let t = (item.Theme || "Unknown").split('(')[0].trim();
@@ -304,42 +337,7 @@
                         borderWidth: 0
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
-            });
-        }
-
-        function toggleModal(id, show) {
-            const el = document.getElementById(id);
-            if(show) { el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
-        }
-
-        function renderSchedule() {
-            const shooter = document.getElementById('modalShooterSelect').value;
-            const container = document.getElementById('scheduleList');
-            container.innerHTML = '';
-            
-            let scheduleData = globalData.filter(r => r.Photographer === shooter);
-            scheduleData.sort((a, b) => parseDateMY(a.Date) - parseDateMY(b.Date) || a.Time.localeCompare(b.Time));
-
-            if (scheduleData.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-500 italic">Tiada tugasan untuk ${shooter}.</div>`;
-                return;
-            }
-
-            let lastDate = "";
-            scheduleData.forEach(item => {
-                const dateStr = parseDateMY(item.Date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' });
-                if(dateStr !== lastDate) {
-                    container.innerHTML += `<div class="bg-slate-800 px-4 py-2 rounded-lg text-[10px] font-black uppercase text-yellow-500 mt-4 mb-2 sticky top-0">${dateStr}</div>`;
-                    lastDate = dateStr;
-                }
-                container.innerHTML += `
-                    <div class="grid grid-cols-12 gap-2 px-4 py-3 bg-slate-800/50 rounded-xl items-center hover:bg-slate-700 transition">
-                        <div class="col-span-3 text-xs font-bold text-white">${item.Time}</div>
-                        <div class="col-span-5"><p class="text-xs font-bold text-white truncate">${item.Name}</p></div>
-                        <div class="col-span-4 text-right text-[9px] font-black uppercase text-slate-500">${item.Status}</div>
-                    </div>
-                `;
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 9 } } } } }
             });
         }
 
