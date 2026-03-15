@@ -356,16 +356,16 @@ const rayaThemesDetail = {
     },
 
         // TEMA MINI
-    'old_luxury': {
-        title: "Old Luxury",
-        type: "mini", // Rujuk rayaPackages.mini
-        categoryName: "TEMA MINI",
-        colorClass: "text-slate-600 bg-slate-100 border-slate-300",
-        tagline: "Classic & Timeless.",
-        desc: "Tema klasik eksklusif. Sesuai untuk potret keluarga kecil.",
-        images: ["assets/images/themes/coming_soon.webp"], 
-        inclusions: ["Sesi 15 Minit", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Terhad kepada: 2 Dewasa + 2 Kanak-kanak"]
-    }
+    //'old_luxury': {
+        //title: "Old Luxury",
+        //type: "mini", // Rujuk rayaPackages.mini
+        //categoryName: "TEMA MINI",
+        //colorClass: "text-slate-600 bg-slate-100 border-slate-300",
+        //tagline: "Classic & Timeless.",
+        //desc: "Tema klasik eksklusif. Sesuai untuk potret keluarga kecil.",
+        //images: ["assets/images/themes/coming_soon.webp"], 
+        //inclusions: ["Sesi 15 Minit", "Unlimited Shoot & Pose", "Softcopy Google Drive (48 jam)", "Terhad kepada: 2 Dewasa + 2 Kanak-kanak"]
+    //}
     
     // TEMA STANDARD (FAMILY - PAKEJ 1, 2, 3)
     
