@@ -3,13 +3,14 @@
  * Updates: Robust Null-Checking, Pakej V2.0 Logic, Phone Fix, n8n Sync
  */
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXKLftbtoz2du4v5O_mYrd4ROwdq5I739Lur1UMHGwoOgzPcrX2MEWD9UXXrV40n8/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwomT7kv-Eb9Q6Gk7XWgeUHUaCLgNQ6yO6Quapiavip_aESIF3tg7XzB9RAl7xLqK_Q/exec";
 const N8N_WEBHOOK_URL = "https://api.mkajstudio.com/webhook/mkaj-settle-balance"; 
 
 let allBookings = [];
 let currentView = 'table'; 
 let sortConfig = { key: 'Date', direction: 'asc' }; 
 let originalDataCopy = null; // Simpan data asal untuk dibandingkan
+let searchTimeout = null; // Variable baru untuk kawal delay carian
 
 // --- KOD PIN ADMIN ---
 const ADMIN_PIN = "0000"; // <--- Tukar nombor PIN Tuan di sini
@@ -188,11 +189,12 @@ window.saveCustomer = function(e) {
     }
 };
 
-window.editCustomer = function(id) {
-    const b = allBookings.find(x => String(x.OrderID) === String(id));
+window.editCustomer = function(id, rowIndex) {
+    const b = allBookings.find(x => x.row_index === rowIndex);
     if(!b) { alert("Data tidak dijumpai."); return; }
 
     // --- TAMBAHAN BARU ---
+    document.getElementById('form-orderID').setAttribute('data-row', rowIndex);
     originalDataCopy = JSON.parse(JSON.stringify(b)); // Salin data asal secara mendalam
     document.getElementById('customerForm').classList.remove('hidden'); 
     document.getElementById('editReviewSection').classList.add('hidden');
@@ -253,6 +255,13 @@ window.editCustomer = function(id) {
     }
 };
 
+window.debounceFilter = function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        applyFilters();
+    }, 300); // Tunggu 300ms selepas berhenti menaip baru proses
+};
+
 // ==========================================
 // 5. VIEW, FILTERS & SORTING
 // ==========================================
@@ -308,19 +317,29 @@ function renderMainView(data) {
 function renderTable(data) {
     const tbody = document.getElementById('adminTableBody');
     if (!tbody) return;
-    tbody.innerHTML = "";
+
+    let htmlBuffer = []; // Accumulator untuk kelajuan
     let lastDate = "";
 
     data.forEach(b => {
         const currentDate = formatDateUI(b.Date);
+        
+        // 1. Logik Separator Tarikh
         if (currentDate !== lastDate) {
-            tbody.innerHTML += `<tr class="date-separator-row"><td colspan="9" class="p-3 text-center date-separator-text"><i class="far fa-calendar-alt mr-2"></i> ${currentDate}</td></tr>`;
+            htmlBuffer.push(`
+                <tr class="date-separator-row">
+                    <td colspan="9" class="p-3 text-center date-separator-text">
+                        <i class="far fa-calendar-alt mr-2"></i> ${currentDate}
+                    </td>
+                </tr>`);
             lastDate = currentDate;
         }
+
         const statusKey = (b.Status || "pending").toLowerCase().replace(/\s/g, '');
         const payType = (b.PaymentType || "").toLowerCase();
         
-        tbody.innerHTML += `
+        // 2. Bina Baris Data
+        htmlBuffer.push(`
             <tr class="hover:bg-slate-100 transition border-b border-slate-100 row-${statusKey}">
                 <td class="p-5 font-black text-slate-700 text-xs">${b.Time}</td>
                 <td class="p-5">
@@ -328,24 +347,41 @@ function renderTable(data) {
                     <div class="font-bold text-slate-800 leading-tight">${b.Name}</div>
                     <div class="text-[11px] text-slate-400 font-medium">${b.Phone}</div>
                 </td>
-                <td class="p-5"><div class="font-bold text-slate-700 text-xs">${b.Theme}</div><div class="text-[9px] text-slate-400 font-black uppercase truncate max-w-[120px]">${b.Package}</div></td>
+                <td class="p-5">
+                    <div class="font-bold text-slate-700 text-xs">${b.Theme}</div>
+                    <div class="text-[9px] text-slate-400 font-black uppercase truncate max-w-[120px]">${b.Package}</div>
+                </td>
                 <td class="p-5 text-[11px] font-bold text-slate-600">${b.Pax || '-'}</td>
                 <td class="p-5 text-[11px] font-bold text-slate-600">${b.AddOns || '-'}</td>
                 <td class="p-5">
                     <div class="text-blue-600 font-bold text-[11px]">${b.Frame !== 'Tiada' ? b.Frame : '<span class="text-slate-300 italic">Tiada Frame</span>'}</div>
                     ${b.PhotoNumber ? `<div class="mt-1"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[9px] font-black uppercase">IMG: ${b.PhotoNumber}</span></div>` : ''}
                 </td>
-                <td class="p-5"><div class="text-[10px] font-black uppercase text-slate-400 leading-tight">${b.PaymentType || 'Manual'}</div><div class="text-sm font-black">RM ${b.TotalPrice || '0'}</div></td>
-                <td class="p-5 text-center border-l border-slate-200/50"><span class="status-badge status-${statusKey}">${b.Status}</span><div class="text-[9px] text-slate-400 mt-1 font-black uppercase tracking-tighter">${b.Photographer || 'TBA'}</div></td>
-                <td class="p-5 text-center border-l border-slate-200/50"><div class="flex flex-wrap justify-center gap-1.5 max-w-[120px] mx-auto">${getActionButtons(b, statusKey, payType)}</div></td>
-            </tr>`;
+                <td class="p-5">
+                    <div class="text-[10px] font-black uppercase text-slate-400 leading-tight">${b.PaymentType || 'Manual'}</div>
+                    <div class="text-sm font-black">RM ${b.TotalPrice || '0'}</div>
+                </td>
+                <td class="p-5 text-center border-l border-slate-200/50">
+                    <span class="status-badge status-${statusKey}">${b.Status}</span>
+                    <div class="text-[9px] text-slate-400 mt-1 font-black uppercase tracking-tighter">${b.Photographer || 'TBA'}</div>
+                </td>
+                <td class="p-5 text-center border-l border-slate-200/50">
+                    <div class="flex flex-wrap justify-center gap-1.5 max-w-[120px] mx-auto">
+                        ${getActionButtons(b, statusKey, payType)}
+                    </div>
+                </td>
+            </tr>`);
     });
+
+    // 3. Render ke DOM (Hanya panggil innerHTML 1 KALI SAHAJA)
+    tbody.innerHTML = htmlBuffer.join('');
 }
 
 function renderCards(data) {
     const container = document.getElementById('adminCardContainer');
     if (!container) return;
-    container.innerHTML = "";
+    
+    let htmlBuffer = [];
     let lastDate = "";
 
     data.forEach(b => {
@@ -353,12 +389,18 @@ function renderCards(data) {
         const statusKey = (b.Status || "pending").toLowerCase().replace(/\s/g, '');
         const payType = (b.PaymentType || "").toLowerCase();
 
+        // 1. Logik Header Tarikh
         if (currentDate !== lastDate) {
-            container.innerHTML += `<div class="card-date-header"><i class="far fa-calendar-check text-slate-400"></i> <span class="font-black text-slate-500 uppercase tracking-widest text-xs">${currentDate}</span></div>`;
+            htmlBuffer.push(`
+                <div class="card-date-header">
+                    <i class="far fa-calendar-check text-slate-400"></i> 
+                    <span class="font-black text-slate-500 uppercase tracking-widest text-xs">${currentDate}</span>
+                </div>`);
             lastDate = currentDate;
         }
         
-        container.innerHTML += `
+        // 2. Bina Card
+        htmlBuffer.push(`
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col gap-4 card-${statusKey}">
                 <div class="flex justify-between items-start">
                     <div>
@@ -374,19 +416,25 @@ function renderCards(data) {
                     <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Pax</p><p class="text-xs font-bold text-slate-700">${b.Pax || '-'}</p></div>
                     <div><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Bayaran</p><p class="text-sm font-black text-slate-900 leading-none">RM ${b.TotalPrice}</p></div>
                 </div>
-                <div class="mt-auto pt-4 border-t border-slate-50 flex justify-center gap-2">${getActionButtons(b, statusKey, payType)}</div>
-            </div>`;
+                <div class="mt-auto pt-4 border-t border-slate-50 flex justify-center gap-2">
+                    ${getActionButtons(b, statusKey, payType)}
+                </div>
+            </div>`);
     });
+
+    // 3. Render ke DOM (Hanya panggil innerHTML 1 KALI SAHAJA)
+    container.innerHTML = htmlBuffer.join('');
 }
 
 function getActionButtons(b, statusKey, payType) {
+    const rIdx = b.row_index; // Pastikan ambil index dari data
     let btns = "";
     
     // 1. Logik Butang Status (Sahkan / Check-in)
     if (statusKey === 'pending') {
-        btns += `<button onclick="updateStatus('${b.OrderID}', 'Confirmed', 'Sahkan')" class="w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center" title="Sahkan Tempahan"><i class="fas fa-check-circle text-xs"></i></button>`;
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Confirmed', 'Sahkan', ${rIdx})" class="w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center" title="Sahkan Tempahan"><i class="fas fa-check-circle text-xs"></i></button>`;
     } else if (statusKey === 'confirmed') {
-        btns += `<button onclick="updateStatus('${b.OrderID}', 'Arrived', 'Check-in')" class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Check-in"><i class="fas fa-user-check text-xs"></i></button>`;
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Arrived', 'Check-in', ${rIdx})" class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Check-in"><i class="fas fa-user-check text-xs"></i></button>`;
     }
 
     // --- 2. LOGIK n8n (Settle Baki & Jana Resit) ---
@@ -394,25 +442,32 @@ function getActionButtons(b, statusKey, payType) {
         
         // A. Butang Settle Baki: Hanya keluar jika PaymentType adalah 'deposit'
         if (payType.includes("deposit")) {
-            btns += `<button onclick="handleN8N('${b.OrderID}', 'baki')" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Settle Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
+            btns += `<button onclick="handleN8N('${b.OrderID}', 'baki', ${rIdx})" class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center" title="Settle Baki"><i class="fas fa-file-invoice-dollar text-xs"></i></button>`;
         }
 
         // B. Butang Jana Resit: SENTIASA KELUAR untuk semua status aktif (termasuk deposit)
-        btns += `<button onclick="handleN8N('${b.OrderID}', 'resit')" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Hantar Resit"><i class="fas fa-receipt text-xs"></i></button>`;
+        btns += `<button onclick="handleN8N('${b.OrderID}', 'resit', ${rIdx})" class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition flex items-center justify-center" title="Hantar Resit"><i class="fas fa-receipt text-xs"></i></button>`;
     }
 
     // 3. Logik Butang Edit (Slate)
-    btns += `<button onclick="editCustomer('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition flex items-center justify-center" title="Edit"><i class="fas fa-edit text-xs"></i></button>`;
+    btns += `<button onclick="editCustomer('${b.OrderID}', ${rIdx})" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition flex items-center justify-center" title="Edit"><i class="fas fa-edit text-xs"></i></button>`;
 
     // 4. Logik Butang Batal vs Padam (Danger Zone)
     if (statusKey === 'canceled') {
-        btns += `<button onclick="deleteBooking('${b.OrderID}')" class="w-8 h-8 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center" title="Padam Database"><i class="fas fa-trash-alt text-xs"></i></button>`;
+        btns += `<button onclick="deleteBooking('${b.OrderID}', ${rIdx})" class="w-8 h-8 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center justify-center" title="Padam Database"><i class="fas fa-trash-alt text-xs"></i></button>`;
     } else {
-        btns += `<button onclick="updateStatus('${b.OrderID}', 'Canceled', 'Batal')" class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 hover:bg-orange-600 hover:text-white transition flex items-center justify-center" title="Batal"><i class="fas fa-times-circle text-xs"></i></button>`;
+        btns += `<button onclick="updateStatus('${b.OrderID}', 'Canceled', 'Batal', ${rIdx})" class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 hover:bg-orange-600 hover:text-white transition flex items-center justify-center" title="Batal"><i class="fas fa-times-circle text-xs"></i></button>`;
     }
     
     return btns;
 }
+
+window.debounceFilter = function() {
+    clearTimeout(searchTimeout); // Gunakan variable timer yang kau dah buat tadi
+    searchTimeout = setTimeout(() => {
+        applyFilters();
+    }, 300); // Dia tunggu 300ms selepas kau stop menaip baru dia lukis table
+};
 
 // ==========================================
 // 6. SYSTEM WRAPPERS & DROPDOWNS
@@ -491,34 +546,81 @@ function populateDropdowns() {
     slots.forEach(t => { let o = document.createElement('option'); o.value = t; o.innerText = t; timeSelect.appendChild(o); });
 }
 
-window.handleN8N = async function(id, type) {
-    const b = allBookings.find(x => String(x.OrderID) === String(id));
-    if (!b || !confirm(`Sahkan ${type.toUpperCase()} untuk ${b.Name}?`)) return;
+window.handleN8N = async function(id, type, rowIndex) {
+    // 1. Cari data guna rowIndex (Paling tepat kalau ID duplicate)
+    const b = allBookings.find(x => x.row_index === rowIndex);
+    
+    if (!b || !confirm(`Sahkan n8n ${type.toUpperCase()} untuk ${b.Name}?`)) return;
+
     try {
+        // 2. Hantar payload lengkap termasuk row_index ke n8n
         await fetch(N8N_WEBHOOK_URL, { 
             method: "POST", 
             headers: { "Content-Type": "application/json" }, 
-            body: JSON.stringify({ trigger: type, orderID: b.OrderID, phone: b.Phone, nama: b.Name, tema: b.Theme, pax: b.Pax, totalPrice: b.TotalPrice, addOns: b.AddOns, frame: b.Frame }) 
+            body: JSON.stringify({ 
+                trigger: type, 
+                orderID: b.OrderID, 
+                phone: b.Phone, 
+                nama: b.Name, 
+                tema: b.Theme, 
+                pax: b.Pax, 
+                totalPrice: b.TotalPrice, 
+                addOns: b.AddOns, 
+                frame: b.Frame,
+                row_index: rowIndex // Beritahu n8n baris mana satu nak update dlm Sheets
+            }) 
         });
-        alert("Berjaya dihantar!");
+
+        alert("Permintaan berjaya dihantar ke n8n!");
+
+        // 3. Kemaskini UI secara "Optimistic" (Laju)
         if (type === 'baki') {
             b.PaymentType = "FULL (SETTLE AT STUDIO)";
-            applyFilters();
+            applyFilters(); // Render balik skrin
+            // Sync balik dengan database selepas 4 saat (bagi masa n8n buat kerja)
             setTimeout(fetchData, 4000);
         }
-    } catch (err) { alert("Ralat n8n."); }
+    } catch (err) { 
+        console.error("n8n Error:", err);
+        alert("Ralat menghubungi n8n."); 
+    }
 };
 
-window.updateStatus = async (id, s, l) => { 
-    if(confirm(`Sahkan ${l} ${id}?`)) { 
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "update_payment", orderID: id, status: s }) }); 
-        fetchData(); 
-    } 
+window.updateStatus = async function(id, newStatus, label, rowIndex) {
+    if(!confirm(`Sahkan untuk ${label.toUpperCase()} tempahan ${id}?`)) return;
+
+    // Optimistic Update
+    const index = allBookings.findIndex(x => x.row_index === rowIndex);
+    if (index !== -1) {
+        allBookings[index].Status = newStatus;
+        applyFilters(); 
+    }
+
+    try {
+        fetch(GOOGLE_SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            body: JSON.stringify({ 
+                action: "update_payment", 
+                orderID: id, 
+                status: newStatus,
+                row_index: rowIndex // Hantar sekali
+            }) 
+        });
+    } catch (e) { console.error("Database busy"); }
 };
 
-window.deleteBooking = async (id) => { 
-    if(confirm(`HAPUS REKOD ${id} SELAMANYA?`)) { 
-        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "delete_row", orderID: id }) }); 
+window.deleteBooking = async (id, rowIndex) => { 
+    if(confirm(`HAPUS REKOD ${id} PADA BARIS ${rowIndex} SELAMANYA?`)) { 
+        await fetch(GOOGLE_SCRIPT_URL, { 
+            method: "POST", 
+            mode: "no-cors", 
+            body: JSON.stringify({ 
+                action: "delete_row", 
+                orderID: id, 
+                row_index: rowIndex // Hantar index untuk target tepat
+            }) 
+        }); 
         fetchData(); 
     } 
 };
@@ -603,6 +705,7 @@ window.backToEdit = function() {
 window.finalSaveBooking = async function(shouldNotify) {
     const btn = document.getElementById('btnSave');
     const originalText = btn ? btn.innerText : "Simpan Data";
+    const rowIndexVal = document.getElementById('form-orderID').getAttribute('data-row');
 
     // 1. Tentukan jenis action berdasarkan orderID
     const orderID = document.getElementById('form-orderID').value;
@@ -612,6 +715,7 @@ window.finalSaveBooking = async function(shouldNotify) {
     // 2. Bina Data Payload (Pastikan nama variable sama mcm sedia ada)
     const payload = {
         action: actionType,
+        row_index: rowIndexVal, // <--- Ini kunci kelajuan & ketepatan
         orderID: orderID,
         name: document.getElementById('form-name').value,
         phone: formatPhoneForDB(document.getElementById('form-phone').value),

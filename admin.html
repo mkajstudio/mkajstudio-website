@@ -66,7 +66,7 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-4 items-center border border-slate-200">
             <div class="relative flex-grow min-w-[300px]">
                 <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
-                <input type="text" id="adminSearch" onkeyup="applyFilters()" placeholder="Cari nama, ID, atau no telefon..." class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none transition">
+                <input type="text" id="adminSearch" onkeyup="debounceFilter()" placeholder="Cari nama, ID, atau no telefon..." class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none transition">
             </div>
             <div class="flex gap-2 flex-wrap items-center">
                 <select id="filterDate" onchange="handleDateFilterChange()" class="bg-slate-100 border-none py-3 px-4 rounded-xl text-xs font-bold outline-none cursor-pointer">
