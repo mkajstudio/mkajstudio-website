@@ -518,7 +518,7 @@ function agreeAndProceed() {
     
     // TAMBAH SEMAKAN INI:
     if (theme.soldOut) {
-        alert("Maaf, slot untuk tema ini sudah penuh.");
+        alert("Maaf, tema ini sudah penuh dan tidak menerima tempahan baru.");
         return; 
     }
     const tnc = document.getElementById('tnc-modal');

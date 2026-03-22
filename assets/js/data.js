@@ -300,6 +300,7 @@ const rayaThemesDetail = {
         title: "Royale Velvet",
         type: "standard", // Rujuk Pakej 1/2/3
         categoryName: "TEMA FAMILY",
+        soldOut: true, // <--- TAMBAH BARIS INI
         colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Elegance & Luxury.",
         desc: "Set mewah dengan latar belakang velvet.",
@@ -329,6 +330,7 @@ const rayaThemesDetail = {
         title: "Hening Rindu",
         type: "standard",
         categoryName: "TEMA FAMILY",
+        soldOut: true, // <--- TAMBAH BARIS INI
         colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Nostalgia & Warmth.",
         desc: "Set kampung tradisional elemen kayu.",
@@ -345,6 +347,7 @@ const rayaThemesDetail = {
         title: "Noor Qalbu",
         type: "standard",
         categoryName: "TEMA FAMILY",
+        soldOut: true, // <--- TAMBAH BARIS INI
         colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Radiance & Grace.",
         desc: "Set ala Timur Tengah (Arabic) yang elegan.",
