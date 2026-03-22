@@ -122,6 +122,11 @@ function initBookingUI() {
 
 // --- 4. WIZARD FLOW ---
 function openBookingWizard(themeKey, pkgKey) {
+
+    //alert("Maaf, slot booking online untuk Raya 2026 telah ditutup sepenuhnya. Terima kasih atas sokongan anda!");
+    //return; // Sistem akan berhenti di sini dan takkan buka borang.
+
+
     const wizard = document.getElementById('booking-wizard');
     if(wizard) wizard.classList.remove('hidden');
 

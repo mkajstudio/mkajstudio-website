@@ -314,6 +314,7 @@ const rayaThemesDetail = {
         title: "Whisper White",
         type: "standard",
         categoryName: "TEMA FAMILY",
+        soldOut: true, // <--- TAMBAH BARIS INI
         colorClass: "text-green-600 bg-green-50 border-green-200",
         tagline: "Pure & Timeless.",
         desc: "Latar belakang serba putih minimalis.",

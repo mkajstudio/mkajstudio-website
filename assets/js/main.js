@@ -304,9 +304,18 @@ function filterThemes(type) {
         const badgeColorClass = val.type === 'mini' ? 'bg-white/90 text-pink-600 border-pink-200' : 'bg-white/90 text-green-700 border-green-200';
         const labelText = val.type === 'mini' ? 'Mini' : 'Family';
         const posterImage = val.thumbnail ? val.thumbnail : val.images[0];
+        // Di dalam loop gridContainer.innerHTML += ...
+        // Tambah pembolehubah soldOutOverlay di atasnya:
+
+        const isSoldOut = val.soldOut === true;
+        const soldOutOverlay = isSoldOut ? `
+            <div class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
+                <span class="border-2 border-white text-white px-4 py-1 rounded-md font-black tracking-widest text-xs">FULLY BOOKED</span>
+            </div>` : "";
         
         const cardHTML = `
             <div onclick="openThemeDetails('${key}')" class="group relative rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-2xl transition duration-500 bg-gray-100 aspect-[3/4]">
+                ${soldOutOverlay}
                 <img src="${posterImage}" loading="lazy" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80"></div>
                 <div class="absolute top-3 left-3"><span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${badgeColorClass} shadow-sm">${labelText}</span></div>
@@ -332,7 +341,7 @@ function openThemeDetails(key) {
     const data = rayaThemesDetail[key];
     currentThemeKey = key; 
 
-    // Update UI Teks Modal
+    // 1. Update UI Teks & Badge
     const tTitle = document.getElementById('th-modal-title'); if(tTitle) tTitle.innerText = data.title;
     const tDesc = document.getElementById('th-modal-desc'); if(tDesc) tDesc.innerText = data.desc;
     
@@ -342,16 +351,18 @@ function openThemeDetails(key) {
         catBadge.className = `inline-block px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-4 border ${data.colorClass}`;
     }
 
+    // 2. Update Inclusions (Senarai Apa Anda Dapat)
     const incList = document.getElementById('th-modal-inclusions');
     if(incList) {
         incList.innerHTML = ""; 
+        // Warna icon: Hijau untuk family(standard), Pink untuk mini
         const checkColor = data.type === 'mini' ? 'text-pink-500' : 'text-green-500';
         data.inclusions.forEach(item => {
             incList.innerHTML += `<li class="flex items-start gap-2 text-xs text-gray-700 font-medium"><i class="fas fa-check-circle ${checkColor} mt-0.5"></i> <span>${item}</span></li>`;
         });
     }
 
-    // Swiper Auto Slideshow untuk Theme
+    // 3. Setup Swiper Slideshow
     const slidesContainer = document.getElementById('th-modal-slides-container');
     const modal = document.getElementById('theme-detail-modal');
     if(modal) modal.classList.remove('hidden');
@@ -375,8 +386,31 @@ function openThemeDetails(key) {
             autoplay: { delay: 3500 }
         });
     }
-}
 
+    // --- 4. LOGIK SOLD OUT & FOOTER CONTROL ---
+    const isSoldOut = data.soldOut === true;
+    const footerFamily = document.getElementById('modal-tier-family'); // Untuk type: standard
+    const footerCouple = document.getElementById('modal-tier-couple'); // Untuk type: mini
+
+    // Reset: Sembunyikan kedua-dua footer dan buang mesej ralat lama
+    if(footerFamily) footerFamily.classList.add('hidden');
+    if(footerCouple) footerCouple.classList.add('hidden');
+    const existingNotice = document.getElementById('sold-out-notice');
+    if(existingNotice) existingNotice.remove();
+
+    if (isSoldOut) {
+        // Jika SOLD OUT: Tunjukkan mesej amaran
+        const soldOutMsg = `<div id="sold-out-notice" class="text-center p-4 bg-red-50 text-red-600 rounded-2xl font-black border border-red-200 uppercase text-xs tracking-widest mt-4">Maaf, Slot Tema Ini Telah Penuh</div>`;
+        document.getElementById('th-modal-inclusions').parentElement.insertAdjacentHTML('afterend', soldOutMsg);
+    } else {
+        // Jika ADA SLOT: Tunjukkan footer mengikut kategori tema
+        if (data.type === 'standard' || data.type === 'family') {
+            if(footerFamily) footerFamily.classList.remove('hidden');
+        } else if (data.type === 'mini' || data.type === 'couple') {
+            if(footerCouple) footerCouple.classList.remove('hidden');
+        }
+    }
+}
 function closeThemeModal() {
     const modal = document.getElementById('theme-detail-modal');
     if(modal) modal.classList.add('hidden');
@@ -480,6 +514,13 @@ function closeTncModal() {
 
 // SETUJU TNC -> BUKA WIZARD BOOKING
 function agreeAndProceed() {
+    const theme = rayaThemesDetail[currentThemeKey];
+    
+    // TAMBAH SEMAKAN INI:
+    if (theme.soldOut) {
+        alert("Maaf, slot untuk tema ini sudah penuh.");
+        return; 
+    }
     const tnc = document.getElementById('tnc-modal');
     if(tnc) tnc.classList.add('hidden');
     
