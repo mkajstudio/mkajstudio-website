@@ -38,26 +38,28 @@
 
     <nav class="bg-slate-900 text-white p-4 sticky top-0 z-[60] shadow-xl">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <div class="flex flex-col">
-                    <span class="font-black tracking-tighter text-xl uppercase italic text-amber-500 leading-none">MKAJ ADMIN</span>
-                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Management Portal v35</span>
-                </div>
-                <button onclick="openWalkInModal()" class="bg-amber-600 hover:bg-amber-500 px-5 py-2.5 rounded-xl text-xs font-black transition shadow-lg">
-                    <i class="fas fa-plus mr-1"></i> WALK-IN
-                </button>
-            </div>
-            
+
             <div class="flex items-center gap-4">
                 <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
                     <button id="view-table-btn" onclick="switchView('table')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-600 text-white">Table</button>
                     <button id="view-card-btn" onclick="switchView('card')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">Cards</button>
                 </div>
-                <p id="stats-total" class="text-[10px] font-black text-slate-400 uppercase hidden md:block">Total: 0 Rekod</p>
+                <p id="stats-total" class="text-[15px] font-black text-slate-400 uppercase hidden md:block">Total: 0 Rekod</p>
                 <button onclick="fetchData()" class="w-10 h-10 bg-slate-800 rounded-xl hover:bg-slate-700 transition flex items-center justify-center text-slate-300">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex flex-col">
+                    <span class="font-black tracking-tighter text-xl uppercase italic text-amber-500 leading-none">MKAJ ADMIN</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Management Portal</span>
+                </div>
+                <button onclick="openWalkInModal()" class="bg-amber-600 hover:bg-amber-500 px-5 py-2.5 rounded-xl text-xs font-black transition shadow-lg">
+                    <i class="fas fa-plus mr-1"></i> WALK-IN
+                </button>
+            </div>
+
         </div>
     </nav>
 
